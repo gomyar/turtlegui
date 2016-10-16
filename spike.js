@@ -47,6 +47,7 @@ function reload(elem, rel_data) {
         var gres = elem.attr('data-res');
         var value = find_value(gres, rel_data);
         elem.text(value);
+        console.log("Val:"+value);
     }
     if (elem.hasClass('glist')) {
         var gres = elem.attr('data-res');
@@ -66,14 +67,14 @@ function reload(elem, rel_data) {
             new_elem.show();
             reload(new_elem, item);
         }
-//        for (var i in orig_elems) {
-//            $(orig_elems[i]).remove();
-//        }
+        orig_elems.remove();
         elem.prepend(first_elem);
     }
-    elem.children().each(function() {
-        reload($(this), rel_data);
-    });
+    else {
+        elem.children().each(function() {
+            reload($(this), rel_data);
+        });
+    }
 }
 
 

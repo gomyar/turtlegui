@@ -7,7 +7,7 @@ turtlegui.root_element = $(document);
 
 turtlegui.find_value = function(gres, rel_data) {
     var cdata = turtlegui.data;
-    if (gres.startsWith('.')) {
+    if (gres.slice(0, 1) == '.') {
         cdata = rel_data;
         gres = gres.slice(1);
     }
@@ -24,14 +24,33 @@ turtlegui.reload = function(elem, rel_data) {
     if (!elem) {
         elem = turtlegui.root_element;
     }
+    if (rel_data) {
+        elem.data('data-item', rel_data);
+    }
     if (elem.hasClass('gui-text')) {
-        var gres = elem.attr('data-res');
+        var gres = elem.attr('data-src');
         var value = turtlegui.find_value(gres, rel_data);
         elem.text(value);
-        console.log("Val:"+value);
+    }
+    if (elem.hasClass('gui-show')) {
+        var gres = elem.attr('data-src');
+        var value = turtlegui.find_value(gres, rel_data);
+        if (value) {
+            elem.show();
+        } else {
+            elem.hide();
+        }
+    }
+    if (elem.hasClass('gui-click')) {
+        elem.click(function(e) {
+            var item = elem.data('data-item');
+            var clicked = elem.attr('data-clicked');
+            var func = eval(clicked);
+            return func(e, item);
+        });
     }
     if (elem.hasClass('gui-list')) {
-        var gres = elem.attr('data-res');
+        var gres = elem.attr('data-src');
         var list = turtlegui.find_value(gres, rel_data);
         var orig_elems = elem.children();
         var first_elem = $(orig_elems[0]);

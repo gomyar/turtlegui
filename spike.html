@@ -1,22 +1,26 @@
 <html>
-<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<!-- script src="https://code.jquery.com/jquery-3.1.1.min.js"></script -->
+<script   src="https://code.jquery.com/jquery-1.12.4.min.js"   integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="   crossorigin="anonymous"></script>
 <script src="turtlegui.js"></script>
 <script src="spike.js"></script>
 
 <body>
 
 <div id="main">
-    <div id="name" class="gui-text" data-res="company.name">
+    <div id="name" class="gui-text" data-src="company.name">
     </div>
-    <div id="periods" class="gui-list" data-res="company.periods">
+    <div id="periods" class="gui-list" data-src="company.periods">
         <div>
-            <div id="year" class="gui-text" data-res=".eqyYear"></div>
-            <div id="per" class="gui-text" data-res=".period"></div>
-            <div id="fhr" class="gui-text" data-res=".fhr.stOverall"></div>
-            <div id="inner" class="gui-list" data-res=".types">
-                <div>
-                    <div class="gui-text" data-res=".name"></div>
-                    <div class="gui-text" data-res="company.name"></div>
+            <div id="year" class="gui-text" data-src=".eqyYear"></div>
+            <div id="per" class="gui-text" data-src=".period"></div>
+            <div id="fhr" class="gui-text" data-src=".fhr.stOverall"></div>
+            <div id="clickme" class="gui-click" data-clicked="clicked1">Click me</div>
+            <div id="showme" class="gui-show" data-src=".showme">
+                <div id="inner" class="gui-list" data-src=".types">
+                    <div>
+                        <div class="gui-text" data-src=".name"></div>
+                        <div class="gui-text" data-src="company.name"></div>
+                    </div>
                 </div>
             </div>
         </div>

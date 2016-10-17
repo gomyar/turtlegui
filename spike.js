@@ -6,6 +6,7 @@ var all_data = {
         'periods': [
             {
                 'eqyYear': 2015,
+                "showme": true,
                 'period': 'YE',
                 'fhr': {
                     'stOverall': 45
@@ -61,8 +62,12 @@ var more_data = [
 ];
 
 
+function clicked1(e, payload) {
+    console.log("clicked " + payload.eqyYear);
+    console.log("index:" + jQuery.inArray(payload, all_data.company.periods));
+}
+
 $( document ).ready(function() {
-    console.log( "go!" );
     turtlegui.data = all_data;
     turtlegui.reload()
     $("#change").click(function(e) {

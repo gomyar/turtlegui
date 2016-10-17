@@ -67,6 +67,17 @@ function clicked1(e, payload) {
     console.log("index:" + jQuery.inArray(payload, all_data.company.periods));
 }
 
+
+function get_time() {
+    return new Date();
+}
+
+
+function showmeornot(e, item) {
+    return jQuery.inArray(item, all_data.company.periods) % 2;
+}
+
+
 $( document ).ready(function() {
     turtlegui.data = all_data;
     turtlegui.reload()

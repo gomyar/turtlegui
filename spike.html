@@ -1,6 +1,6 @@
 <html>
-<!-- script src="https://code.jquery.com/jquery-3.1.1.min.js"></script -->
-<script   src="https://code.jquery.com/jquery-1.12.4.min.js"   integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="   crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<!-- script   src="https://code.jquery.com/jquery-1.12.4.min.js"   integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="   crossorigin="anonymous"></script-->
 <script src="turtlegui.js"></script>
 <script src="spike.js"></script>
 
@@ -15,7 +15,8 @@
             <div id="per" class="gui-text" data-src=".period"></div>
             <div id="fhr" class="gui-text" data-src=".fhr.stOverall"></div>
             <div id="clickme" class="gui-click" data-clicked="clicked1">Click me</div>
-            <div id="showme" class="gui-show" data-src=".showme">
+            <div id="showmetext" class="gui-text" data-func="showmeornot"></div>
+            <div id="showme" class="gui-show" data-func="showmeornot">
                 <div id="inner" class="gui-list" data-src=".types">
                     <div>
                         <div class="gui-text" data-src=".name"></div>
@@ -27,6 +28,8 @@
     </div>
 </div>
 
+Time:
+<div class="gui-text" data-func="get_time"></div>
 
 <input type="button" id="change" value="Change"></input>
 

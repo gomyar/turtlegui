@@ -5,17 +5,25 @@
 <body>
 
 <div id="main">
-    <div id="name" class="gtext" data-res="company.name">
+    <div id="name" class="gui-text" data-res="company.name">
     </div>
-    <div id="periods" class="glist" data-res="company.periods">
+    <div id="periods" class="gui-list" data-res="company.periods">
         <div>
-            <div id="year" class="gtext" data-res=".eqyYear"></div>
-            <div id="per" class="gtext" data-res=".period"></div>
-            <div id="fhr" class="gtext" data-res=".fhr.stOverall"></div>
+            <div id="year" class="gui-text" data-res=".eqyYear"></div>
+            <div id="per" class="gui-text" data-res=".period"></div>
+            <div id="fhr" class="gui-text" data-res=".fhr.stOverall"></div>
+            <div id="inner" class="gui-list" data-res=".types">
+                <div>
+                    <div class="gui-text" data-res=".name"></div>
+                    <div class="gui-text" data-res="company.name"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+
+<input type="button" id="change" value="Change"></input>
 
 </body>
 

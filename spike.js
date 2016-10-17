@@ -9,19 +9,56 @@ var all_data = {
                 'period': 'YE',
                 'fhr': {
                     'stOverall': 45
-                }
+                },
+                "types": [
+                    {"name": "bob"},
+                    {"name": "ned"},
+                    {"name": "bill"}
+                ]
             },
             {
                 'eqyYear': 2014,
                 'period': 'Q2',
                 'fhr': {
                     'stOverall': 65
-                }
+                },
+                "types": [
+                    {"name": "fred"},
+                    {"name": "jack"}
+                ]
             }
         ]
     }
 };
 
+
+var more_data = [
+    {
+        'eqyYear': 2011,
+        'period': 'Q1',
+        'fhr': {
+            'stOverall': 14
+        },
+        "types": [
+            {"name": "bob"},
+            {"name": "ned"},
+            {"name": "bill"}
+        ]
+    },
+    {
+        'eqyYear': 2010,
+        'period': 'Q2',
+        'fhr': {
+            'stOverall': 76
+        },
+        "types": [
+            {"name": "bob"},
+            {"name": "ned"},
+            {"name": "bill"}
+        ]
+
+    }
+];
 
 var attached_elems = {};
 
@@ -43,13 +80,13 @@ function find_value(gres, rel_data) {
 
 function reload(elem, rel_data) {
     console.log("Reload: " + elem.attr('id'));
-    if (elem.hasClass('gtext')) {
+    if (elem.hasClass('gui-text')) {
         var gres = elem.attr('data-res');
         var value = find_value(gres, rel_data);
         elem.text(value);
         console.log("Val:"+value);
     }
-    if (elem.hasClass('glist')) {
+    if (elem.hasClass('gui-list')) {
         var gres = elem.attr('data-res');
         var list = find_value(gres, rel_data);
         var orig_elems = elem.children();
@@ -87,4 +124,15 @@ function attach(elem, data) {
 $( document ).ready(function() {
     console.log( "go!" );
     attach($('#main'), all_data);
+    $("#change").click(function(e) {
+        all_data.company.periods.push({
+            'eqyYear': 2001, 'period': 'YE', 'fhr': {'stOverall': 11},
+            "types": [
+                {"name": "bob"},
+                {"name": "ned"},
+                {"name": "bill"}
+            ]
+        })
+        reload($('#main'));
+    });
 });

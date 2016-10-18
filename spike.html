@@ -4,6 +4,12 @@
 <script src="turtlegui.js"></script>
 <script src="spike.js"></script>
 
+<style>
+div.blue {
+    background-color: blue;
+}
+</style>
+
 <body>
 
 <div id="main">
@@ -11,16 +17,17 @@
     </div>
     <div id="periods" class="gui-list" data-src="company.periods">
         <div>
-            <div id="year" class="gui-text" data-src=".eqyYear"></div>
+            <div  data-class="classme" id="year" class="gui-text" data-src=".eqyYear"></div>
             <div id="per" class="gui-text" data-src=".period"></div>
             <div id="fhr" class="gui-text" data-src=".fhr.stOverall"></div>
             <div id="clickme" class="gui-click" data-clicked="clicked1">Click me</div>
-            <div id="showmetext" class="gui-text" data-func="showmeornot"></div>
-            <div id="showme" class="gui-show" data-func="showmeornot">
+            <div id="showouter" class="gui-show" data-src=".visible">
                 <div id="inner" class="gui-list" data-src=".types">
                     <div>
-                        <div class="gui-text" data-src=".name"></div>
-                        <div class="gui-text" data-src="company.name"></div>
+                        <div id="showinner" class="gui-show" data-src=".visible">
+                            <div class="gui-text" data-src=".name"></div>
+                            <div class="gui-text" data-src="company.name"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -29,7 +36,7 @@
 </div>
 
 Time:
-<div class="gui-text" data-func="get_time"></div>
+<div class="gui-text" data-src="get_time"></div>
 
 <input type="button" id="change" value="Change"></input>
 

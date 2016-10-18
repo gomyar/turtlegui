@@ -8,24 +8,26 @@ var all_data = {
                 'eqyYear': 2015,
                 "showme": true,
                 'period': 'YE',
+                'visible': true,
                 'fhr': {
                     'stOverall': 45
                 },
                 "types": [
-                    {"name": "bob"},
-                    {"name": "ned"},
-                    {"name": "bill"}
+                    {"name": "bob", "visible": true},
+                    {"name": "ned", "visible": false},
+                    {"name": "bill", "visible": true}
                 ]
             },
             {
                 'eqyYear': 2014,
                 'period': 'Q2',
+                'visible': true,
                 'fhr': {
                     'stOverall': 65
                 },
                 "types": [
-                    {"name": "fred"},
-                    {"name": "jack"}
+                    {"name": "fred", "visible": false},
+                    {"name": "jack", "visible": true}
                 ]
             }
         ]
@@ -75,6 +77,11 @@ function get_time() {
 
 function showmeornot(e, item) {
     return jQuery.inArray(item, all_data.company.periods) % 2;
+}
+
+
+function classme(e, item) {
+    return "blue";
 }
 
 

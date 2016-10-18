@@ -48,19 +48,28 @@
         turtlegui.reload()
     }
 
+    function get_title_class(e, item) {
+        return "title";
+    }
+
     $(document).ready(function() {
         turtlegui.data = my_data;
         turtlegui.reload()
     });
     </script>
+    <style>
+        div.title {
+           font-weight : bold;
+        }
+    </style>
     <body>
-        <div class="gui-text" data-src="restaurant.name"></div>    <!-- data-src refers to 'name' field in data -->
+        <div class="gui-text" data-class="get_title_class" data-src="restaurant.name"></div>    <!-- data-src refers to 'name' field in data -->
         <div class="gui-list" data-src="restaurant.ingredients">   <!-- gui-list iterates over 'ingredients' list -->
             <div>
                 <div class="gui-text" data-src=".name"></div>   <!-- fields in each item preceded by '.' -->
                 <input type="button" class="gui-click" data-clicked="i_was_clicked" value="Info"></input>   <!-- function called with event, item -->
                 <input type="button" class="gui-click" data-clicked="remove_ingredient" value="Remove"></input>
-                <div class="gui-text" data-func="last_updated"></div>   <!-- text from function -->
+                <div class="gui-text" data-src="last_updated"></div>   <!-- text from function -->
             </div>
         </div>
         <input type='button' onclick='add_ingredient()' value='Add'></input>
@@ -68,21 +77,22 @@
     </html>
     -----
 
-    "data-src": dot notation path to data (using turtlegui.data as root)
-    "data-func": string referring to javascript function - called with event and list item if applicable
+    "data-src": resolves js to function, or dot notation path to data (using turtlegui.data as root)
 
     Types of supported classes:
         gui-text: populates element.text() with the value of data-src
-            requires: data-src or data-func
+            requires: data-src
         gui-list: creates copies of its subelement, one for each item in the list
-            requires: data-src or data-func
+            requires: data-src
         gui-show: shows or hides based on value of data-src
-            requires: data-src or data-func
+            requires: data-src
         gui-click: calls function referenced by data-clicked (func(event, item))
             requires: data-clicked (function)
 
+    Extra supportde fields:
+        data-class: sets classname(s) on element, same syntax as data-src
+
     Notes:
-        - data-func may be used in place of data-src (calls js function)
         - all function calls will include the current item in the list if applicable
 */
 
@@ -93,31 +103,35 @@ turtlegui.root_element = $(document);
 
 
 turtlegui.get_value = function(gres, rel_data) {
-    var cdata = turtlegui.data;
-    if (gres.slice(0, 1) == '.') {
-        cdata = rel_data;
-        gres = gres.slice(1);
+    try {
+        var cdata = turtlegui.data;
+        if (gres.slice(0, 1) == '.') {
+            cdata = rel_data;
+            gres = gres.slice(1);
+        }
+        while (gres.indexOf('.') != -1) {
+            var field = gres.split('.', 1)[0];
+            cdata = cdata[field]
+            gres = gres.slice(gres.indexOf('.') + 1);
+        }
+        return cdata[gres];
+    } catch (exp) {
+        throw "Cannot find value or function " + gres;
     }
-    while (gres.indexOf('.') != -1) {
-        var field = gres.split('.', 1)[0];
-        cdata = cdata[field]
-        gres = gres.slice(gres.indexOf('.') + 1);
-    }
-    return cdata[gres];
 }
 
 
-turtlegui._get_safe_value = function(elem, gres, rel_data) {
-    var gres = elem.attr('data-src');
-    if (typeof gres !== typeof undefined && gres !== false) {
+turtlegui._get_safe_value = function(elem, rel_data, datasrc) {
+    var gres = elem.attr(datasrc);
+    if (!gres) {
+        throw "No " + datasrc + " field on element " + elem.attr('id');
+    }
+    try {
+        var item = elem.data('data-item');
+        var func = eval(gres);
+        return func(elem, item);
+    } catch (exp) {
         return turtlegui.get_value(gres, rel_data);
-    } else {
-        gres = elem.attr('data-func');
-        if (typeof gres !== typeof undefined && gres !== false) {
-            var item = elem.data('data-item');
-            var func = eval(gres);
-            return func(elem, item);
-        }
     }
 }
 
@@ -130,11 +144,15 @@ turtlegui.reload = function(elem, rel_data) {
         elem.data('data-item', rel_data);
     }
     if (elem.hasClass('gui-text')) {
-        value = turtlegui._get_safe_value(elem, gres, rel_data);
+        value = turtlegui._get_safe_value(elem, rel_data, 'data-src');
         elem.text(value);
     }
+    if (elem.attr('data-class')) {
+        value = turtlegui._get_safe_value(elem, rel_data, 'data-class');
+        elem.addClass(value);
+    }
     if (elem.hasClass('gui-show')) {
-        value = turtlegui._get_safe_value(elem, gres, rel_data);
+        value = turtlegui._get_safe_value(elem, rel_data, 'data-src');
         if (value) {
             elem.show();
         } else {

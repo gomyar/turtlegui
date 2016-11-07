@@ -88,6 +88,7 @@
             requires: data-src
         gui-click: calls function referenced by data-clicked (func(event, item))
             requires: data-clicked (function)
+        gui-include: include an html snippet
 
     Extra supportde fields:
         data-class: sets classname(s) on element, same syntax as data-src
@@ -95,6 +96,11 @@
     Notes:
         - all function calls will include the current item in the list if applicable
 */
+
+$.ajaxSetup ({
+    // Disable caching of AJAX responses
+    cache: false
+});
 
 var turtlegui = {};
 
@@ -136,6 +142,17 @@ turtlegui._get_safe_value = function(elem, rel_data, datasrc) {
 }
 
 
+turtlegui.load_snippet = function(elem, url, rel_data) {
+    elem.load(url, function(response, status, xhr) {
+        if (status == 'success') {
+            turtlegui.reload(elem, rel_data);
+        } else {
+            console.log("Could not load html snippet: " + url + " - " + xhr.status + " " + xhr.statusText);
+        }
+    });
+}
+
+
 turtlegui.reload = function(elem, rel_data) {
     if (!elem) {
         elem = turtlegui.root_element;
@@ -152,7 +169,13 @@ turtlegui.reload = function(elem, rel_data) {
         elem.addClass(value);
     }
     if (elem.hasClass('gui-show')) {
-        value = turtlegui._get_safe_value(elem, rel_data, 'data-src');
+        var data_js = elem.attr('data-js');
+        var value = false;
+        if (data_js) {
+            value = eval(data_js);
+        } else {
+            value = turtlegui._get_safe_value(elem, rel_data, 'data-src');
+        }
         if (value) {
             elem.show();
         } else {
@@ -187,6 +210,11 @@ turtlegui.reload = function(elem, rel_data) {
         }
         orig_elems.remove();
         elem.prepend(first_elem);
+    }
+    else if (elem.hasClass('gui-include')) {
+        elem.removeClass('gui-include');
+        var url = elem.attr('data-url');
+        turtlegui.load_snippet(elem, url, rel_data);
     }
     else {
         elem.children().each(function() {

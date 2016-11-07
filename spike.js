@@ -84,19 +84,20 @@ function classme(e, item) {
     return "blue";
 }
 
+function change_clicked(e) {
+    all_data.company.periods.push({
+        'eqyYear': 2001, 'period': 'YE', 'fhr': {'stOverall': 11},
+        "types": [
+            {"name": "bob"},
+            {"name": "ned"},
+            {"name": "bill"}
+        ]
+    })
+    turtlegui.reload();
+}
+
 
 $( document ).ready(function() {
     turtlegui.data = all_data;
     turtlegui.reload()
-    $("#change").click(function(e) {
-        all_data.company.periods.push({
-            'eqyYear': 2001, 'period': 'YE', 'fhr': {'stOverall': 11},
-            "types": [
-                {"name": "bob"},
-                {"name": "ned"},
-                {"name": "bill"}
-            ]
-        })
-        turtlegui.reload();
-    });
 });

@@ -1,6 +1,6 @@
 
 
-var all_data = {
+var model = {
     'company': {
         'name': 'Bobs Burgers',
         'periods': [
@@ -66,7 +66,7 @@ var more_data = [
 
 function clicked1(e, payload) {
     console.log("clicked " + payload.eqyYear);
-    console.log("index:" + jQuery.inArray(payload, all_data.company.periods));
+    console.log("index:" + jQuery.inArray(payload, model.company.periods));
 }
 
 
@@ -76,7 +76,7 @@ function get_time() {
 
 
 function showmeornot(e, item) {
-    return jQuery.inArray(item, all_data.company.periods) % 2;
+    return jQuery.inArray(item, model.company.periods) % 2;
 }
 
 
@@ -85,7 +85,7 @@ function classme(e, item) {
 }
 
 function change_clicked(e) {
-    all_data.company.periods.push({
+    model.company.periods.push({
         'eqyYear': 2001, 'period': 'YE', 'fhr': {'stOverall': 11},
         "types": [
             {"name": "bob"},
@@ -98,6 +98,5 @@ function change_clicked(e) {
 
 
 $( document ).ready(function() {
-    turtlegui.data = all_data;
     turtlegui.reload()
 });

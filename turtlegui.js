@@ -104,27 +104,7 @@ $.ajaxSetup ({
 
 var turtlegui = {};
 
-turtlegui.data = {};
 turtlegui.root_element = $(document);
-
-
-turtlegui.get_value = function(gres, rel_data) {
-    try {
-        var cdata = turtlegui.data;
-        if (gres.slice(0, 1) == '.') {
-            cdata = rel_data;
-            gres = gres.slice(1);
-        }
-        while (gres.indexOf('.') != -1) {
-            var field = gres.split('.', 1)[0];
-            cdata = cdata[field]
-            gres = gres.slice(gres.indexOf('.') + 1);
-        }
-        return cdata[gres];
-    } catch (exp) {
-        throw "Cannot find value or function " + gres;
-    }
-}
 
 
 turtlegui._get_safe_value = function(elem, rel_data, datasrc) {
@@ -132,13 +112,19 @@ turtlegui._get_safe_value = function(elem, rel_data, datasrc) {
     if (!gres) {
         throw "No " + datasrc + " field on element " + elem.attr('id');
     }
-    try {
-        var item = elem.data('data-item');
-        var func = eval(gres);
-        return func(elem, item);
-    } catch (exp) {
-        return turtlegui.get_value(gres, rel_data);
+    var rel = elem.data('data-rel');
+    var switcharoo = {};
+    for (var key in rel) {
+        if (key in window) {
+            switcharoo[key] = window[key];
+        }
+        window[key] = rel[key];
     }
+    result = eval(gres);
+    for (var key in switcharoo) {
+        window[key] = switcharoo[key];
+    }
+    return result;
 }
 
 
@@ -154,11 +140,13 @@ turtlegui.load_snippet = function(elem, url, rel_data) {
 
 
 turtlegui.reload = function(elem, rel_data) {
+    if (!rel_data) rel_data = {};
+
     if (!elem) {
         elem = turtlegui.root_element;
     }
     if (rel_data) {
-        elem.data('data-item', rel_data);
+        elem.data('data-rel', rel_data);
     }
     if (elem.hasClass('gui-text')) {
         value = turtlegui._get_safe_value(elem, rel_data, 'data-src');
@@ -169,13 +157,7 @@ turtlegui.reload = function(elem, rel_data) {
         elem.addClass(value);
     }
     if (elem.hasClass('gui-show')) {
-        var data_js = elem.attr('data-js');
-        var value = false;
-        if (data_js) {
-            value = eval(data_js);
-        } else {
-            value = turtlegui._get_safe_value(elem, rel_data, 'data-src');
-        }
+        value = turtlegui._get_safe_value(elem, rel_data, 'data-src');
         if (value) {
             elem.show();
         } else {
@@ -184,15 +166,12 @@ turtlegui.reload = function(elem, rel_data) {
     }
     if (elem.hasClass('gui-click')) {
         elem.click(function(e) {
-            var item = elem.data('data-item');
-            var clicked = elem.attr('data-clicked');
-            var func = eval(clicked);
-            return func(e, item);
+            return turtlegui._get_safe_value(elem, rel_data, 'data-clicked');
         });
     }
     if (elem.hasClass('gui-list')) {
-        var gres = elem.attr('data-src');
-        var list = turtlegui.get_value(gres, rel_data);
+        var list = turtlegui._get_safe_value(elem, rel_data, 'data-src');
+        var rel_key = elem.attr('data-itervar');
         var orig_elems = elem.children();
         var first_elem = $(orig_elems[0]);
         first_elem.hide();
@@ -206,7 +185,8 @@ turtlegui.reload = function(elem, rel_data) {
             var new_elem = new_elems[i];
             elem.append(new_elem);
             new_elem.show();
-            turtlegui.reload(new_elem, item);
+            rel_data[rel_key] = item;
+            turtlegui.reload(new_elem, rel_data);
         }
         orig_elems.remove();
         elem.prepend(first_elem);

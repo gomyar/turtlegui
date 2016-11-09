@@ -112,6 +112,11 @@ turtlegui._get_safe_value = function(elem, rel_data, datasrc) {
     if (!gres) {
         throw "No " + datasrc + " field on element " + elem.attr('id');
     }
+    return turtlegui._relative_eval(elem, gres);
+}
+
+
+turtlegui._relative_eval = function(elem, gres) {
     var rel = elem.data('data-rel');
     var switcharoo = {};
     for (var key in rel) {
@@ -166,7 +171,7 @@ turtlegui.reload = function(elem, rel_data) {
     }
     if (elem.hasClass('gui-click')) {
         elem.click(function(e) {
-            return turtlegui._get_safe_value(elem, rel_data, 'data-clicked');
+            return turtlegui._relative_eval(elem, elem.attr('data-clicked'));
         });
     }
     if (elem.hasClass('gui-list')) {
@@ -185,6 +190,7 @@ turtlegui.reload = function(elem, rel_data) {
             var new_elem = new_elems[i];
             elem.append(new_elem);
             new_elem.show();
+            var rel_data = jQuery.extend({}, rel_data);
             rel_data[rel_key] = item;
             turtlegui.reload(new_elem, rel_data);
         }

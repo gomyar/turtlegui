@@ -13,20 +13,20 @@ div.blue {
 <body>
 
 <div id="main">
-    <div id="name" class="gui-text" data-src="model.company.name">
+    <div id="name" data-gui-text="model.company.name">
     </div>
-    <div id="periods" class="gui-list" data-src="model.company.periods" data-itervar='period'>
+    <div id="periods" data-gui-list="model.company.periods" data-itervar='period'>
         <div>
-            <div  data-class="classme" id="year" class="gui-text" data-src="period.eqyYear"></div>
-            <div id="per" class="gui-text" data-src="period.period"></div>
-            <div id="fhr" class="gui-text" data-src="period.fhr.stOverall"></div>
-            <div id="clickme" class="gui-click" data-clicked="clicked1(period)">Click me</div>
-            <div id="showouter" class="gui-show" data-src="period.visible">
-                <div id="inner" class="gui-list" data-src="period.types">
+            <div  data-gui-class="classme" id="year" data-gui-text="period.eqyYear"></div>
+            <div id="per" data-gui-text="period.period"></div>
+            <div id="fhr" data-gui-text="period.fhr.stOverall"></div>
+            <div id="clickme" data-gui-click="clicked1(period)">Click me</div>
+            <div id="showouter" data-gui-show="period.visible">
+                <div id="inner" data-gui-list="period.types" data-itervar="periodtype">
                     <div>
-                        <div id="showinner" class="gui-show" data-src="period.visible">
-                            <div class="gui-text" data-src="period.name"></div>
-                            <div class="gui-text" data-src="model.company.name"></div>
+                        <div id="showinner" data-gui-show="periodtype.visible">
+                            <div data-gui-text="periodtype.name"></div>
+                            <div data-gui-text="model.company.name"></div>
                         </div>
                     </div>
                 </div>
@@ -36,9 +36,9 @@ div.blue {
 </div>
 
 Time:
-<div class="gui-text" data-src="get_time()"></div>
+<div data-gui-text="get_time()"></div>
 
-        <div class='gui-include' data-url='included.html'></div>
+        <div data-gui-include='included.html'></div>
 
 </body>
 

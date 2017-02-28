@@ -64,7 +64,7 @@ var more_data = [
 ];
 
 
-function clicked1(e, payload) {
+function clicked1(payload) {
     console.log("clicked " + payload.eqyYear);
     console.log("index:" + jQuery.inArray(payload, model.company.periods));
 }

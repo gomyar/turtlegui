@@ -5,11 +5,11 @@
     1. Create html template using turtlegui classnames and data-* tags
     2. Populate json object data (manually or using an ajax call).
         var my_data = {'name': 'Turtle Soup', 'ingredients': [{'name': 'water'}, {'name': 'turtle'}]}
-    3. Set data root to populated data:
-        turtlegui.data = my_data;
+    3. Turtlegui evluates js strings as data sources, i.e. "my_data.name" is used to populate 
+    4. Whenever a change occurs (data load or user change), call:
         turtlegui.reload()
+       which reloads the gui
     4. The html on the page will be populated with the loaded data, as per template.
-    5. If the data is altered or reloaded, call turtlegui.reload()
 
     Example html template:
 
@@ -28,21 +28,21 @@
         }
     };
 
-    function i_was_clicked(e, item) {
+    function i_was_clicked(item) {
         var index = jQuery.inArray(item, my_data.restaurant.ingredients);
         alert("Ingredient: " + index + "->" + item.name);
     }
 
-    function last_updated(e, item) {
+    function last_updated(item) {
         return new Date();
     }
 
-    function add_ingredient(e) {
+    function add_ingredient() {
         my_data.restaurant.ingredients.push({'name': 'salt'});
         turtlegui.reload()
     }
 
-    function remove_ingredient(e, item) {
+    function remove_ingredient(item) {
         var index = jQuery.inArray(item, my_data.restaurant.ingredients);
         my_data.restaurant.ingredients.splice(index, 1);
         turtlegui.reload()
@@ -53,7 +53,6 @@
     }
 
     $(document).ready(function() {
-        turtlegui.data = my_data;
         turtlegui.reload()
     });
     </script>
@@ -63,13 +62,13 @@
         }
     </style>
     <body>
-        <div class="gui-text" data-class="get_title_class" data-src="restaurant.name"></div>    <!-- data-src refers to 'name' field in data -->
-        <div class="gui-list" data-src="restaurant.ingredients">   <!-- gui-list iterates over 'ingredients' list -->
+        <div data-gui-text="my_data.restaurant.name"></div>    <!-- refers to 'name' field in data -->
+        <div data-gui-list="my_data.restaurant.ingredients" data-itervar="ingredient">   <!-- gui-list iterates over 'ingredients' list, stores each in 'ingredient' variable -->
             <div>
-                <div class="gui-text" data-src=".name"></div>   <!-- fields in each item preceded by '.' -->
-                <input type="button" class="gui-click" data-clicked="i_was_clicked" value="Info"></input>   <!-- function called with event, item -->
-                <input type="button" class="gui-click" data-clicked="remove_ingredient" value="Remove"></input>
-                <div class="gui-text" data-src="last_updated"></div>   <!-- text from function -->
+                <div data-gui-text="ingredient.name"></div>   <!-- 'ingredient' set for each item in list -->
+                <input type="button" data-gui-click="i_was_clicked(ingredient)" value="Info"></input>   <!-- function called with item -->
+                <input type="button" data-gui-click="remove_ingredient(ingredient)" value="Remove"></input>
+                <div data-gui-text="last_updated(ingredient)"></div>   <!-- text from function -->
             </div>
         </div>
         <input type='button' onclick='add_ingredient()' value='Add'></input>
@@ -77,24 +76,16 @@
     </html>
     -----
 
-    "data-src": resolves js to function, or dot notation path to data (using turtlegui.data as root)
+    Turtlegui uses "data-" element fields which resolve js, (function call or dot notation path to data)
 
-    Types of supported classes:
-        gui-text: populates element.text() with the value of data-src
-            requires: data-src
-        gui-list: creates copies of its subelement, one for each item in the list
-            requires: data-src
-        gui-show: shows or hides based on value of data-src
-            requires: data-src
-        gui-click: calls function referenced by data-clicked (func(event, item))
-            requires: data-clicked (function)
-        gui-include: include an html snippet
+    Types of supported fields:
+        data-gui-text: populates element.text() with the evaluated value
+        data-gui-list: creates copies of its subelement, one for each item in the list, stores item as local variable, as named by field 'data-itervar'
+        data-gui-show: shows or hides based on evaluated value (true/false)
+        data-gui-click: evaluates js on click (normally a function call)
+        data-gui-include: include an html snippet
+        data-gui-class: sets classname(s) on element
 
-    Extra supportde fields:
-        data-class: sets classname(s) on element, same syntax as data-src
-
-    Notes:
-        - all function calls will include the current item in the list if applicable
 */
 
 $.ajaxSetup ({
@@ -153,29 +144,30 @@ turtlegui.reload = function(elem, rel_data) {
     if (rel_data) {
         elem.data('data-rel', rel_data);
     }
-    if (elem.hasClass('gui-text')) {
-        value = turtlegui._get_safe_value(elem, rel_data, 'data-src');
+    if (elem.attr('data-gui-text')) {
+        value = turtlegui._get_safe_value(elem, rel_data, 'data-gui-text');
         elem.text(value);
     }
-    if (elem.attr('data-class')) {
-        value = turtlegui._get_safe_value(elem, rel_data, 'data-class');
+    if (elem.attr('data-gui-class')) {
+        value = turtlegui._get_safe_value(elem, rel_data, 'data-gui-class');
         elem.addClass(value);
     }
-    if (elem.hasClass('gui-show')) {
-        value = turtlegui._get_safe_value(elem, rel_data, 'data-src');
+    if (elem.attr('data-gui-show')) {
+        value = turtlegui._get_safe_value(elem, rel_data, 'data-gui-show');
         if (value) {
             elem.show();
         } else {
             elem.hide();
+            return;
         }
     }
-    if (elem.hasClass('gui-click')) {
+    if (elem.attr('data-gui-click')) {
         elem.click(function(e) {
-            return turtlegui._relative_eval(elem, elem.attr('data-clicked'));
+            return turtlegui._relative_eval(elem, elem.attr('data-gui-click'));
         });
     }
-    if (elem.hasClass('gui-list')) {
-        var list = turtlegui._get_safe_value(elem, rel_data, 'data-src');
+    if (elem.attr('data-gui-list')) {
+        var list = turtlegui._get_safe_value(elem, rel_data, 'data-gui-list');
         var rel_key = elem.attr('data-itervar');
         var orig_elems = elem.children();
         var first_elem = $(orig_elems[0]);
@@ -197,9 +189,9 @@ turtlegui.reload = function(elem, rel_data) {
         orig_elems.remove();
         elem.prepend(first_elem);
     }
-    else if (elem.hasClass('gui-include')) {
-        elem.removeClass('gui-include');
-        var url = elem.attr('data-url');
+    else if (elem.attr('data-gui-include') && !elem.attr('data-gui-included')) {
+        elem.attr('data-gui-included', true);
+        var url = elem.attr('data-gui-include');
         turtlegui.load_snippet(elem, url, rel_data);
     }
     else {

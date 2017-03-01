@@ -2,10 +2,10 @@
 /**
     Requires Jquery 1.x or greater 
     To use:
-    1. Create html template using turtlegui classnames and data-* tags
+    1. Create html template using data-gui-* tags
     2. Populate json object data (manually or using an ajax call).
         var my_data = {'name': 'Turtle Soup', 'ingredients': [{'name': 'water'}, {'name': 'turtle'}]}
-    3. Turtlegui evluates js strings as data sources, i.e. "my_data.name" is used to populate 
+    3. Turtlegui evaluates js strings, i.e. "my_data.name" is used to populate 
     4. Whenever a change occurs (data load or user change), call:
         turtlegui.reload()
        which reloads the gui
@@ -149,11 +149,11 @@ turtlegui.reload = function(elem, rel_data) {
         elem.text(value);
     }
     if (elem.attr('data-gui-class')) {
-        value = turtlegui._get_safe_value(elem, rel_data, 'data-gui-class');
+        var value = turtlegui._get_safe_value(elem, rel_data, 'data-gui-class');
         elem.addClass(value);
     }
     if (elem.attr('data-gui-show')) {
-        value = turtlegui._get_safe_value(elem, rel_data, 'data-gui-show');
+        var value = turtlegui._get_safe_value(elem, rel_data, 'data-gui-show');
         if (value) {
             elem.show();
         } else {
@@ -162,13 +162,14 @@ turtlegui.reload = function(elem, rel_data) {
         }
     }
     if (elem.attr('data-gui-click')) {
-        elem.click(function(e) {
+        elem.unbind('click').click(function(e) {
             return turtlegui._relative_eval(elem, elem.attr('data-gui-click'));
         });
     }
     if (elem.attr('data-gui-list')) {
         var list = turtlegui._get_safe_value(elem, rel_data, 'data-gui-list');
-        var rel_key = elem.attr('data-itervar');
+        var rel_item = elem.attr('data-gui-item');
+        var rel_key = elem.attr('data-gui-key');
         var orig_elems = elem.children();
         var first_elem = $(orig_elems[0]);
         first_elem.hide();
@@ -183,9 +184,50 @@ turtlegui.reload = function(elem, rel_data) {
             elem.append(new_elem);
             new_elem.show();
             var rel_data = jQuery.extend({}, rel_data);
-            rel_data[rel_key] = item;
+            rel_data[rel_item] = item;
+            if (rel_key != null) {
+                rel_data[rel_key] = i;
+            }
             turtlegui.reload(new_elem, rel_data);
         }
+        orig_elems.remove();
+        elem.prepend(first_elem);
+    }
+    else if (elem.attr('data-gui-tree')) {
+        var tree = turtlegui._get_safe_value(elem, rel_data, 'data-gui-tree');
+        var rel_item = elem.attr('data-gui-nodeitem');
+
+        var orig_elems = elem.children();
+        var first_elem = $(orig_elems[0]);
+        first_elem.hide();
+        var rel_data = jQuery.extend({}, rel_data);
+        rel_data[rel_item] = tree;
+        rel_data['_last_tree_elem'] = first_elem;
+        rel_data['_last_tree_item'] = rel_item;
+         
+        var new_elem = $(first_elem).clone();
+        elem.append(new_elem);
+        new_elem.show();
+        turtlegui.reload(new_elem, rel_data);
+
+        orig_elems.remove();
+        elem.prepend(first_elem);
+    }
+    else if (elem.attr('data-gui-node')) {
+        var node = turtlegui._get_safe_value(elem, rel_data, 'data-gui-node');
+
+        var orig_elems = elem.children();
+        var first_elem = rel_data['_last_tree_elem'];
+        first_elem.hide();
+        var rel_data = jQuery.extend({}, rel_data);
+        rel_data[rel_item] = node;
+        rel_data[rel_data['_last_tree_item']] = node;
+ 
+        var new_elem = $(first_elem).clone();
+        elem.append(new_elem);
+        new_elem.show();
+        turtlegui.reload(new_elem, rel_data);
+
         orig_elems.remove();
         elem.prepend(first_elem);
     }

@@ -96,6 +96,10 @@ function change_clicked(e) {
     turtlegui.reload();
 }
 
+function changed() {
+    console.log("Changed " + $( this ).val());
+}
+
 
 $( document ).ready(function() {
     turtlegui.reload()

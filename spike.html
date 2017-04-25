@@ -15,14 +15,14 @@ div.blue {
 <div id="main">
     <div id="name" data-gui-text="model.company.name">
     </div>
-    <div id="periods" data-gui-list="model.company.periods" data-itervar='period'>
+    <div id="periods" data-gui-list="model.company.periods" data-gui-item='period'>
         <div>
             <div  data-gui-class="classme" id="year" data-gui-text="period.eqyYear"></div>
             <div id="per" data-gui-text="period.period"></div>
             <div id="fhr" data-gui-text="period.fhr.stOverall"></div>
             <div id="clickme" data-gui-click="clicked1(period)">Click me</div>
             <div id="showouter" data-gui-show="period.visible">
-                <div id="inner" data-gui-list="period.types" data-itervar="periodtype">
+                <div id="inner" data-gui-list="period.types" data-gui-item="periodtype">
                     <div>
                         <div id="showinner" data-gui-show="periodtype.visible">
                             <div data-gui-text="periodtype.name"></div>
@@ -31,6 +31,9 @@ div.blue {
                     </div>
                 </div>
             </div>
+            <select data-gui-list="period.types" data-gui-item="periodtype" data-gui-val="period.types[1].name" data-gui-change="changed">
+                <option data-gui-val="periodtype.name" data-gui-text="periodtype.name"></option>
+            </select>
         </div>
     </div>
 </div>

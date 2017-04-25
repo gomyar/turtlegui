@@ -63,7 +63,7 @@
     </style>
     <body>
         <div data-gui-text="my_data.restaurant.name"></div>    <!-- refers to 'name' field in data -->
-        <div data-gui-list="my_data.restaurant.ingredients" data-itervar="ingredient">   <!-- gui-list iterates over 'ingredients' list, stores each in 'ingredient' variable -->
+        <div data-gui-list="my_data.restaurant.ingredients" data-gui-item="ingredient">   <!-- gui-list iterates over 'ingredients' list, stores each in 'ingredient' variable -->
             <div>
                 <div data-gui-text="ingredient.name"></div>   <!-- 'ingredient' set for each item in list -->
                 <input type="button" data-gui-click="i_was_clicked(ingredient)" value="Info"></input>   <!-- function called with item -->
@@ -80,11 +80,12 @@
 
     Types of supported fields:
         data-gui-text: populates element.text() with the evaluated value
-        data-gui-list: creates copies of its subelement, one for each item in the list, stores item as local variable, as named by field 'data-itervar'
+        data-gui-list: creates copies of its subelement, one for each item in the list, stores item as local variable, as named by field 'data-gui-item'
         data-gui-show: shows or hides based on evaluated value (true/false)
         data-gui-click: evaluates js on click (normally a function call)
         data-gui-include: include an html snippet
         data-gui-class: sets classname(s) on element
+        data-gui-val: sets value on element
 
 */
 
@@ -152,18 +153,25 @@ turtlegui.reload = function(elem, rel_data) {
         var value = turtlegui._get_safe_value(elem, rel_data, 'data-gui-class');
         elem.addClass(value);
     }
+    if (elem.attr('data-gui-id')) {
+        var value = turtlegui._get_safe_value(elem, rel_data, 'data-gui-id');
+        $(elem).attr('id', value);
+    }
     if (elem.attr('data-gui-show')) {
         var value = turtlegui._get_safe_value(elem, rel_data, 'data-gui-show');
         if (value) {
             elem.show();
         } else {
             elem.hide();
+            if (elem.attr('data-gui-id')) {
+                $(elem).attr('id', null);
+            }
             return;
         }
     }
-    if (elem.attr('data-gui-click')) {
-        elem.unbind('click').click(function(e) {
-            return turtlegui._relative_eval(elem, elem.attr('data-gui-click'));
+    if (elem.attr('data-gui-change')) {
+        elem.unbind('change').change(function() {
+            return turtlegui._get_safe_value(elem, rel_data, 'data-gui-change');
         });
     }
     if (elem.attr('data-gui-list')) {
@@ -240,5 +248,14 @@ turtlegui.reload = function(elem, rel_data) {
         elem.children().each(function() {
             turtlegui.reload($(this), rel_data);
         });
+    }
+    if (elem.attr('data-gui-val')) {
+        var value = turtlegui._get_safe_value(elem, rel_data, 'data-gui-val');
+        $(elem).val(value);
+    }
+
+    if (elem.attr('data-gui-change')) {
+        var value = turtlegui._get_safe_value(elem, rel_data, 'data-gui-change');
+        $(elem).change(value);
     }
 }

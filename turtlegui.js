@@ -169,9 +169,9 @@ turtlegui.reload = function(elem, rel_data) {
             return;
         }
     }
-    if (elem.attr('data-gui-change')) {
-        elem.unbind('change').change(function() {
-            return turtlegui._get_safe_value(elem, rel_data, 'data-gui-change');
+    if (elem.attr('data-gui-click')) {
+        elem.unbind('click').click(function() {
+            return turtlegui._get_safe_value(elem, rel_data, 'data-gui-click');
         });
     }
     if (elem.attr('data-gui-list')) {
@@ -256,6 +256,6 @@ turtlegui.reload = function(elem, rel_data) {
 
     if (elem.attr('data-gui-change')) {
         var value = turtlegui._get_safe_value(elem, rel_data, 'data-gui-change');
-        $(elem).change(value);
+        $(elem).unbind('change').change(value);
     }
 }

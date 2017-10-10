@@ -81,12 +81,13 @@ $(document).ready(function() {
 Turtlegui uses "data-" element fields which resolve js, (function call or dot notation path to data)
 
 Types of supported fields:
-:  data-gui-text: populates element.text() with the evaluated value
-:  data-gui-list: creates copies of its subelement, one for each item in the list, stores item as local variable, as named by field 'data-gui-item'
-:  data-gui-show: shows or hides based on evaluated value (true/false)
-:  data-gui-click: evaluates js on click (normally a function call)
-:  data-gui-include: include an html snippet
-:  data-gui-class: sets classname(s) on element
-:  data-gui-val: sets value on element
-:  data-gui-id: sets id on element
-:  data-gui-change: evaluates js on change event
+
+* data-gui-text: populates element.text() with the evaluated value
+* data-gui-list: creates copies of its subelement, one for each item in the list, stores item as local variable, as named by field 'data-gui-item'
+* data-gui-show: shows or hides based on evaluated value (true/false)
+* data-gui-click: evaluates js on click (normally a function call)
+* data-gui-include: include an html snippet
+* data-gui-class: sets classname(s) on element
+* data-gui-val: sets value on element
+* data-gui-id: sets id on element
+* data-gui-change: evaluates js on change event

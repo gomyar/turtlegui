@@ -88,6 +88,6 @@ Types of supported fields:
 * data-gui-click: evaluates js on click (normally a function call)
 * data-gui-include: include an html snippet
 * data-gui-class: sets classname(s) on element
-* data-gui-val: sets value on element
+* data-gui-val: sets value on element - will write back a changed value if the target is a simple type (number, string)
 * data-gui-id: sets id on element
 * data-gui-change: evaluates js on change event

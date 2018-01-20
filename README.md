@@ -91,3 +91,5 @@ Types of supported fields:
 * data-gui-val: sets value on element - will write back a changed value if the target is a simple type (number, string)
 * data-gui-id: sets id on element
 * data-gui-change: evaluates js on change event
+* data-gui-format-func: used for data-gui-val - reference to a function expected to format the string on a read
+* data-gui-parse-func: used for data-gui-val - reference to a function expected to parse the string on a write (i.e. parseFloat)

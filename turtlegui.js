@@ -22,7 +22,11 @@ turtlegui._get_safe_value = function(elem, datasrc) {
 
 
 turtlegui._relative_eval = function(elem, gres) {
+    try {
     var rel = elem.data('data-rel');
+    }catch(e) {
+        console.log("error ");
+    }
     var switcharoo = {};
     for (var key in rel) {
         if (key in window) {
@@ -182,7 +186,7 @@ turtlegui.reload = function(elem, rel_data) {
         });
     }
 
-    if (elem.attr('data-gui-val') || elem.attr('data-gui-number-val') || elem.attr('data-gui-change')) {
+    if (elem.attr('data-gui-val') || elem.attr('data-gui-change')) {
         // This overwrites any manually bound change events
         $(elem).unbind('change');
     }
@@ -192,31 +196,33 @@ turtlegui.reload = function(elem, rel_data) {
         if ($(elem).is(':checkbox')) {
             $(elem).prop('checked', value);
         } else {
-        $(elem).val(value);
-    }
+            if (elem.attr('data-gui-format-func')) {
+                if (value != null) {
+                    value = turtlegui._relative_eval(elem, elem.attr('data-gui-format-func'))(value);
+                }
+            }
+            $(elem).val(value);
+        }
         $(elem).change(function () {
             var gres = elem.attr('data-gui-val');
-            var datatype = turtlegui._relative_eval(elem, 'typeof ' + gres);
-            if (datatype == 'string' || datatype == 'number' || datatype == 'boolean') {
-                if ($(elem).is(':checkbox')) {
-                    turtlegui._relative_eval(elem, gres + " = " + $(elem).prop('checked'));
+            if ($(elem).is(':checkbox')) {
+                turtlegui._relative_eval(elem, gres + " = " + $(elem).prop('checked'));
+            } else if (elem.attr('data-gui-parse-func')) {
+                var elem_val = $(elem).val();
+                if (elem_val != null) {
+                    // Complex objects don't parse so well with eval, so putting the result into the data-rel structure
+                    var __formatted = turtlegui._relative_eval(elem, elem.attr('data-gui-parse-func'))(elem_val);
+                    var rel = elem.data('data-rel');
+                    rel['__formatted'] = __formatted;
+                    turtlegui._relative_eval(elem, gres + " = __formatted");
                 } else {
-                    turtlegui._relative_eval(elem, gres + " = '" + $(elem).val() + "'");
+                    turtlegui._relative_eval(elem, gres + " = null");
                 }
+            } else {
+                turtlegui._relative_eval(elem, gres + " = '" + $(elem).val() + "'");
             }
         });
     }
-    if (elem.attr('data-gui-number-val')) {
-        var value = turtlegui._get_safe_value(elem, 'data-gui-number-val');
-        $(elem).val(value);
-        $(elem).change(function () {
-            var gres = elem.attr('data-gui-number-val');
-            var datatype = turtlegui._relative_eval(elem, 'typeof ' + gres);
-            turtlegui._relative_eval(elem, gres + " = " + parseFloat($(elem).val()) + "");
-        });
-    }
-
-
     if (elem.attr('data-gui-change')) {
         $(elem).change(function (){
             turtlegui._get_safe_value(elem, 'data-gui-change');

@@ -177,7 +177,7 @@ turtlegui.reload = function(elem, rel_data) {
     }
     else if (elem.attr('data-gui-include') && !elem.attr('data-gui-included')) {
         elem.attr('data-gui-included', true);
-        var url = elem.attr('data-gui-include');
+        var url = turtlegui._get_safe_value(elem, 'data-gui-include');
         turtlegui.load_snippet(elem, url, rel_data);
     }
     else {

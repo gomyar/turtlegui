@@ -219,7 +219,9 @@ turtlegui.reload = function(elem, rel_data) {
                     turtlegui._relative_eval(elem, gres + " = null");
                 }
             } else {
-                turtlegui._relative_eval(elem, gres + " = '" + $(elem).val() + "'");
+                var elemval = $(elem).val();
+                elemval = elemval.replace(/(?:\r\n|\r|\n)/g, '\\n');
+                turtlegui._relative_eval(elem, gres + " = '" + elemval + "'");
             }
         });
     }

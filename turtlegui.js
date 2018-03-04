@@ -221,6 +221,7 @@ turtlegui.reload = function(elem, rel_data) {
             } else {
                 var elemval = $(elem).val();
                 elemval = elemval.replace(/(?:\r\n|\r|\n)/g, '\\n');
+                elemval = elemval.replace(/'/g, '\\\'');
                 turtlegui._relative_eval(elem, gres + " = '" + elemval + "'");
             }
         });

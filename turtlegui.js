@@ -21,6 +21,11 @@ turtlegui._get_safe_value = function(elem, datasrc) {
 }
 
 
+turtlegui.getstack = function(elm) {
+    return elm.parent().length > 0 && !elm.parent().is('body') ? turtlegui.getstack(elm.parent()).concat([elm]) : [elm];
+}
+
+
 turtlegui._relative_eval = function(elem, gres) {
     try {
     var rel = elem.data('data-rel');
@@ -39,10 +44,7 @@ turtlegui._relative_eval = function(elem, gres) {
     } catch(e) {
         try {
             console.log("Error at:");
-            var getstack = function(elm) {
-                return elm.parent().length > 0 && !elm.parent().is('body') ? getstack(elm.parent()).concat([elm]) : [elm];
-            }
-            var stack = getstack(elem);
+            var stack = turtlegui.getstack(elem);
             for (var i in stack) {
                 var elm = $(stack[i]);
                 var desc = elm.prop('nodeName') + (elm.attr('id')?'#'+elm.attr('id'):"") + "[" + elm.index() + "]";
@@ -73,6 +75,17 @@ turtlegui.load_snippet = function(elem, url, rel_data) {
 
 
 turtlegui.reload = function(elem, rel_data) {
+    var path = turtlegui.getstack($(document.activeElement));
+    turtlegui._reload(elem, rel_data);
+    var current_elem = $('body');
+    for (var i=0; i<path.length; i++) {
+        current_elem = $(current_elem.children()[path[i].index()]);
+    }
+    current_elem.focus();
+}
+
+
+turtlegui._reload = function(elem, rel_data) {
     if (!rel_data) rel_data = {};
 
     if (!elem) {
@@ -132,7 +145,7 @@ turtlegui.reload = function(elem, rel_data) {
             if (rel_key != null) {
                 rel_data[rel_key] = i;
             }
-            turtlegui.reload(new_elem, rel_data);
+            turtlegui._reload(new_elem, rel_data);
         }
         orig_elems.remove();
         elem.prepend(first_elem);
@@ -152,7 +165,7 @@ turtlegui.reload = function(elem, rel_data) {
         var new_elem = $(first_elem).clone();
         elem.append(new_elem);
         new_elem.show();
-        turtlegui.reload(new_elem, rel_data);
+        turtlegui._reload(new_elem, rel_data);
 
         orig_elems.remove();
         elem.prepend(first_elem);
@@ -170,7 +183,7 @@ turtlegui.reload = function(elem, rel_data) {
         var new_elem = $(first_elem).clone();
         elem.append(new_elem);
         new_elem.show();
-        turtlegui.reload(new_elem, rel_data);
+        turtlegui._reload(new_elem, rel_data);
 
         orig_elems.remove();
         elem.prepend(first_elem);
@@ -182,7 +195,7 @@ turtlegui.reload = function(elem, rel_data) {
     }
     else {
         elem.children().each(function() {
-            turtlegui.reload($(this), rel_data);
+            turtlegui._reload($(this), rel_data);
         });
     }
 

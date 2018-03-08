@@ -76,10 +76,14 @@ turtlegui.load_snippet = function(elem, url, rel_data) {
 
 turtlegui.reload = function(elem, rel_data) {
     var path = turtlegui.getstack($(document.activeElement));
+    var path_indices = [];
+    for (var i=0; i<path.length; i++) {
+        path_indices[i] = path[i].index();
+    }
     turtlegui._reload(elem, rel_data);
     var current_elem = $('body');
-    for (var i=0; i<path.length; i++) {
-        current_elem = $(current_elem.children()[path[i].index()]);
+    for (var i=0; i<path_indices.length; i++) {
+        current_elem = $(current_elem.children()[path_indices[i]]);
     }
     current_elem.focus();
 }

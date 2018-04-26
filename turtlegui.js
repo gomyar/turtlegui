@@ -132,13 +132,28 @@ turtlegui._reload = function(elem, rel_data) {
         if ($.isPlainObject(list)) {
             var rel_item = elem.attr('data-gui-item');
             var rel_key = elem.attr('data-gui-key');
-            // var rel_order = elem.attr('data-gui-ordering');
+            var rel_order = elem.attr('data-gui-ordering');
+            if (elem.attr('data-gui-reversed')) {
+                var rel_reverse = turtlegui._get_safe_value(elem, 'data-gui-reversed');
+            } else {
+                var rel_reverse = false;
+            }
 
             var obj = [];
             for (var key in list) {
-                obj[obj.length] = [key, list[key]];
+                if (rel_order) {
+                    var rel = elem.data('data-rel');
+                    rel[rel_item] = list[key];
+                    var order_key = turtlegui._relative_eval(elem, rel_order);
+                    obj[obj.length] = [order_key, key, list[key]];
+                } else {
+                    obj[obj.length] = [key, key, list[key]];
+                }
             }
             obj.sort();
+            if (rel_reverse) {
+                obj.reverse();
+            }
 
             var orig_elems = elem.children();
             var first_elem = $(orig_elems[0]);
@@ -150,8 +165,9 @@ turtlegui._reload = function(elem, rel_data) {
             }
             for (var i in new_elems) {
                 var obj_item = obj[i];
-                var obj_key = obj_item[0];
-                var item = obj_item[1];
+                var obj_key = obj_item[1];
+                var item = obj_item[2];
+
                 var new_elem = new_elems[i];
                 elem.append(new_elem);
                 new_elem.show();

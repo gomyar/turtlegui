@@ -10,6 +10,8 @@ $.ajaxSetup ({
 var turtlegui = {};
 
 turtlegui.root_element = $(document);
+turtlegui.cached_snippets = {};
+turtlegui.loading_snippets = {};
 
 
 turtlegui._get_safe_value = function(elem, datasrc) {
@@ -64,13 +66,34 @@ turtlegui._relative_eval = function(elem, gres) {
 
 
 turtlegui.load_snippet = function(elem, url, rel_data) {
-    elem.load(url, function(response, status, xhr) {
-        if (status == 'success') {
-            turtlegui.reload(elem, rel_data);
-        } else {
-            console.log("Could not load html snippet: " + url + " - " + xhr.status + " " + xhr.statusText);
-        }
-    });
+    if (url in turtlegui.cached_snippets) {
+        elem.html(turtlegui.cached_snippets[url]);
+        turtlegui.reload(elem, rel_data);
+    } else if (url in turtlegui.loading_snippets) {
+        turtlegui.loading_snippets[url][turtlegui.loading_snippets[url].length] = {'elem': elem, 'rel_data': rel_data};
+    } else if (!(url in turtlegui.loading_snippets)) {
+        turtlegui.loading_snippets[url] = [{'elem': elem, 'rel_data': rel_data}];
+        $.ajax({
+            url: url,
+            dataType: "html",
+            success: function(data) {
+                turtlegui.cached_snippets[url] = data;
+
+                var snippets = turtlegui.loading_snippets[url];
+                delete turtlegui.loading_snippets[url];
+
+                for (var i in snippets) {
+                    var elem = snippets[i].elem;
+                    var rel_data = snippets[i].rel_data;
+                    elem.html(data);
+                    turtlegui.reload(elem, rel_data);
+                }
+            },
+            error: function(response, status, xhr) {
+                console.log("Could not load html snippet: " + url + " - " + xhr.status + " " + xhr.statusText);
+            }
+        });
+    }
 }
 
 
@@ -89,6 +112,19 @@ turtlegui.reload = function(elem, rel_data) {
 }
 
 
+turtlegui._get_data_gui_params = function (elem) {
+    var params = {};
+    if (elem.attr('data-gui-include-params')) {
+        // Needs extra brackets to eval object
+        params = turtlegui._relative_eval(elem, "(" + elem.attr('data-gui-include-params') + ")");
+        if (!$.isPlainObject(params)) {
+            throw "data-gui-include-params must evaluate to a Plain JS Object";
+        }
+    }
+    return params;
+}
+
+
 turtlegui._reload = function(elem, rel_data) {
     if (!rel_data) rel_data = {};
 
@@ -98,12 +134,14 @@ turtlegui._reload = function(elem, rel_data) {
     if (rel_data) {
         elem.data('data-rel', rel_data);
     }
-    if (elem.attr('data-gui-text')) {
-        value = turtlegui._get_safe_value(elem, 'data-gui-text');
-        elem.text(value);
+    if (elem.attr('data-gui-attr') && elem.attr('data-gui-attrval')) {
+        var key = turtlegui._get_safe_value(elem, 'data-gui-attr');
+        var value = turtlegui._get_safe_value(elem, 'data-gui-attrval');
+        elem.attr(key, value);
     }
     if (elem.attr('data-gui-class')) {
         var value = turtlegui._get_safe_value(elem, 'data-gui-class');
+        elem.removeClass();
         elem.addClass(value);
     }
     if (elem.attr('data-gui-id')) {
@@ -121,6 +159,10 @@ turtlegui._reload = function(elem, rel_data) {
             }
             return;
         }
+    }
+    if (elem.attr('data-gui-text')) {
+        value = turtlegui._get_safe_value(elem, 'data-gui-text');
+        elem.text(value);
     }
     if (elem.attr('data-gui-click')) {
         elem.unbind('click').click(function() {
@@ -248,7 +290,19 @@ turtlegui._reload = function(elem, rel_data) {
     else if (elem.attr('data-gui-include') && !elem.attr('data-gui-included')) {
         elem.attr('data-gui-included', true);
         var url = turtlegui._get_safe_value(elem, 'data-gui-include');
+
+        var params = turtlegui._get_data_gui_params(elem);
+
+        var rel_data = jQuery.extend(params, rel_data);
         turtlegui.load_snippet(elem, url, rel_data);
+    }
+    else if (elem.attr('data-gui-include') && elem.attr('data-gui-included')) {
+        var params = turtlegui._get_data_gui_params(elem);
+
+        var rel_data = jQuery.extend(params, rel_data);
+        elem.children().each(function() {
+            turtlegui._reload($(this), rel_data);
+        });
     }
     else {
         elem.children().each(function() {

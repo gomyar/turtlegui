@@ -112,6 +112,13 @@ turtlegui.reload = function(elem, rel_data) {
 }
 
 
+turtlegui.deferred_reload = function(elem, rel_data) {
+    setTimeout(function() {
+        turtlegui.reload(elem, rel_data);
+    }, 0);
+}
+
+
 turtlegui._get_data_gui_params = function (elem) {
     var params = {};
     if (elem.attr('data-gui-include-params')) {

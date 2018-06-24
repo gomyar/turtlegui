@@ -83,13 +83,32 @@ Turtlegui uses "data-" element fields which resolve js, (function call or dot no
 Types of supported fields:
 
 * data-gui-text: populates element.text() with the evaluated value
-* data-gui-list: creates copies of its subelement, one for each item in the list, stores item as local variable, as named by field 'data-gui-item'
+* data-gui-list: creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by 'data-gui-item'
+* data-gui-item: used during data-gui-list - the name of the local variable to store the current list value
+* data-gui-key: used during data-gui-list - the current key of the list or object
+* data-gui-ordering: for each item in data-gui-list, specify the key to sort by
+* data-gui-reversed: reverse the order of data-gui-list
 * data-gui-show: shows or hides based on evaluated value (true/false)
 * data-gui-click: evaluates js on click (normally a function call)
 * data-gui-include: include an html snippet
+* data-gui-include-params: a js object - the keys are sent to the snippet as local vars
 * data-gui-class: sets classname(s) on element
 * data-gui-val: sets value on element - will write back a changed value if the target is a simple type (number, string)
 * data-gui-id: sets id on element
 * data-gui-change: evaluates js on change event
 * data-gui-format-func: used for data-gui-val - reference to a function expected to format the string on a read
 * data-gui-parse-func: used for data-gui-val - reference to a function expected to parse the string on a write (i.e. parseFloat)
+* data-gui-attr: sets an attribute on an element (used with data-gui-attrval)
+* data-gui-attrval: the value of the attribute specified by data-gui-attr
+* data-gui-tree: process a tree structure using data-gui-nodeitem and data-gui-node. Honestly this one might need work, see filetree.html for an example
+* data-gui-nodeitem: specify the local variable used to iterate the tree
+* data-gui-node: repeat last data-gui-tree template snippet at this point with the specified item as the root
+
+~~~~
+Notes:
+
+Deferred reload:
+turtlegui.deferred_reload() can be used for some cases where the change event is interfering with building a list or included template.
+If you've got a change event in a dynamically create element like a list, it can knock out the focused element, making forms awkward to work with.
+deferred_reload() will fire the reload after the change event has finished.
+(basically if you find yourself losing input focus in places, try using deferred_reload)

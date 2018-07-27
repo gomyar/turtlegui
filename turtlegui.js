@@ -73,11 +73,14 @@ turtlegui.load_snippet = function(elem, url, rel_data) {
         turtlegui.loading_snippets[url][turtlegui.loading_snippets[url].length] = {'elem': elem, 'rel_data': rel_data};
     } else if (!(url in turtlegui.loading_snippets)) {
         turtlegui.loading_snippets[url] = [{'elem': elem, 'rel_data': rel_data}];
+        var nocache = elem.attr('data-gui-include-nocache');
         $.ajax({
             url: url,
             dataType: "html",
             success: function(data) {
-                turtlegui.cached_snippets[url] = data;
+                if (!nocache) {
+                    turtlegui.cached_snippets[url] = data;
+                }
 
                 var snippets = turtlegui.loading_snippets[url];
                 delete turtlegui.loading_snippets[url];

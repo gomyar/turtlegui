@@ -92,6 +92,7 @@ Types of supported fields:
 * data-gui-click: evaluates js on click (normally a function call)
 * data-gui-include: include an html snippet
 * data-gui-include-params: a js object - the keys are sent to the snippet as local vars
+* data-gui-include-nocache: if present, will not cache the template
 * data-gui-class: sets classname(s) on element
 * data-gui-val: sets value on element - will write back a changed value if the target is a simple type (number, string)
 * data-gui-id: sets id on element

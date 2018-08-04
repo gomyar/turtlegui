@@ -28,9 +28,21 @@ turtlegui.getstack = function(elm) {
 }
 
 
+turtlegui.log_error = function(msg, elem) {
+    console.log("Error at:");
+    var stack = turtlegui.getstack(elem);
+    for (var i in stack) {
+        var elm = $(stack[i]);
+        var desc = elm.prop('nodeName') + (elm.attr('id')?'#'+elm.attr('id'):"") + "[" + elm.index() + "]";
+        console.log("  ".repeat(i) + desc);
+    }
+    console.log(msg);
+}
+
+
 turtlegui._relative_eval = function(elem, gres) {
     try {
-    var rel = elem.data('data-rel');
+        var rel = elem.data('data-rel');
     }catch(e) {
         console.log("error ");
     }
@@ -45,14 +57,7 @@ turtlegui._relative_eval = function(elem, gres) {
         result = eval(gres);
     } catch(e) {
         try {
-            console.log("Error at:");
-            var stack = turtlegui.getstack(elem);
-            for (var i in stack) {
-                var elm = $(stack[i]);
-                var desc = elm.prop('nodeName') + (elm.attr('id')?'#'+elm.attr('id'):"") + "[" + elm.index() + "]";
-                console.log("  ".repeat(i) + desc);
-            }
-            console.log("Error evaluating " + gres + " on elem : " + e);
+            turtlegui.log_error("Error evaluating " + gres + " on elem : " + e, elem)
         } catch (noconsole) {
             throw e;
         }
@@ -144,20 +149,6 @@ turtlegui._reload = function(elem, rel_data) {
     if (rel_data) {
         elem.data('data-rel', rel_data);
     }
-    if (elem.attr('data-gui-attr') && elem.attr('data-gui-attrval')) {
-        var key = turtlegui._get_safe_value(elem, 'data-gui-attr');
-        var value = turtlegui._get_safe_value(elem, 'data-gui-attrval');
-        elem.attr(key, value);
-    }
-    if (elem.attr('data-gui-class')) {
-        var value = turtlegui._get_safe_value(elem, 'data-gui-class');
-        elem.removeClass();
-        elem.addClass(value);
-    }
-    if (elem.attr('data-gui-id')) {
-        var value = turtlegui._get_safe_value(elem, 'data-gui-id');
-        $(elem).attr('id', value);
-    }
     if (elem.attr('data-gui-show')) {
         var value = turtlegui._get_safe_value(elem, 'data-gui-show');
         if (value) {
@@ -170,16 +161,60 @@ turtlegui._reload = function(elem, rel_data) {
             return;
         }
     }
+    if (elem.attr('data-gui-attr') && elem.attr('data-gui-attrval')) {
+        var key = turtlegui._get_safe_value(elem, 'data-gui-attr');
+        var value = turtlegui._get_safe_value(elem, 'data-gui-attrval');
+        elem.attr(key, value);
+    }
+    if (elem.attr('data-gui-attrs')) {
+        var attrs = turtlegui._relative_eval(elem, "(" + elem.attr('data-gui-attrs') + ")");
+        if ($.isPlainObject(attrs)) {
+            for (var key in attrs) {
+                elem.attr(key, attrs[key]);
+            }
+        } else {
+            turtlegui.log_error("Error: data-gui-attrs must return an plain object.", elem)
+        }
+    }
+    if (elem.attr('data-gui-class')) {
+        var value = turtlegui._get_safe_value(elem, 'data-gui-class');
+        elem.removeClass();
+        elem.addClass(value);
+    }
+    if (elem.attr('data-gui-id')) {
+        var value = turtlegui._get_safe_value(elem, 'data-gui-id');
+        $(elem).attr('id', value);
+    }
     if (elem.attr('data-gui-text')) {
         value = turtlegui._get_safe_value(elem, 'data-gui-text');
         elem.text(value);
     }
     if (elem.attr('data-gui-click')) {
-        elem.unbind('click').click(function() {
+        elem.unbind('click').click(function(e) {
             return turtlegui._get_safe_value(elem, 'data-gui-click');
         });
     }
-    if (elem.attr('data-gui-list')) {
+    if (elem.attr('data-gui-bind') && elem.attr('data-gui-event')) {
+        var bind = turtlegui._get_safe_value(elem, 'data-gui-bind');
+        elem.unbind(bind).bind(bind, function(e) {
+            return turtlegui._get_safe_value(elem, 'data-gui-event');
+        });
+    }
+    if (elem.attr('data-gui-switch')) {
+        var value = turtlegui._get_safe_value(elem, 'data-gui-switch');
+        var child_elems = elem.children();
+        for (var i=0; i<child_elems.length; i++) {
+            var child = $(child_elems[i]);
+            if (child.attr('data-gui-case') && turtlegui._get_safe_value(child, 'data-gui-case') == value) {
+                turtlegui._reload(child, rel_data);
+            } else if (child.attr('data-gui-case') == null) {
+                turtlegui._reload(child, rel_data);
+            } else {
+                child.hide();
+            }
+        }
+    }
+    else if (elem.attr('data-gui-list')) {
         var list = turtlegui._get_safe_value(elem, 'data-gui-list');
         if ($.isPlainObject(list)) {
             var rel_item = elem.attr('data-gui-item');

@@ -83,12 +83,15 @@ Turtlegui uses "data-" element fields which resolve js, (function call or dot no
 Types of supported fields:
 
 * data-gui-text: populates element.text() with the evaluated value
+* data-gui-html: populates element.html() with the evaluated value
 * data-gui-list: creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by 'data-gui-item'
 * data-gui-item: used during data-gui-list - the name of the local variable to store the current list value
 * data-gui-key: used during data-gui-list - the current key of the list or object
 * data-gui-ordering: for each item in data-gui-list, specify the key to sort by
 * data-gui-reversed: reverse the order of data-gui-list
 * data-gui-show: shows or hides based on evaluated value (true/false)
+* data-gui-switch: shows or hides child elements based on values of data-gui-case attributes of those children
+* data-gui-case: show/hide element if value is equal to parent data-gui-switch
 * data-gui-click: evaluates js on click (normally a function call)
 * data-gui-include: include an html snippet
 * data-gui-include-params: a js object - the keys are sent to the snippet as local vars

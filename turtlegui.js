@@ -33,7 +33,7 @@ turtlegui.log_error = function(msg, elem) {
     var stack = turtlegui.getstack(elem);
     for (var i in stack) {
         var elm = $(stack[i]);
-        var desc = elm.prop('nodeName') + (elm.attr('id')?'#'+elm.attr('id'):"") + "[" + elm.index() + "]";
+        var desc = elm.prop('nodeName') + (elm.attr('id')?'#'+elm.attr('id'):"") + "[" + elm.index() + "]" + "\"" + elm.attr('class') + "\"";
         console.log("  ".repeat(i) + desc);
     }
     console.log(msg);
@@ -166,6 +166,11 @@ turtlegui._reload = function(elem, rel_data) {
         var value = turtlegui._get_safe_value(elem, 'data-gui-attrval');
         elem.attr(key, value);
     }
+    if (elem.attr('data-gui-data') && elem.attr('data-gui-dataval')) {
+        var key = turtlegui._get_safe_value(elem, 'data-gui-data');
+        var value = turtlegui._get_safe_value(elem, 'data-gui-dataval');
+        elem.data(key, value);
+    }
     if (elem.attr('data-gui-attrs')) {
         var attrs = turtlegui._relative_eval(elem, "(" + elem.attr('data-gui-attrs') + ")");
         if ($.isPlainObject(attrs)) {
@@ -189,6 +194,10 @@ turtlegui._reload = function(elem, rel_data) {
         value = turtlegui._get_safe_value(elem, 'data-gui-text');
         elem.text(value);
     }
+    if (elem.attr('data-gui-html')) {
+        value = turtlegui._get_safe_value(elem, 'data-gui-html');
+        elem.html(value);
+    }
     if (elem.attr('data-gui-click')) {
         elem.unbind('click').click(function(e) {
             return turtlegui._get_safe_value(elem, 'data-gui-click');
@@ -206,6 +215,7 @@ turtlegui._reload = function(elem, rel_data) {
         for (var i=0; i<child_elems.length; i++) {
             var child = $(child_elems[i]);
             if (child.attr('data-gui-case') && turtlegui._get_safe_value(child, 'data-gui-case') == value) {
+                child.show();
                 turtlegui._reload(child, rel_data);
             } else if (child.attr('data-gui-case') == null) {
                 turtlegui._reload(child, rel_data);

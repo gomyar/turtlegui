@@ -50,6 +50,27 @@ turtlegui.log_error = function(msg, elem) {
 }
 
 
+turtlegui.resolve_field = function(gres, rel_data) {
+    var cdata = window;
+    while (gres.indexOf('.') != -1) {
+        var field = gres.split('.', 1)[0];
+        cdata = cdata[field]
+        gres = gres.slice(gres.indexOf('.') + 1);
+    }
+    return cdata[gres];
+}
+
+
+turtlegui._call_callable = function(elem, gres, params) {
+    var callable = turtlegui._get_safe_value(elem, gres);
+    if (typeof(callable) == 'function') {
+        return callable.apply(elem, params);
+    } else {
+        turtlegui.log_error("Error object not callable: " + gres + " on elem : " + elem, elem)
+    }
+}
+
+
 turtlegui._relative_eval = function(elem, gres) {
     try {
         var rel = elem.data('data-rel');
@@ -64,7 +85,12 @@ turtlegui._relative_eval = function(elem, gres) {
         window[key] = rel[key];
     }
     try {
-        result = eval(gres);
+        obj = turtlegui.resolve_field(gres);
+        if (typeof(callable) == 'function') {
+            return obj.apply(elem);
+        } else {
+            return obj;
+        }
     } catch(e) {
         try {
             turtlegui.log_error("Error evaluating " + gres + " on elem : " + e, elem)
@@ -189,24 +215,22 @@ turtlegui._reload = function(elem, rel_data) {
             return;
         }
     }
-    if (elem.attr('data-gui-attr') && elem.attr('data-gui-attrval')) {
-        var key = turtlegui._get_safe_value(elem, 'data-gui-attr');
-        var value = turtlegui._get_safe_value(elem, 'data-gui-attrval');
-        elem.attr(key, value);
-    }
-    if (elem.attr('data-gui-data') && elem.attr('data-gui-dataval')) {
-        var key = turtlegui._get_safe_value(elem, 'data-gui-data');
-        var value = turtlegui._get_safe_value(elem, 'data-gui-dataval');
-        elem.data(key, value);
-    }
     if (elem.attr('data-gui-attrs')) {
-        var attrs = turtlegui._relative_eval(elem, "(" + elem.attr('data-gui-attrs') + ")");
-        if ($.isPlainObject(attrs)) {
-            for (var key in attrs) {
-                elem.attr(key, attrs[key]);
-            }
-        } else {
-            turtlegui.log_error("Error: data-gui-attrs must return an plain object.", elem)
+        var attrstr = elem.attr('data-gui-attrs');
+        var attrs = attrstr.split(',');
+        for (var attr in attrs) {
+            var key = attrs[attr].split('=')[0];
+            var val = turtlegui._relative_eval(elem, attrs[attr].split('=')[1]);
+            elem.attr(key, val);
+        }
+    }
+    if (elem.attr('data-gui-data')) {
+        var datastr = elem.data('data-gui-data');
+        var datas = datastr.split(',');
+        for (var data in datas) {
+            var key = datas[data].split('=')[0];
+            var val = turtlegui._relative_eval(elem, datas[data].split('=')[1]);
+            elem.data(key, val);
         }
     }
     if (elem.attr('data-gui-class')) {
@@ -228,13 +252,13 @@ turtlegui._reload = function(elem, rel_data) {
     }
     if (elem.attr('data-gui-click')) {
         elem.unbind('click').click(function(e) {
-            return turtlegui._get_safe_value(elem, 'data-gui-click');
+            turtlegui._call_callable(elem, 'data-gui-click');
         });
     }
     if (elem.attr('data-gui-bind') && elem.attr('data-gui-event')) {
-        var bind = turtlegui._get_safe_value(elem, 'data-gui-bind');
+        var bind = elem.attr('data-gui-bind');
         elem.unbind(bind).bind(bind, function(e) {
-            return turtlegui._get_safe_value(elem, 'data-gui-event');
+            return turtlegui._call_callable(elem, 'data-gui-event');
         });
     }
     if (elem.attr('data-gui-switch')) {
@@ -242,7 +266,7 @@ turtlegui._reload = function(elem, rel_data) {
         var child_elems = elem.children();
         for (var i=0; i<child_elems.length; i++) {
             var child = $(child_elems[i]);
-            if (child.attr('data-gui-case') && turtlegui._get_safe_value(child, 'data-gui-case') == value) {
+            if (child.attr('data-gui-case') && child.attr('data-gui-case') == value) {
                 turtlegui._show_element(child);
                 turtlegui._reload(child, rel_data);
             } else if (child.attr('data-gui-case') == null) {
@@ -446,15 +470,28 @@ turtlegui._reload = function(elem, rel_data) {
                 }
             } else {
                 var elemval = $(elem).val();
-                elemval = elemval.replace(/(?:\r\n|\r|\n)/g, '\\n');
-                elemval = elemval.replace(/'/g, '\\\'');
-                turtlegui._relative_eval(elem, gres + " = '" + elemval + "'");
+                var obj = turtlegui.resolve_field(gres);
+                if (typeof(obj) == 'function') {
+                    turtlegui._call_callable(elem, gres);
+                } else {
+                    var parentobj;
+                    var fieldname;
+                    if (gres.indexOf('.') != -1) {
+                        var parentgres = gres.substring(0, gres.lastIndexOf('.'));
+                        parentobj = turtlegui.resolve_field(parentgres);
+                        fieldname = gres.substring(gres.lastIndexOf('.') + 1);
+                    } else {
+                        parentobj = window;
+                        fieldname = gres;
+                    }
+                    parentobj[fieldname] = elemval;
+                }
             }
         });
     }
     if (elem.attr('data-gui-change')) {
         $(elem).change(function (){
-            turtlegui._get_safe_value(elem, 'data-gui-change');
+            turtlegui._call_callable(elem, 'data-gui-change');
         });
     }
 }

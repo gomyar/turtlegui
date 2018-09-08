@@ -47,6 +47,15 @@
     function order_fries() { order('fries'); }
     function order_soda() { order('soda'); }
 
+    function custom_style() {
+        return "background-color: purple;color:yellow;";
+    }
+
+    function bind_enter() {
+        console.log("entered");
+        $(this).css("background-color", "green");
+    }
+
     $(document).ready(function() {
         turtlegui.reload();
     });
@@ -109,14 +118,14 @@
                 <div class="box" data-gui-show="example.data.can_pay_rent">
                     I can pay rent this month
                 </div>
-                <input type="button" data-gui-click="spend_rent()" value="Spend Rent"></input>
+                <input id="btn_rent" type="button" data-gui-click="spend_rent" value="Spend Rent"></input>
             </div>
         </div>
 
         <div class="section">
             <div class="title">Enter value and listen for change</div>
             <div class="body">
-                <input type="text" data-gui-val="example.data.profession" data-gui-change="turtlegui.reload()"></input>
+                <input type="text" data-gui-val="example.data.profession" data-gui-change="turtlegui.reload"></input>
                 <div>You are a: </div><div class="thing" data-gui-text="example.data.profession"></div>
             </div>
         </div>
@@ -124,17 +133,17 @@
         <div class="section">
             <div class="title">Switch between panels</div>
             <div class="body">
-                <input type="button" data-gui-click="order_burger()" value="Order burder"></input>
-                <input type="button" data-gui-click="order_fries()" value="Order fries"></input>
-                <input type="button" data-gui-click="order_soda()" value="Order soda"></input>
+                <input type="button" data-gui-click="order_burger" value="Order burder"></input>
+                <input type="button" data-gui-click="order_fries" value="Order fries"></input>
+                <input type="button" data-gui-click="order_soda" value="Order soda"></input>
                 <div data-gui-switch="example.data.order_id">
-                    <div class="listitem" data-gui-case="'burger'">
+                    <div class="listitem" data-gui-case="burger">
                          Burger
                     </div>
-                    <div class="listitem" data-gui-case="'fries'">
+                    <div class="listitem" data-gui-case="fries">
                          Fries
                     </div>
-                    <div class="listitem" data-gui-case="'soda'">
+                    <div class="listitem" data-gui-case="soda">
                          Soda
                     </div>
                 </div>
@@ -154,6 +163,22 @@
                 </div>
             </div>
         </div>
+
+
+        <div class="section">
+            <div class="title">Custom Attributes</div>
+            <div class="body">
+                <div data-gui-attrs="style=custom_style">This should look purple</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="title">Event Binds</div>
+            <div class="body">
+                <div data-gui-bind="mouseenter" data-gui-event="bind_enter">Hover here</div>
+            </div>
+        </div>
+
 
     </body>
 </html>

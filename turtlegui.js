@@ -33,13 +33,17 @@ turtlegui.log_error = function(msg, elem) {
     var stack = turtlegui.getstack(elem);
     for (var i in stack) {
         var elm = $(stack[i]);
-        var attributes = stack[0].attributes;
-        var desc = '<' + elm.prop('nodeName') + "[" + elm.index() + "]";
-        for (var key in attributes) {
-            desc = desc + ' ' + key + '=' + attributes[key];
+        var desc = elm.prop('nodeName') + (elm.attr('id')?'#'+elm.attr('id'):"") + "[" + elm.index() + "]" + "\"" + elm.attr('class') + "\"";
+        try {
+            var attributes = stack[i][0].getAttributeNames();
+            var desc = '<' + elm.prop('nodeName') + "[" + elm.index() + "]";
+            for (var key in attributes) {
+                desc = desc + ' ' + attributes[key] + '="' + stack[i].attr(attributes[key]) + '"';
+            }
+            desc = desc + '>';
+        } catch (e) {
+            console.log('getAttributeName unsupported');
         }
-        desc = desc + '>';
-//        var desc = elm.prop('nodeName') + (elm.attr('id')?'#'+elm.attr('id'):"") + "[" + elm.index() + "]" + "\"" + elm.attr('class') + "\"";
         console.log("  ".repeat(i) + desc);
     }
     console.log(msg);
@@ -146,6 +150,24 @@ turtlegui._get_data_gui_params = function (elem) {
 }
 
 
+turtlegui._show_element = function(elem) {
+    if (elem.attr('data-gui-onshow')) {
+        turtlegui._relative_eval(elem, elem.attr('data-gui-onshow'))
+    } else {
+        elem.show();
+    }
+}
+
+
+turtlegui._hide_element = function(elem) {
+    if (elem.attr('data-gui-onhide')) {
+        turtlegui._relative_eval(elem, elem.attr('data-gui-onhide'))
+    } else {
+        elem.hide();
+    }
+}
+
+
 turtlegui._reload = function(elem, rel_data) {
     if (!rel_data) rel_data = {};
 
@@ -158,9 +180,9 @@ turtlegui._reload = function(elem, rel_data) {
     if (elem.attr('data-gui-show')) {
         var value = turtlegui._get_safe_value(elem, 'data-gui-show');
         if (value) {
-            elem.show();
+            turtlegui._show_element(elem);
         } else {
-            elem.hide();
+            turtlegui._hide_element(elem);
             if (elem.attr('data-gui-id')) {
                 $(elem).attr('id', null);
             }
@@ -221,12 +243,12 @@ turtlegui._reload = function(elem, rel_data) {
         for (var i=0; i<child_elems.length; i++) {
             var child = $(child_elems[i]);
             if (child.attr('data-gui-case') && turtlegui._get_safe_value(child, 'data-gui-case') == value) {
-                child.show();
+                turtlegui._show_element(child);
                 turtlegui._reload(child, rel_data);
             } else if (child.attr('data-gui-case') == null) {
                 turtlegui._reload(child, rel_data);
             } else {
-                child.hide();
+                turtlegui._hide_element(child);
             }
         }
     }
@@ -281,7 +303,7 @@ turtlegui._reload = function(elem, rel_data) {
 
                 var new_elem = new_elems[i];
                 elem.append(new_elem);
-                new_elem.show();
+                turtlegui._show_element(new_elem);
                 var rel_data = jQuery.extend({}, rel_data);
                 rel_data[rel_item] = item;
                 if (rel_key != null) {
@@ -313,7 +335,7 @@ turtlegui._reload = function(elem, rel_data) {
                 var item = list[i];
                 var new_elem = new_elems[i];
                 elem.append(new_elem);
-                new_elem.show();
+                turtlegui._show_element(new_elem);
                 var rel_data = jQuery.extend({}, rel_data);
                 rel_data[rel_item] = item;
                 if (rel_key != null) {
@@ -346,7 +368,7 @@ turtlegui._reload = function(elem, rel_data) {
          
         var new_elem = $(first_elem).clone();
         elem.append(new_elem);
-        new_elem.show();
+        turtlegui._show_element(new_elem);
         turtlegui._reload(new_elem, rel_data);
 
         orig_elems.remove();
@@ -362,7 +384,7 @@ turtlegui._reload = function(elem, rel_data) {
  
         var new_elem = $(first_elem).clone();
         elem.append(new_elem);
-        new_elem.show();
+        turtlegui._show_element(new_elem);
         turtlegui._reload(new_elem, rel_data);
 
         orig_elems.remove();

@@ -1,0 +1,159 @@
+<html>
+<!--    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>-->
+    <script src="jquery-1.12.4.js"></script>
+    <script src="turtlegui.js"></script>
+    <script>
+    var example = {
+        data: {
+            'name': 'Bob Belcher',
+            'address': [
+                'Ocean Avenue',
+                'somewhere',
+                'Long Island'
+            ],
+            'profession': 'cook',
+            'can_pay_rent': true,
+            'order_id': null,
+
+            'family': {
+                'name': 'Old Bob',
+                'kids': [
+                    {'name': 'Bob',
+                        'kids': [
+                            {'name': 'Louise',
+                             'kids': [
+                                {'name': 'Zombie'}
+                             ]},
+                            {'name': 'Tina'},
+                            {'name': 'Gene'}
+                        ]
+                    }
+                ]
+            }
+        }
+    };
+
+    function spend_rent() {
+        example.data.can_pay_rent = !example.data.can_pay_rent;
+        turtlegui.reload();
+    }
+
+    function order(order_id) {
+        example.data.order_id = order_id;
+        turtlegui.reload();
+    }
+
+    function order_burger() { order('burger'); }
+    function order_fries() { order('fries'); }
+    function order_soda() { order('soda'); }
+
+    $(document).ready(function() {
+        turtlegui.reload();
+    });
+    </script>
+    <style>
+        div.section {
+            border: 1px solid black;
+            display : inline-block;
+            width : 20%;
+            min-height: 200px;
+            padding : 2px;
+            vertical-align : top;
+        }
+
+        div.section div.title {
+            font-weight : bold;
+            margin-bottom: 4px;
+        }
+
+        div.section div.listitem {
+            background-color : darkblue;
+            color : white;
+        }
+
+        div.section div.thing {
+            background-color : darkred;
+            color : white;
+        }
+
+        div.section div.box {
+            background-color : yellow;
+            color : black;
+        }
+
+        div.section div.tree div.node {
+            margin-left : 20px;
+        }
+    </style>
+    <body>
+        <div class="section">
+            <div class="title">Basic Text</div>
+            <div class="body">
+                <div>My name is: </div><div class="thing" data-gui-text="example.data.name"></div>
+            </div>
+        </div>
+ 
+
+        <div class="section">
+            <div class="title">Lists of Things</div>
+            <div class="body">
+                <div data-gui-list="example.data.address" data-gui-item="line">
+                    <div class="listitem" data-gui-text="line"></div>
+                </div>
+            </div>
+        </div>
+ 
+        <div class="section">
+            <div class="title">Show / Hide and Click a Button</div>
+            <div class="body">
+                <div class="box" data-gui-show="example.data.can_pay_rent">
+                    I can pay rent this month
+                </div>
+                <input type="button" data-gui-click="spend_rent()" value="Spend Rent"></input>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="title">Enter value and listen for change</div>
+            <div class="body">
+                <input type="text" data-gui-val="example.data.profession" data-gui-change="turtlegui.reload()"></input>
+                <div>You are a: </div><div class="thing" data-gui-text="example.data.profession"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="title">Switch between panels</div>
+            <div class="body">
+                <input type="button" data-gui-click="order_burger()" value="Order burder"></input>
+                <input type="button" data-gui-click="order_fries()" value="Order fries"></input>
+                <input type="button" data-gui-click="order_soda()" value="Order soda"></input>
+                <div data-gui-switch="example.data.order_id">
+                    <div class="listitem" data-gui-case="'burger'">
+                         Burger
+                    </div>
+                    <div class="listitem" data-gui-case="'fries'">
+                         Fries
+                    </div>
+                    <div class="listitem" data-gui-case="'soda'">
+                         Soda
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="title">Tree Structures</div>
+            <div class="body">
+                <div class="tree" data-gui-tree="example.data.family" data-gui-nodeitem="member">
+                    <div class="node">
+                        <div class="box" data-gui-text="member.name"></div>
+                        <div data-gui-list="member.kids" data-gui-item="kid">
+                            <div data-gui-node="kid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>

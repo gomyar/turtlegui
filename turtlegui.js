@@ -29,7 +29,7 @@ turtlegui.getstack = function(elm) {
 
 
 turtlegui.log_error = function(msg, elem) {
-    console.log("Error at:");
+    console.log("Error at:", elem);
     var stack = turtlegui.getstack(elem);
     for (var i in stack) {
         var elm = $(stack[i]);
@@ -226,7 +226,7 @@ turtlegui._reload = function(elem, rel_data) {
         }
     }
     if (elem.attr('data-gui-data')) {
-        var datastr = elem.data('data-gui-data');
+        var datastr = elem.attr('data-gui-data');
         var datas = datastr.split(',');
         for (var data in datas) {
             if (datas[data].indexOf('=') != -1) {

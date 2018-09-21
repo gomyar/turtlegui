@@ -12,6 +12,7 @@
                 'Long Island'
             ],
             'profession': 'cook',
+            'likes': 'cooking wine gardening',
             'can_pay_rent': true,
             'order_id': null,
 
@@ -54,6 +55,18 @@
     function bind_enter() {
         console.log("entered");
         $(this).css("background-color", "green");
+    }
+
+    function bobs_likes(likes) {
+        if (likes != undefined) {
+            example.data.likes = likes;
+        } else {
+            return example.data.likes;
+        }
+    }
+
+    function contextual_variable() {
+        return "List item: " + line;
     }
 
     $(document).ready(function() {
@@ -107,7 +120,10 @@
             <div class="title">Lists of Things</div>
             <div class="body">
                 <div data-gui-list="example.data.address" data-gui-item="line">
-                    <div class="listitem" data-gui-text="line"></div>
+                    <div class="listitem">
+                        <div data-gui-text="line"></div>
+                        <div data-gui-text="contextual_variable"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -127,6 +143,10 @@
             <div class="body">
                 <input type="text" data-gui-val="example.data.profession" data-gui-change="turtlegui.reload"></input>
                 <div>You are a: </div><div class="thing" data-gui-text="example.data.profession"></div>
+
+                <p></p>
+                <input type="text" data-gui-val="bobs_likes" data-gui-change="turtlegui.reload"></input>
+                <div>Your likes include: </div><div class="thing" data-gui-text="example.data.likes"></div>
             </div>
         </div>
 

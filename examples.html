@@ -3,6 +3,16 @@
     <script src="jquery-1.12.4.js"></script>
     <script src="turtlegui.js"></script>
     <script>
+    function hello(a, b, c) {
+        return "func:hello" + a + b + c;
+    }
+    function afunc(a) {
+        return "AFUNC(" + a + ")";
+    }
+    var f_var='ray';
+    var s1="hello(9, 2, afunc(f_var))";
+    var f1=turtlegui._functionify(s1)
+    console.log(f1);
     var example = {
         data: {
             'name': 'Bob Belcher',

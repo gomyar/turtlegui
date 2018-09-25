@@ -67,6 +67,50 @@ turtlegui.resolve_field = function(gres, rel_data) {
     }
 }
 
+turtlegui._functionify = function(gres, elem) {
+    // stack_obj = list of {'func': func_ref, 'params': []}
+    if (gres.indexOf('(') == -1) {
+        turtlegui.log_error('Not a function: ' + gres, elem);
+    }
+    var tokens = [];
+    var token = '';
+    for (var i=0; i<gres.length; i++) {
+        if (gres[i] == '(' || gres[i] == ')' || gres[i] == ',') {
+            if (token) {
+                tokens[tokens.length] = token.trim();
+            }
+            tokens[tokens.length] = gres[i];
+            token = '';
+        } else {
+            token = token + gres[i];
+        }
+    }
+
+    for (var t=0; t<tokens.length; t++) {
+        var token = tokens[t];
+        if (token == ')') {
+            var u = t-1;
+            var params = [];
+            while (tokens[u] != '(') {
+                if (tokens[u] != ',') {
+                    params.unshift(tokens[u]);
+                }
+                u--;
+            }
+            var func = tokens[u-1];
+
+            console.log('calling: ' + func, params);
+            var obj = turtlegui.resolve_field(func);
+            var result = obj.apply(elem, params);
+
+            tokens = tokens.slice(0, u-1).concat([result]).concat(tokens.slice(t+1));
+            t = u-1;
+        }
+    }
+
+    return tokens[0];
+}
+
 
 // params is just for functions
 turtlegui._relative_eval = function(elem, gres, params) {
@@ -477,7 +521,7 @@ turtlegui._reload = function(elem, rel_data) {
                 var elemval = $(elem).val();
                 var obj = turtlegui.resolve_field(gres);
                 if (typeof(obj) == 'function') {
-                    turtlegui._relative_eval(elem, gres, elemval);
+                    turtlegui._relative_eval(elem, gres, [elemval]);
                 } else {
                     var parentobj;
                     var fieldname;

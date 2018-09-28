@@ -10,8 +10,11 @@
         return "AFUNC(" + a + ")";
     }
     var f_var='ray';
-    var s1="hello(9, 2, afunc(f_var))";
-    var f1=turtlegui._functionify(s1)
+    var nine = 9;
+    var two = 2;
+    var s1="hello(nine, two, afunc(f_var))";
+    var f1=turtlegui._functionify('f_var')
+    var f2=turtlegui._functionify(s1)
     console.log(f1);
     var example = {
         data: {
@@ -63,6 +66,7 @@
     }
 
     function bind_enter() {
+        // this is set to the element the event is attached to
         console.log("entered");
         $(this).css("background-color", "green");
     }
@@ -75,7 +79,7 @@
         }
     }
 
-    function contextual_variable() {
+    function contextual_function_call(line) {
         return "List item: " + line;
     }
 
@@ -132,7 +136,7 @@
                 <div data-gui-list="example.data.address" data-gui-item="line">
                     <div class="listitem">
                         <div data-gui-text="line"></div>
-                        <div data-gui-text="contextual_variable"></div>
+                        <div data-gui-text="contextual_function_call(line)"></div>
                     </div>
                 </div>
             </div>
@@ -144,18 +148,18 @@
                 <div class="box" data-gui-show="example.data.can_pay_rent">
                     I can pay rent this month
                 </div>
-                <input id="btn_rent" type="button" data-gui-click="spend_rent" value="Spend Rent"></input>
+                <input id="btn_rent" type="button" data-gui-click="spend_rent()" value="Spend Rent"></input>
             </div>
         </div>
 
         <div class="section">
             <div class="title">Enter value and listen for change</div>
             <div class="body">
-                <input type="text" data-gui-val="example.data.profession" data-gui-change="turtlegui.reload"></input>
+                <input type="text" data-gui-val="example.data.profession" data-gui-change="turtlegui.reload()"></input>
                 <div>You are a: </div><div class="thing" data-gui-text="example.data.profession"></div>
 
                 <p></p>
-                <input type="text" data-gui-val="bobs_likes" data-gui-change="turtlegui.reload"></input>
+                <input type="text" data-gui-val="bobs_likes" data-gui-change="turtlegui.reload()"></input>
                 <div>Your likes include: </div><div class="thing" data-gui-text="example.data.likes"></div>
             </div>
         </div>
@@ -163,9 +167,9 @@
         <div class="section">
             <div class="title">Switch between panels</div>
             <div class="body">
-                <input type="button" data-gui-click="order_burger" value="Order burder"></input>
-                <input type="button" data-gui-click="order_fries" value="Order fries"></input>
-                <input type="button" data-gui-click="order_soda" value="Order soda"></input>
+                <input type="button" data-gui-click="order_burger()" value="Order burder"></input>
+                <input type="button" data-gui-click="order_fries()" value="Order fries"></input>
+                <input type="button" data-gui-click="order_soda()" value="Order soda"></input>
                 <div data-gui-switch="example.data.order_id">
                     <div class="listitem" data-gui-case="burger">
                          Burger
@@ -205,7 +209,7 @@
         <div class="section">
             <div class="title">Event Binds</div>
             <div class="body">
-                <div data-gui-bind="mouseenter" data-gui-event="bind_enter">Hover here</div>
+                <div data-gui-bind="mouseenter" data-gui-event="bind_enter()">Hover here</div>
             </div>
         </div>
 

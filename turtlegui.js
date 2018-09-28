@@ -69,21 +69,23 @@ turtlegui.resolve_field = function(gres, rel_data) {
 
 turtlegui._functionify = function(gres, elem) {
     // stack_obj = list of {'func': func_ref, 'params': []}
-    if (gres.indexOf('(') == -1) {
-        turtlegui.log_error('Not a function: ' + gres, elem);
-    }
     var tokens = [];
     var token = '';
     for (var i=0; i<gres.length; i++) {
         if (gres[i] == '(' || gres[i] == ')' || gres[i] == ',') {
             if (token) {
-                tokens[tokens.length] = token.trim();
+                tokens[tokens.length] = turtlegui.resolve_field(token.trim());
             }
-            tokens[tokens.length] = gres[i];
+            if (gres[i] != ',') {
+                tokens[tokens.length] = gres[i];
+            }
             token = '';
         } else {
             token = token + gres[i];
         }
+    }
+    if (token) {
+        tokens[tokens.length] = turtlegui.resolve_field(gres);
     }
 
     for (var t=0; t<tokens.length; t++) {
@@ -92,16 +94,12 @@ turtlegui._functionify = function(gres, elem) {
             var u = t-1;
             var params = [];
             while (tokens[u] != '(') {
-                if (tokens[u] != ',') {
-                    params.unshift(tokens[u]);
-                }
+                params.unshift(tokens[u]);
                 u--;
             }
             var func = tokens[u-1];
 
-            console.log('calling: ' + func, params);
-            var obj = turtlegui.resolve_field(func);
-            var result = obj.apply(elem, params);
+            var result = func.apply(elem, params);
 
             tokens = tokens.slice(0, u-1).concat([result]).concat(tokens.slice(t+1));
             t = u-1;
@@ -127,12 +125,7 @@ turtlegui._relative_eval = function(elem, gres, params) {
         window[key] = rel[key];
     }
     try {
-        var obj = turtlegui.resolve_field(gres);
-        if (typeof(obj) == 'function') {
-            return obj.apply(elem, params);
-        } else {
-            return obj;
-        }
+        return turtlegui._functionify(gres, elem);
     } catch(e) {
         try {
             turtlegui.log_error("Error evaluating " + gres + " on elem : " + e, elem)
@@ -204,19 +197,6 @@ turtlegui.deferred_reload = function(elem, rel_data) {
 }
 
 
-turtlegui._get_data_gui_params = function (elem) {
-    var params = {};
-    if (elem.attr('data-gui-include-params')) {
-        // Needs extra brackets to eval object
-        params = turtlegui._relative_eval(elem, "(" + elem.attr('data-gui-include-params') + ")");
-        if (!$.isPlainObject(params)) {
-            throw "data-gui-include-params must evaluate to a Plain JS Object";
-        }
-    }
-    return params;
-}
-
-
 turtlegui._show_element = function(elem) {
     if (elem.attr('data-gui-onshow')) {
         turtlegui._relative_eval(elem, elem.attr('data-gui-onshow'))
@@ -231,6 +211,26 @@ turtlegui._hide_element = function(elem) {
         turtlegui._relative_eval(elem, elem.attr('data-gui-onhide'))
     } else {
         elem.hide();
+    }
+}
+
+
+turtlegui._comma_separated = function(elem, attrstr) {
+    if (attrstr != null) {
+        var attrs = attrstr.split(',');
+        var comma = {};
+        for (var attr in attrs) {
+            if (attrs[attr].indexOf('=') != -1) {
+                var key = attrs[attr].split('=')[0];
+                var val = turtlegui._relative_eval(elem, attrs[attr].split('=')[1]);
+                comma[key] = val;
+            } else {
+                turtlegui.log_error("Cannot evaluate " + attrs[attr] + " of '" + attrstr + "' :- must be a comma-separated string of name=value pairs)", elem)
+            }
+        }
+        return comma;
+    } else {
+        return {}
     }
 }
 
@@ -258,28 +258,16 @@ turtlegui._reload = function(elem, rel_data) {
     }
     if (elem.attr('data-gui-attrs')) {
         var attrstr = elem.attr('data-gui-attrs');
-        var attrs = attrstr.split(',');
-        for (var attr in attrs) {
-            if (attrs[attr].indexOf('=') != -1) {
-                var key = attrs[attr].split('=')[0];
-                var val = turtlegui._relative_eval(elem, attrs[attr].split('=')[1]);
-                elem.attr(key, val);
-            } else {
-                turtlegui.log_error("Cannot evaluate " + attrs[attr] + " of '" + attrstr + "' (data-gui-attrs must be a comma-separated string of name=value pairs)", elem)
-            }
+        var attrs = turtlegui._comma_separated(elem, attrstr);
+        for (var key in attrs) {
+            elem.attr(key, attrs[key]);
         }
     }
     if (elem.attr('data-gui-data')) {
         var datastr = elem.attr('data-gui-data');
-        var datas = datastr.split(',');
-        for (var data in datas) {
-            if (datas[data].indexOf('=') != -1) {
-                var key = datas[data].split('=')[0];
-                var val = turtlegui._relative_eval(elem, datas[data].split('=')[1]);
-                elem.data(key, val);
-            } else {
-                turtlegui.log_error("Cannot evaluate " + datas[data] + " of '" + datastr + "' (data-gui-data must be a comma-separated string of name=value pairs)", elem)
-            }
+        var datas = turtlegui._comma_separated(elem, datastr);
+        for (var key in datas) {
+            elem.data(key, datas[key]);
         }
     }
     if (elem.attr('data-gui-class')) {
@@ -466,13 +454,13 @@ turtlegui._reload = function(elem, rel_data) {
         elem.attr('data-gui-included', true);
         var url = turtlegui._get_safe_value(elem, 'data-gui-include');
 
-        var params = turtlegui._get_data_gui_params(elem);
+        var params = turtlegui._comma_separated(elem, elem.attr('data-gui-include-params'));
 
         var rel_data = jQuery.extend(params, rel_data);
         turtlegui.load_snippet(elem, url, rel_data);
     }
     else if (elem.attr('data-gui-include') && elem.attr('data-gui-included')) {
-        var params = turtlegui._get_data_gui_params(elem);
+        var params = turtlegui._comma_separated(elem, elem.attr('data-gui-include-params'));
 
         var rel_data = jQuery.extend(params, rel_data);
         elem.children().each(function() {
@@ -491,7 +479,11 @@ turtlegui._reload = function(elem, rel_data) {
     }
 
     if (elem.attr('data-gui-val')) {
-        var value = turtlegui._get_safe_value(elem, 'data-gui-val');
+        var obj_ref = turtlegui._get_safe_value(elem, 'data-gui-val');
+        var value = obj_ref;
+        if (typeof(obj_ref) == 'function') {
+            value = obj_ref();
+        }
         if ($(elem).is(':checkbox')) {
             $(elem).prop('checked', value);
         } else {
@@ -504,36 +496,35 @@ turtlegui._reload = function(elem, rel_data) {
         }
         $(elem).change(function () {
             var gres = elem.attr('data-gui-val');
-            if ($(elem).is(':checkbox')) {
-                turtlegui._relative_eval(elem, gres + " = " + $(elem).prop('checked'));
-            } else if (elem.attr('data-gui-parse-func')) {
-                var elem_val = $(elem).val();
-                if (elem_val != null) {
-                    // Complex objects don't parse so well with eval, so putting the result into the data-rel structure
-                    var __formatted = turtlegui._relative_eval(elem, elem.attr('data-gui-parse-func'))(elem_val);
-                    var rel = elem.data('data-rel');
-                    rel['__formatted'] = __formatted;
-                    turtlegui._relative_eval(elem, gres + " = __formatted");
+
+            var setval = function(gres, elemval) {
+                var parentobj;
+                var fieldname;
+                if (gres.indexOf('.') != -1) {
+                    var parentgres = gres.substring(0, gres.lastIndexOf('.'));
+                    parentobj = turtlegui._relative_eval(elem, parentgres);
+                    fieldname = gres.substring(gres.lastIndexOf('.') + 1);
                 } else {
-                    turtlegui._relative_eval(elem, gres + " = null");
+                    parentobj = window;
+                    fieldname = gres;
                 }
+                parentobj[fieldname] = elemval;
+            }
+
+            if ($(elem).is(':checkbox')) {
+                setval(gres, $(elem).prop('checked'));
             } else {
-                var elemval = $(elem).val();
-                var obj = turtlegui.resolve_field(gres);
-                if (typeof(obj) == 'function') {
-                    turtlegui._relative_eval(elem, gres, [elemval]);
+                var elem_val = $(elem).val();
+                if (elem_val != null && elem.attr('data-gui-parse-func')) {
+                    elem_val = turtlegui._relative_eval(elem, elem.attr('data-gui-parse-func'))(elem_val);
+                }
+
+                var obj_ref = turtlegui._get_safe_value(elem, 'data-gui-val');
+
+                if (typeof(obj_ref) == 'function') {
+                    obj_ref(elem_val);
                 } else {
-                    var parentobj;
-                    var fieldname;
-                    if (gres.indexOf('.') != -1) {
-                        var parentgres = gres.substring(0, gres.lastIndexOf('.'));
-                        parentobj = turtlegui.resolve_field(parentgres);
-                        fieldname = gres.substring(gres.lastIndexOf('.') + 1);
-                    } else {
-                        parentobj = window;
-                        fieldname = gres;
-                    }
-                    parentobj[fieldname] = elemval;
+                    setval(gres, elem_val);
                 }
             }
         });

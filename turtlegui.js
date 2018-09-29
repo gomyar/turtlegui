@@ -452,12 +452,13 @@ turtlegui._reload = function(elem, rel_data) {
     }
     else if (elem.attr('data-gui-include') && !elem.attr('data-gui-included')) {
         elem.attr('data-gui-included', true);
-        var url = turtlegui._get_safe_value(elem, 'data-gui-include');
+        var url = elem.attr('data-gui-include');
+        if (url != null) {
+            var params = turtlegui._comma_separated(elem, elem.attr('data-gui-include-params'));
 
-        var params = turtlegui._comma_separated(elem, elem.attr('data-gui-include-params'));
-
-        var rel_data = jQuery.extend(params, rel_data);
-        turtlegui.load_snippet(elem, url, rel_data);
+            var rel_data = jQuery.extend(params, rel_data);
+            turtlegui.load_snippet(elem, url, rel_data);
+        }
     }
     else if (elem.attr('data-gui-include') && elem.attr('data-gui-included')) {
         var params = turtlegui._comma_separated(elem, elem.attr('data-gui-include-params'));

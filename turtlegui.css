@@ -1,0 +1,42 @@
+
+body {
+    margin : 0;
+    padding : 0;
+    border : 0;
+    overflow-y : hidden;
+}
+
+div.view {
+    width : 100%;
+    height : 100%;
+    display : inline-block;
+    font-size : 0px;
+    vertical-align: text-top;
+    font-family : "Comic Sans MS", cursive, sans-serif;
+}
+
+div.view div.row {
+    /* expects 'height' */
+    height : auto;
+    width : 100%;
+    display : inline-block;
+    vertical-align: text-top;
+}
+
+div.view div.col {
+    /* expects 'width' */
+    width : auto;
+    height : 100%;
+    display : inline-block;
+    vertical-align: text-top;
+}
+
+div.view div.section {
+    background-color : lightblue;
+    font-size : initial;
+    padding : 3px;
+}
+
+div.view div.scrollable {
+    overflow-y : auto;
+}

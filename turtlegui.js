@@ -72,7 +72,7 @@ turtlegui._functionify = function(gres, elem) {
     var tokens = [];
     var token = '';
     for (var i=0; i<gres.length; i++) {
-        if (gres[i] == '(' || gres[i] == ')' || gres[i] == ',') {
+        if ('(),[]'.indexOf(gres[i]) != -1) {
             if (token) {
                 tokens[tokens.length] = turtlegui.resolve_field(token.trim());
             }
@@ -94,6 +94,9 @@ turtlegui._functionify = function(gres, elem) {
             var u = t-1;
             var params = [];
             while (tokens[u] != '(') {
+                if (tokens[u] == ']' || tokens[u] == '[') {
+                    turtlegui.log_error("Unexpected "+tokens[u]+" character in '"+gres+"'", elem)
+                }
                 params.unshift(tokens[u]);
                 u--;
             }
@@ -104,6 +107,22 @@ turtlegui._functionify = function(gres, elem) {
             tokens = tokens.slice(0, u-1).concat([result]).concat(tokens.slice(t+1));
             t = u-1;
         }
+        else if (token == ']') {
+
+            if (tokens[t-2] != '[') {
+                turtlegui.log_error("No corresponding [ for ] in '"+gres+"'", elem)
+            }
+
+            var param = tokens[t-1];
+
+            var func = tokens[t-3];
+
+            var result = func[param];
+
+            tokens = tokens.slice(0, t-3).concat([result]).concat(tokens.slice(t+1));
+            t = t-3;
+        }
+
     }
 
     return tokens[0];

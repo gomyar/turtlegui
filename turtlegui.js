@@ -51,90 +51,108 @@ turtlegui.log_error = function(msg, elem) {
 
 
 turtlegui.resolve_field = function(gres, rel_data) {
-    var cdata = window;
-    if (!gres) return undefined;
-    while (gres.indexOf('.') != -1) {
-        var field = gres.split('.', 1)[0];
-        cdata = cdata[field]
-        if (cdata == undefined) return undefined;
-        if (cdata == null) return null;
-        gres = gres.slice(gres.indexOf('.') + 1);
-    }
-    if (gres in cdata) {
-        return cdata[gres];
+    if (gres in rel_data) {
+        return rel_data[gres];
+    } else if (gres in window) {
+        return window[gres];
     } else {
         return undefined;
     }
 }
 
-turtlegui._functionify = function(gres, elem) {
-    var rel_data = {};
-    try {
-        rel_data = elem.data('data-rel');
-    }catch(e) {
-        console.log("error", e);
-    }
- 
+turtlegui._tokenize = function(token_str) {
     var tokens = [];
     var token = '';
-    for (var i=0; i<gres.length; i++) {
-        if ('(),[].'.indexOf(gres[i]) != -1) {
+    for (var i=0; i<token_str.length; i++) {
+        if ('(),[].'.indexOf(token_str[i]) != -1) {
             if (token) {
                 tokens[tokens.length] = token.trim();
             }
-            if (gres[i] != ',') {
-                tokens[tokens.length] = gres[i];
+            if (token_str[i] != ',') {
+                tokens[tokens.length] = token_str[i];
             }
             token = '';
         } else {
-            token = token + gres[i];
+            token = token + token_str[i];
         }
     }
     if (token) {
         tokens[tokens.length] = token;
     }
+    return tokens;
+}
+
+
+turtlegui._process_token = function(tokens, t, gres, rel_data, elem) {
+    var token = tokens[t];
+    if (token == ')') {
+        var u = t-1;
+        var params = [];
+        while (tokens[u] != '(') {
+            if (tokens[u] == ']' || tokens[u] == '[') {
+                turtlegui.log_error("Unexpected "+tokens[u]+" character in '"+gres+"'", elem)
+            }
+            params.unshift(tokens[u]);
+            u--;
+        }
+        var func = tokens[u-1];
+        var result = func.apply(elem, params);
+        tokens = tokens.slice(0, u-1).concat([result]).concat(tokens.slice(t+1));
+        t = u-1;
+    }
+    else if (token == ']') {
+
+        if (tokens[t-2] != '[') {
+            turtlegui.log_error("No corresponding [ for ] in '"+gres+"'", elem)
+        }
+        var field = tokens[t-1];
+        var obj = tokens[t-3];
+        var result = obj[field];
+        tokens = tokens.slice(0, t-3).concat([result]).concat(tokens.slice(t+1));
+        t = t-3;
+    }
+    else if (tokens[t-1] == '.') {
+        var field = token;
+        var obj = tokens[t-2];
+        var result = obj[field];
+        tokens = tokens.slice(0, t-2).concat([result]).concat(tokens.slice(t+1));
+        t = t-2;
+    }
+    else if (typeof(tokens[t]) == 'string' && '(),[].'.indexOf(tokens[t]) == -1) {
+        tokens[t] = turtlegui.resolve_field(tokens[t], rel_data);
+    }
+    return [tokens, t];
+}
+
+
+
+turtlegui._functionify = function(gres, elem) {
+    var rel_data = elem.data('data-rel') || {};
+ 
+    var tokens = turtlegui._tokenize(gres);
 
     for (var t=0; t<tokens.length; t++) {
-        var token = tokens[t];
-        if (token == ')') {
-            var u = t-1;
-            var params = [];
-            while (tokens[u] != '(') {
-                if (tokens[u] == ']' || tokens[u] == '[') {
-                    turtlegui.log_error("Unexpected "+tokens[u]+" character in '"+gres+"'", elem)
-                }
-                params.unshift(tokens[u]);
-                u--;
-            }
-            var func = tokens[u-1];
-            var result = func.apply(elem, params);
-            tokens = tokens.slice(0, u-1).concat([result]).concat(tokens.slice(t+1));
-            t = u-1;
-        }
-        else if (token == ']') {
-
-            if (tokens[t-2] != '[') {
-                turtlegui.log_error("No corresponding [ for ] in '"+gres+"'", elem)
-            }
-            var field = tokens[t-1];
-            var obj = tokens[t-3];
-            var result = obj[field];
-            tokens = tokens.slice(0, t-3).concat([result]).concat(tokens.slice(t+1));
-            t = t-3;
-        }
-        else if (tokens[t-1] == '.') {
-            var field = token;
-            var obj = tokens[t-2];
-            var result = obj[field];
-            tokens = tokens.slice(0, t-2).concat([result]).concat(tokens.slice(t+1));
-            t = t-2;
-        }
-        else if (typeof(tokens[t]) == 'string' && '(),[].'.indexOf(tokens[t]) == -1) {
-            tokens[t] = turtlegui.resolve_field(tokens[t], rel_data);
-        }
+        var tl = turtlegui._process_token(tokens, t, gres, rel_data, elem);
+        tokens = tl[0];
+        t = tl[1];
     }
 
     return tokens[0];
+}
+
+
+turtlegui._functionify_partial = function(gres, elem) {
+    var rel_data = elem.data('data-rel') || {};
+
+    var tokens = turtlegui._tokenize(gres);
+
+    for (var t=0; t<tokens.length - 1; t++) {
+        var tl = turtlegui._process_token(tokens, t, gres, rel_data, elem);
+        tokens = tl[0];
+        t = tl[1];
+    }
+
+    return tokens;
 }
 
 
@@ -528,35 +546,31 @@ turtlegui._reload = function(elem, rel_data) {
         $(elem).change(function () {
             var gres = elem.attr('data-gui-val');
 
-            var setval = function(gres, elemval) {
-                var parentobj;
-                var fieldname;
-                if (gres.indexOf('.') != -1) {
-                    var parentgres = gres.substring(0, gres.lastIndexOf('.'));
-                    parentobj = turtlegui._relative_eval(elem, parentgres);
-                    fieldname = gres.substring(gres.lastIndexOf('.') + 1);
-                } else {
-                    parentobj = window;
-                    fieldname = gres;
-                }
-                parentobj[fieldname] = elemval;
-            }
-
             if ($(elem).is(':checkbox')) {
-                setval(gres, $(elem).prop('checked'));
+                var elem_val = $(elem).prop('checked');
             } else {
                 var elem_val = $(elem).val();
-                if (elem_val != null && elem.attr('data-gui-parse-func')) {
-                    elem_val = turtlegui._relative_eval(elem, elem.attr('data-gui-parse-func'))(elem_val);
-                }
+            }
 
-                var obj_ref = turtlegui._get_safe_value(elem, 'data-gui-val');
+            if (elem_val != null && elem.attr('data-gui-parse-func')) {
+                elem_val = turtlegui._relative_eval(elem, elem.attr('data-gui-parse-func'))(elem_val);
+            }
 
-                if (typeof(obj_ref) == 'function') {
-                    obj_ref(elem_val);
-                } else {
-                    setval(gres, elem_val);
-                }
+            var partial = turtlegui._functionify_partial(gres, elem);
+            if (partial.length == 1) {
+                // Single variable
+                window[partial[0]] = elem_val;
+            } else if (partial.length == 4 && $.isPlainObject(partial[0]) && partial[1] == '[' && partial[3] == ']') {
+                // dict-like object ref
+                partial[0][partial[2]] = elem_val;
+            } else if (partial.length == 3 && $.isPlainObject(partial[0]) && partial[1] == '.') {
+                // dot object ref
+                partial[0][partial[2]] = elem_val;
+            } else if (typeof(partial[0]) == 'function' && partial[1] == '(' && partial[partial.length-1] == ')') {
+                // function ref
+                var params = partial.slice(1, partial.length-2);
+                params.push(elem_val);
+                func.apply(elem, params);
             }
         });
     }

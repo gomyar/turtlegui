@@ -68,13 +68,19 @@ turtlegui.resolve_field = function(gres, rel_data) {
 }
 
 turtlegui._functionify = function(gres, elem) {
-    // stack_obj = list of {'func': func_ref, 'params': []}
+    var rel_data = {};
+    try {
+        rel_data = elem.data('data-rel');
+    }catch(e) {
+        console.log("error", e);
+    }
+ 
     var tokens = [];
     var token = '';
     for (var i=0; i<gres.length; i++) {
-        if ('(),[]'.indexOf(gres[i]) != -1) {
+        if ('(),[].'.indexOf(gres[i]) != -1) {
             if (token) {
-                tokens[tokens.length] = turtlegui.resolve_field(token.trim());
+                tokens[tokens.length] = token.trim();
             }
             if (gres[i] != ',') {
                 tokens[tokens.length] = gres[i];
@@ -85,7 +91,7 @@ turtlegui._functionify = function(gres, elem) {
         }
     }
     if (token) {
-        tokens[tokens.length] = turtlegui.resolve_field(gres);
+        tokens[tokens.length] = token;
     }
 
     for (var t=0; t<tokens.length; t++) {
@@ -101,9 +107,7 @@ turtlegui._functionify = function(gres, elem) {
                 u--;
             }
             var func = tokens[u-1];
-
             var result = func.apply(elem, params);
-
             tokens = tokens.slice(0, u-1).concat([result]).concat(tokens.slice(t+1));
             t = u-1;
         }
@@ -112,17 +116,22 @@ turtlegui._functionify = function(gres, elem) {
             if (tokens[t-2] != '[') {
                 turtlegui.log_error("No corresponding [ for ] in '"+gres+"'", elem)
             }
-
-            var param = tokens[t-1];
-
-            var func = tokens[t-3];
-
-            var result = func[param];
-
+            var field = tokens[t-1];
+            var obj = tokens[t-3];
+            var result = obj[field];
             tokens = tokens.slice(0, t-3).concat([result]).concat(tokens.slice(t+1));
             t = t-3;
         }
-
+        else if (tokens[t-1] == '.') {
+            var field = token;
+            var obj = tokens[t-2];
+            var result = obj[field];
+            tokens = tokens.slice(0, t-2).concat([result]).concat(tokens.slice(t+1));
+            t = t-2;
+        }
+        else if (typeof(tokens[t]) == 'string' && '(),[].'.indexOf(tokens[t]) == -1) {
+            tokens[t] = turtlegui.resolve_field(tokens[t], rel_data);
+        }
     }
 
     return tokens[0];
@@ -134,7 +143,7 @@ turtlegui._relative_eval = function(elem, gres, params) {
     try {
         var rel = elem.data('data-rel');
     }catch(e) {
-        console.log("error ");
+        console.log("error", e);
     }
     var switcharoo = {};
     for (var key in rel) {
@@ -205,7 +214,9 @@ turtlegui.reload = function(elem, rel_data) {
     for (var i=0; i<path_indices.length; i++) {
         current_elem = $(current_elem.children()[path_indices[i]]);
     }
-    current_elem.focus();
+    if (document.activeElement != current_elem) {
+        current_elem.focus();
+    }
 }
 
 

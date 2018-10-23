@@ -7,7 +7,7 @@ To use:
 1. Create html template using data-gui-* tags
 2. Populate json object data (manually or using an ajax call).
     var my_data = {'name': 'Turtle Soup', 'ingredients': [{'name': 'water'}, {'name': 'turtle'}]}
-3. Turtlegui evaluates js strings, i.e. "my_data.name" is used to populate 
+3. Turtlegui evaluates model strings, i.e. "my_data.name"
 4. Whenever a change occurs (data load or user change), call:
     turtlegui.reload()
     which reloads the gui
@@ -78,7 +78,15 @@ $(document).ready(function() {
 </html>
 ~~~~
 
-Turtlegui uses "data-" element fields which resolve js, (function call or dot notation path to data)
+Turtlegui uses a simplified model syntax for reading / writing data and calling functions. Most data-gui- fields use this model syntax unless otherwise stated.
+
+The syntax supports:
+* simple field names: i.e. 'myvar' evaluates to the myvar variable.
+* object syntax: i.e. 'myobj.myvar' evaluates the 'myvar' field of the 'myobj' object.
+* dict-like syntax: i.e. 'myobj[key]' evaluates 'key' first (key must be a variable) and uses that as the lookup in myobj
+* function calls: i.e. 'callme(myvar)' will evaluate the 'myvar' variable and pass that into the callme function, returning the value
+
+Turtlegui uses "data-" element fields
 
 Types of supported fields:
 
@@ -86,25 +94,29 @@ Types of supported fields:
 * data-gui-html: populates element.html() with the evaluated value
 * data-gui-list: creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by 'data-gui-item'
 * data-gui-item: used during data-gui-list - the name of the local variable to store the current list value
-* data-gui-key: used during data-gui-list - the current key of the list or object
+* data-gui-key: used during data-gui-list - the name of the local variable used to store the current key of the list or object
 * data-gui-ordering: for each item in data-gui-list, specify the key to sort by
 * data-gui-reversed: reverse the order of data-gui-list
 * data-gui-show: shows or hides based on evaluated value (true/false)
+* data-gui-onshow: callback function used when the value of data-gui-show changes (can be used for transitions)
+* data-gui-onhide: callback function used when the value of data-gui-show changes (can be used for transitions)
 * data-gui-switch: shows or hides child elements based on values of data-gui-case attributes of those children
 * data-gui-case: show/hide element if value is equal to parent data-gui-switch
-* data-gui-click: evaluates js on click (normally a function call)
+* data-gui-click: evaluates on click (normally a function call)
+* data-gui-bind: binds to arbitrary event name, for use with data-gui-event
+* data-gui-event: evaluates when the event specified by data-gui-bind fires
 * data-gui-include: include an html snippet
-* data-gui-include-params: a js object - the keys are sent to the snippet as local vars
+* data-gui-include-params: comma-separated string of values to send to the template as local variables
 * data-gui-include-nocache: if present, will not cache the template
 * data-gui-class: sets classname(s) on element
-* data-gui-val: sets value on element - will write back a changed value if the target is a simple type (number, string)
+* data-gui-val: sets value on element - will write back a changed value if the target is a simple type (number, string). If target is a function, calls the function with the value as an extra parameter
 * data-gui-id: sets id on element
-* data-gui-change: evaluates js on change event
+* data-gui-change: evaluates on change event (usually for an input field)
 * data-gui-format-func: used for data-gui-val - reference to a function expected to format the string on a read
 * data-gui-parse-func: used for data-gui-val - reference to a function expected to parse the string on a write (i.e. parseFloat)
-* data-gui-attr: sets an attribute on an element (used with data-gui-attrval)
-* data-gui-attrval: the value of the attribute specified by data-gui-attr
-* data-gui-tree: process a tree structure using data-gui-nodeitem and data-gui-node. Honestly this one might need work, see filetree.html for an example
+* data-gui-attrs: comma-separated string of values used as attributes on an element (i.e. 'style=')
+* data-gui-data: comma-separated string of values used to set arbitrary data on an element (i.e. 'mylocal=')
+* data-gui-tree: process a tree structure using data-gui-nodeitem and data-gui-node.
 * data-gui-nodeitem: specify the local variable used to iterate the tree
 * data-gui-node: repeat last data-gui-tree template snippet at this point with the specified item as the root
 

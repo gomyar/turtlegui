@@ -266,9 +266,9 @@ turtlegui._hide_element = function(elem) {
 }
 
 
-turtlegui._comma_separated = function(elem, attrstr) {
+turtlegui._semicolon_separated = function(elem, attrstr) {
     if (attrstr != null) {
-        var attrs = attrstr.split(',');
+        var attrs = attrstr.split(';');
         var comma = {};
         for (var attr in attrs) {
             if (attrs[attr].indexOf('=') != -1) {
@@ -276,7 +276,7 @@ turtlegui._comma_separated = function(elem, attrstr) {
                 var val = turtlegui._relative_eval(elem, attrs[attr].split('=')[1]);
                 comma[key] = val;
             } else {
-                turtlegui.log_error("Cannot evaluate " + attrs[attr] + " of '" + attrstr + "' :- must be a comma-separated string of name=value pairs)", elem)
+                turtlegui.log_error("Cannot evaluate " + attrs[attr] + " of '" + attrstr + "' :- must be a semicolon-separated string of name=value pairs)", elem)
             }
         }
         return comma;
@@ -309,14 +309,14 @@ turtlegui._reload = function(elem, rel_data) {
     }
     if (elem.attr('data-gui-attrs')) {
         var attrstr = elem.attr('data-gui-attrs');
-        var attrs = turtlegui._comma_separated(elem, attrstr);
+        var attrs = turtlegui._semicolon_separated(elem, attrstr);
         for (var key in attrs) {
             elem.attr(key, attrs[key]);
         }
     }
     if (elem.attr('data-gui-data')) {
         var datastr = elem.attr('data-gui-data');
-        var datas = turtlegui._comma_separated(elem, datastr);
+        var datas = turtlegui._semicolon_separated(elem, datastr);
         for (var key in datas) {
             elem.data(key, datas[key]);
         }
@@ -510,14 +510,14 @@ turtlegui._reload = function(elem, rel_data) {
         elem.attr('data-gui-included', true);
         var url = elem.attr('data-gui-include');
         if (url != null) {
-            var params = turtlegui._comma_separated(elem, elem.attr('data-gui-include-params'));
+            var params = turtlegui._semicolon_separated(elem, elem.attr('data-gui-include-params'));
 
             var rel_data = jQuery.extend(params, rel_data);
             turtlegui.load_snippet(elem, url, rel_data);
         }
     }
     else if (elem.attr('data-gui-include') && elem.attr('data-gui-included')) {
-        var params = turtlegui._comma_separated(elem, elem.attr('data-gui-include-params'));
+        var params = turtlegui._semicolon_separated(elem, elem.attr('data-gui-include-params'));
 
         var rel_data = jQuery.extend(params, rel_data);
         elem.children().each(function() {

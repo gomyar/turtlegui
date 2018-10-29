@@ -106,7 +106,7 @@ Types of supported fields:
 * data-gui-bind: binds to arbitrary event name, for use with data-gui-event
 * data-gui-event: evaluates when the event specified by data-gui-bind fires
 * data-gui-include: include an html snippet
-* data-gui-include-params: comma-separated string of values to send to the template as local variables
+* data-gui-include-params: semicolon-separated string of values to send to the template as local variables
 * data-gui-include-nocache: if present, will not cache the template
 * data-gui-class: sets classname(s) on element
 * data-gui-val: sets value on element - will write back a changed value if the target is a simple type (number, string). If target is a function, calls the function with the value as an extra parameter
@@ -114,8 +114,8 @@ Types of supported fields:
 * data-gui-change: evaluates on change event (usually for an input field)
 * data-gui-format-func: used for data-gui-val - reference to a function expected to format the string on a read
 * data-gui-parse-func: used for data-gui-val - reference to a function expected to parse the string on a write (i.e. parseFloat)
-* data-gui-attrs: comma-separated string of values used as attributes on an element (i.e. 'style=')
-* data-gui-data: comma-separated string of values used to set arbitrary data on an element (i.e. 'mylocal=')
+* data-gui-attrs: semicolon-separated string of values used as attributes on an element (i.e. 'style=')
+* data-gui-data: semicolon-separated string of values used to set arbitrary data on an element (i.e. 'mylocal=')
 * data-gui-tree: process a tree structure using data-gui-nodeitem and data-gui-node.
 * data-gui-nodeitem: specify the local variable used to iterate the tree
 * data-gui-node: repeat last data-gui-tree template snippet at this point with the specified item as the root

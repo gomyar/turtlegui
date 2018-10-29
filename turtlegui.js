@@ -345,7 +345,7 @@ turtlegui._reload = function(elem, rel_data) {
     }
     if (elem.attr('data-gui-click')) {
         elem.unbind('click').click(function(e) {
-            turtlegui._relative_eval(elem, elem.attr('data-gui-click'));
+            return turtlegui._relative_eval(elem, elem.attr('data-gui-click'));
         });
     }
     if (elem.attr('data-gui-bind') && elem.attr('data-gui-event')) {

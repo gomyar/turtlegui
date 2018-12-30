@@ -542,7 +542,11 @@ turtlegui._reload = function(elem, rel_data) {
             value = obj_ref();
         }
         if ($(elem).is(':checkbox')) {
-            $(elem).prop('checked', value);
+            if (value) {
+                $(elem).prop('checked', true);
+            } else {
+                $(elem).prop('checked', false);
+            }
         } else {
             if (elem.attr('data-gui-format-func')) {
                 if (value != null) {

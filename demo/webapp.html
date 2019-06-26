@@ -1,0 +1,54 @@
+<html>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="../turtlegui.js"></script>
+<script src="webapp.js"></script>
+
+<link rel="stylesheet" type="text/css" href="webapp.css"/>
+
+
+</style>
+
+<body>
+
+<div class="main">
+    <div class="layer fullscreen">
+        <div class="maincontentarea">
+            This is an example of a layered approach to gui design.
+        </div>
+    </div>
+    <div class="layer anchortop">
+        <div class="mainmenu">
+            <div class="menuitem">
+            menu 1
+            </div>
+            <div class="menuitem">
+            menu 2
+            </div>
+        </div>
+    </div>
+    <div class="layer anchorleft">
+        <div class="sidemenu">
+            <div class="sidemenuitem">
+            This menu is anchored on the left
+            </div>
+            <div class="sidemenuitem" data-gui-click="gui.open_dialog()">
+            Click to show dialog popup
+            </div>
+            <div class="sidemenuitem" data-gui-click="gui.open_notification()">
+            Click to show notification
+            </div>
+        </div>
+    </div>
+    <div class="layer anchorbottom">
+        <div class="notify" data-gui-show="gui.show_notification" data-gui-onshow="gui.scroll_vertical_in(200)" data-gui-onhide="gui.fade_out()">
+            This notification is anchored to the bottom right of the screen
+        </div>
+    </div>
+    <div class="layer fullscreen popupfill" data-gui-show="gui.show_dialog" data-gui-onshow="gui.fade_in()">
+        <div class="popup">
+            <div class="close" data-gui-click="gui.close_dialog()"><div>&times;</div></div>
+            This notification is centered
+        </div>
+    </div>
+</div>

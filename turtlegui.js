@@ -55,8 +55,10 @@ turtlegui.resolve_field = function(gres, rel_data) {
         return rel_data[gres];
     } else if (gres in window) {
         return window[gres];
+    } else if (isNaN(gres)) {
+        return gres;
     } else {
-        return undefined;
+        return parseFloat(gres);
     }
 }
 
@@ -249,19 +251,25 @@ turtlegui.deferred_reload = function(elem, rel_data, callback) {
 
 
 turtlegui._show_element = function(elem) {
-    if (elem.attr('data-gui-onshow')) {
-        turtlegui._relative_eval(elem, elem.attr('data-gui-onshow'))
-    } else {
-        elem.show();
+    if (elem.attr('data-elem-shown') == 'false' || elem.attr('data-elem-shown') === undefined) {
+        if (elem.attr('data-gui-onshow')) {
+            turtlegui._relative_eval(elem, elem.attr('data-gui-onshow'))
+        } else {
+            elem.show();
+        }
+        elem.attr('data-elem-shown', 'true');
     }
 }
 
 
 turtlegui._hide_element = function(elem) {
-    if (elem.attr('data-gui-onhide')) {
-        turtlegui._relative_eval(elem, elem.attr('data-gui-onhide'))
-    } else {
-        elem.hide();
+    if (elem.attr('data-elem-shown') == 'true' || elem.attr('data-elem-shown') === undefined) {
+        if (elem.attr('data-gui-onhide')) {
+            turtlegui._relative_eval(elem, elem.attr('data-gui-onhide'))
+        } else {
+            elem.hide();
+        }
+        elem.attr('data-elem-shown', 'false');
     }
 }
 

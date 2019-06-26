@@ -1,0 +1,174 @@
+body {
+    border : 0px;
+    margin : 0px;
+    padding : 0px;
+}
+
+div {
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;         /* Opera/IE 8+ */
+}
+
+.main {
+    position: absolute; 
+    top : 0px;
+    bottom : 0px;
+    left : 0px;
+    right : 0px;
+    background-color : grey;
+}
+
+.layer {
+    position : absolute;
+    width : auto;
+    height : auto;
+}
+
+.anchortop{
+    height : 0px;
+    top : 0px;
+    left : 0px;
+    right : 0px;
+}
+
+.anchorleft {
+    width : 0px;
+    top : 0px;
+    left : 0px;
+    bottom : 0px;
+}
+
+.anchorbottom {
+    right : 0px;
+    bottom : 0px;
+    width : 0px;
+    height : 0px;
+}
+
+.fullscreen {
+    top : 0px;
+    left : 0px;
+    bottom : 0px;
+    right : 0px;
+}
+
+.mainmenu {
+    border : 5px solid black;
+
+    padding : 10px;
+    width : 100%;
+    height : 120px;
+    background-color : lightblue;
+
+    font-size : 0px;
+}
+
+.menuitem {
+    width : 100px;
+    height : 100%;
+    background-color : blue;
+    display : inline-block;
+
+    font-size : 12px;
+    margin-right : 10px;
+    padding : 5px;
+}
+.menuitem:hover {
+    background-color : yellow;
+}
+
+.sidemenu {
+    position : absolute;
+    width : 200px;
+    top : 120px;
+    bottom : 0px;
+
+    border : 5px solid black;
+
+    padding : 10px;
+ 
+    background-color : lightgreen;
+    display : block;
+    font-size : 0px;
+}
+
+.sidemenuitem {
+    width : 100%;
+    height : 50px;
+    background-color : green;
+    display : block;
+    font-size : 14px;
+    margin-bottom : 10px;
+    padding : 5px;
+}
+.sidemenuitem:hover {
+    background-color : yellow;
+}
+
+
+.notify {
+    border : 5px solid black;
+
+    height : 200px;
+    width : 200px;
+    background-color : lightyellow;
+    position : relative;
+    top : -220px;
+    left : -220px;
+    padding : 5px;
+}
+
+.visible {
+    opacity: 1;
+    transition: opacity .25s ease-in-out;
+}
+
+.notvisible {
+    opacity: 0;
+    transition: opacity .25s ease-in-out;
+}
+
+.popup {
+    border : 5px solid black;
+    padding : 5px;
+
+    margin : auto;
+    width : 300px;
+    height : 200px;
+    background-color : blue;
+
+    margin-top : 15%;
+}
+
+.popupfill{
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.popup .close {
+    width : 100%;
+    display : inline-block;
+    text-align : right;
+}
+
+.popup .close div {
+    text-align : center;
+    width : 16px;
+    display : inline-block;
+    cursor : pointer;
+    font-size : 15px;
+    font-weight : bold;
+    background-color : white;
+    border : 1px solid black;
+}
+
+.maincontentarea {
+    position : absolute;
+    top : 120px;
+    left : 200px;
+    bottom : 0px;
+    right : 0px;
+
+    border : 5px solid black;
+    padding : 5px;
+}

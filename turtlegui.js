@@ -339,6 +339,10 @@ turtlegui._reload = function(elem, rel_data) {
         elem.removeClass();
         elem.addClass((orig_class || '') + ' ' + (value || ''));
     }
+    if (elem.attr('data-gui-css')) {
+        var properties = turtlegui._get_safe_value(elem, 'data-gui-css');
+        $(elem).css(properties);
+    }
     if (elem.attr('data-gui-id')) {
         var value = turtlegui._get_safe_value(elem, 'data-gui-id');
         $(elem).attr('id', value);

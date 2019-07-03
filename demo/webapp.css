@@ -1,64 +1,10 @@
-body {
-    border : 0px;
-    margin : 0px;
-    padding : 0px;
-}
-
-div {
-    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
-    box-sizing: border-box;         /* Opera/IE 8+ */
-}
-
-.main {
-    position: absolute; 
-    top : 0px;
-    bottom : 0px;
-    left : 0px;
-    right : 0px;
-    background-color : grey;
-}
-
-.layer {
-    position : absolute;
-    width : auto;
-    height : auto;
-}
-
-.anchortop{
-    height : 0px;
-    top : 0px;
-    left : 0px;
-    right : 0px;
-}
-
-.anchorleft {
-    width : 0px;
-    top : 0px;
-    left : 0px;
-    bottom : 0px;
-}
-
-.anchorbottom {
-    right : 0px;
-    bottom : 0px;
-    width : 0px;
-    height : 0px;
-}
-
-.fullscreen {
-    top : 0px;
-    left : 0px;
-    bottom : 0px;
-    right : 0px;
-}
 
 .mainmenu {
     border : 5px solid black;
 
     padding : 10px;
     width : 100%;
-    height : 120px;
+    height : 60px;
     background-color : lightblue;
 
     font-size : 0px;
@@ -81,7 +27,7 @@ div {
 .sidemenu {
     position : absolute;
     width : 200px;
-    top : 120px;
+    top : 55px;
     bottom : 0px;
 
     border : 5px solid black;
@@ -109,6 +55,7 @@ div {
 
 .notify {
     border : 5px solid black;
+    display : none;
 
     height : 200px;
     width : 200px;
@@ -164,8 +111,8 @@ div {
 
 .maincontentarea {
     position : absolute;
-    top : 120px;
-    left : 200px;
+    top : 55px;
+    left : 195px;
     bottom : 0px;
     right : 0px;
 

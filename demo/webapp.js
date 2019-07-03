@@ -6,23 +6,22 @@ gui.show_notification = false;
 gui.show_notification_timeout = null;
 
 
-gui.notify_class = function() {
-    return gui.show_notification ? "visible": ""
-}
-
 gui.dialog_class = function() {
     return gui.show_dialog ? "visible": "notvisible"
 }
+
 
 gui.open_dialog = function() {
     gui.show_dialog = true;
     turtlegui.reload();
 }
 
+
 gui.close_dialog = function() {
     gui.show_dialog = false;
     turtlegui.reload();
 }
+
 
 gui.open_notification = function() {
     gui.show_notification = true;
@@ -48,14 +47,12 @@ gui.fade_in = function() {
 gui.fade_out = function() {
     var self = this;
     this.stop();
-    this.animate({
-        opacity: "0"
-        },
-        1000,
-        function() {
-            console.log("hide");
-            self.hide();
-        });
+    if (this.is(":visible")) {
+        this.animate(
+            {opacity: "0"},
+            1000,
+            self.hide);
+    }
 }
 
 

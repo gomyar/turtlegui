@@ -109,6 +109,7 @@ Types of supported fields:
 * data-gui-include-params: semicolon-separated string of values to send to the template as local variables
 * data-gui-include-nocache: if present, will not cache the template
 * data-gui-class: sets classname(s) on element
+* data-gui-css: set css as properties object
 * data-gui-val: sets value on element - will write back a changed value if the target is a simple type (number, string). If target is a function, calls the function with the value as an extra parameter
 * data-gui-id: sets id on element
 * data-gui-change: evaluates on change event (usually for an input field)

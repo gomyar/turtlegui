@@ -41,6 +41,14 @@ div {
     bottom : 0px;
 }
 
+/* Anchors along the right of the screen - used for menus etc along the right */
+.anchorright {
+    width : 0px;
+    top : 0px;
+    right : 0px;
+    bottom : 0px;
+}
+
 /* Used for menus along the bottom of the screen, vertical popups etc */
 .anchorbottom {
     right : 0px;

@@ -553,7 +553,7 @@ turtlegui._reload = function(elem, rel_data) {
         if (typeof(obj_ref) == 'function') {
             value = obj_ref();
         }
-        if ($(elem).is(':checkbox')) {
+        if ($(elem).is(':checkbox') || $(elem).is(':radio')) {
             if (value) {
                 $(elem).prop('checked', true);
             } else {
@@ -570,7 +570,7 @@ turtlegui._reload = function(elem, rel_data) {
         $(elem).change(function () {
             var gres = elem.attr('data-gui-val');
 
-            if ($(elem).is(':checkbox')) {
+            if ($(elem).is(':checkbox') || $(elem).is(':radio')) {
                 var elem_val = $(elem).prop('checked');
             } else {
                 var elem_val = $(elem).val();
@@ -584,10 +584,10 @@ turtlegui._reload = function(elem, rel_data) {
             if (partial.length == 1) {
                 // Single variable
                 window[partial[0]] = elem_val;
-            } else if (partial.length == 4 && $.isPlainObject(partial[0]) && partial[1] == '[' && partial[3] == ']') {
+            } else if (partial.length == 4 && $.type(partial[0]) == 'object' && partial[1] == '[' && partial[3] == ']') {
                 // dict-like object ref
                 partial[0][partial[2]] = elem_val;
-            } else if (partial.length == 3 && $.isPlainObject(partial[0]) && partial[1] == '.') {
+            } else if (partial.length == 3 && $.type(partial[0]) == 'object' && partial[1] == '.') {
                 // dot object ref
                 partial[0][partial[2]] = elem_val;
             } else if (typeof(partial[0]) == 'function' && partial[1] == '(' && partial[partial.length-1] == ')') {

@@ -177,6 +177,7 @@ turtlegui._relative_eval = function(elem, gres, params) {
     } catch(e) {
         try {
             turtlegui.log_error("Error evaluating " + gres + " on elem : " + e, elem)
+            console.log("Stacktrace: ", e.stack);
         } catch (noconsole) {
             throw e;
         }
@@ -444,6 +445,7 @@ turtlegui._reload = function(elem, rel_data) {
         } else {
             var rel_item = elem.attr('data-gui-item');
             var rel_key = elem.attr('data-gui-key');
+            var rel_order = elem.attr('data-gui-ordering');
             var orig_elems = elem.children();
 
             var first_elem;
@@ -453,6 +455,26 @@ turtlegui._reload = function(elem, rel_data) {
                 elem.data('_first_child', first_elem);
             } else {
                 first_elem = elem.data('_first_child');
+            }
+
+            if (rel_order) {
+                ordered_list = [];
+                for (var i in list) {
+                    ordered_list[i] = list[i];
+                }
+                function cmp(lhs, rhs) {
+                    if (lhs[rel_order] == rhs[rel_order]) {
+                        return 0;
+                    }
+                    else if (lhs[rel_order] > rhs[rel_order]) {
+                        return 1;
+                    }
+                    else {
+                        return -1;
+                    }
+                }
+                ordered_list.sort(cmp);
+                list = ordered_list;
             }
 
             var new_elems = [];

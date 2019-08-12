@@ -1,6 +1,6 @@
 <html>
-<!--    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>-->
-    <script src="jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<!--    <script src="jquery-1.12.4.js"></script>-->
     <script src="turtlegui.js"></script>
     <script>
     var example = {
@@ -44,10 +44,6 @@
         turtlegui.reload();
     }
 
-    function order_burger() { order('burger'); }
-    function order_fries() { order('fries'); }
-    function order_soda() { order('soda'); }
-
     function custom_style() {
         return "background-color: purple;color:yellow;";
     }
@@ -72,6 +68,16 @@
 
     function fadein() {
         $(this).fadeIn();
+    }
+
+    function string_function(str1, str2) {
+        alert(str1 + " - " + str2);
+        return str1 + " - " + str2;
+    }
+
+    function number_function(num1, num2) {
+        alert("Result of function: " + num1 + " + " + num2 + " = " + (num1 + num2));
+        return num1 + num2;
     }
 
     $(document).ready(function() {
@@ -125,10 +131,9 @@
             <div class="title">Lists of Things</div>
             <div class="body">
                 <div data-gui-list="example.data.address" data-gui-item="line">
-                    <div class="listitem">
-                        <div data-gui-text="line"></div>
-                        <div data-gui-text="contextual_function_call(line)"></div>
-                    </div>
+                    <!-- all subelements are duplicated for each item in the list -->
+                    <div data-gui-text="line"></div>
+                    <div data-gui-text="contextual_function_call(line)"></div>
                 </div>
             </div>
         </div>
@@ -159,9 +164,9 @@
         <div class="section">
             <div class="title">Switch between panels</div>
             <div class="body">
-                <input type="button" data-gui-click="order_burger()" value="Order burder"></input>
-                <input type="button" data-gui-click="order_fries()" value="Order fries"></input>
-                <input type="button" data-gui-click="order_soda()" value="Order soda"></input>
+                <input type="button" data-gui-click="order('burger')" value="Order burger"></input>
+                <input type="button" data-gui-click='order("fries")' value="Order fries"></input>
+                <input type="button" data-gui-click="order('soda')" value="Order soda"></input>
                 <div data-gui-switch="example.data.order_id">
                     <div class="listitem" data-gui-case="burger">
                          Burger
@@ -220,9 +225,9 @@
         <div class="section">
             <div class="title">Switch between panels (animate)</div>
             <div class="body">
-                <input type="button" data-gui-click="order_burger()" value="Order burder"></input>
-                <input type="button" data-gui-click="order_fries()" value="Order fries"></input>
-                <input type="button" data-gui-click="order_soda()" value="Order soda"></input>
+                <input type="button" data-gui-click="order('burger')" value="Order burger"></input>
+                <input type="button" data-gui-click='order("fries")' value="Order fries"></input>
+                <input type="button" data-gui-click="order('soda')" value="Order soda"></input>
                 <div data-gui-switch="example.data.order_id">
                     <div class="listitem" data-gui-case="burger" data-gui-onshow="fadein()">
                          Burger
@@ -234,6 +239,27 @@
                          Soda
                     </div>
                 </div>
+            </div>
+        </div>
+ 
+        <div class="section">
+            <div class="title">Reversed Lists of Things</div>
+            <div class="body">
+                <div data-gui-list="example.data.address" data-gui-item="line" data-gui-ordering="line" data-gui-reversed="true">
+                    <div class="listitem">
+                        <div data-gui-text="line"></div>
+                        <div data-gui-text="contextual_function_call(line)"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+ 
+        <div class="section">
+            <div class="title">Various function calls</div>
+            <div class="body">
+                <input type="button" data-gui-click="string_function('hello', 'there')" value="String function"></input>
+                <input type="button" data-gui-click="number_function(10, 20)" value="Number function"></input>
+                <input type="button" data-gui-click="string_function('Result of one function passed into another function:', number_function(30, 40))" value="Combined functions"></input>
             </div>
         </div>
 

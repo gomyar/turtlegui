@@ -80,6 +80,10 @@
         return num1 + num2;
     }
 
+    function same(str) {
+        return str;
+    }
+
     $(document).ready(function() {
         turtlegui.reload();
     });
@@ -263,7 +267,13 @@
             </div>
         </div>
 
-
+        <div class="section">
+            <div class="title">Strings</div>
+            <div class="body">
+                <div>My name is: </div><div class="thing" data-gui-text="same('example.data.name')"></div>
+            </div>
+        </div>
+ 
 
     </body>
 </html>

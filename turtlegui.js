@@ -49,14 +49,21 @@ turtlegui.log_error = function(msg, elem) {
     console.log(msg);
 }
 
+turtlegui._is_string = function(token) {
+    return token.length > 1 && (
+                (token[0] == "'" && token[token.length-1] == "'") || (token[0] == '"' && token[token.length-1] == '"'))
+}
 
 turtlegui.resolve_field = function(gres, rel_data) {
-    if (gres in rel_data) {
+    if (turtlegui._is_string(gres)) {
+        return gres.substring(1, gres.length-1);
+    }
+    else if (gres in rel_data) {
         return rel_data[gres];
     } else if (gres in window) {
         return window[gres];
     } else if (isNaN(gres)) {
-        return gres;
+        return undefined;
     } else {
         return parseFloat(gres);
     }
@@ -67,9 +74,8 @@ turtlegui._tokenize = function(token_str) {
     var token = '';
     function interpret_type(token) {
         // Interpret strings / numbers
-        if (token.length > 1 && (
-                (token[0] == "'" && token[token.length-1] == "'") || (token[0] == '"' && token[token.length-1] == '"'))) {
-            return token.substring(1, token.length-1);
+        if (turtlegui._is_string(token)) {
+            return token; // token.substring(1, token.length-1);
         } else if (token === 'true') {
             return true;
         } else if (token === 'false') {
@@ -78,17 +84,31 @@ turtlegui._tokenize = function(token_str) {
             return token;
         }
     }
+    var processing_string = null;
     for (var i=0; i<token_str.length; i++) {
-        if ('(),[].'.indexOf(token_str[i]) != -1) {
-            if (token) {
-                tokens[tokens.length] = interpret_type(token.trim());
-            }
-            if (token_str[i] != ',') {
-                tokens[tokens.length] = interpret_type(token_str[i]);
-            }
-            token = '';
-        } else {
+        if (processing_string) {
             token = token + token_str[i];
+            if (token_str[i] == processing_string) {
+                processing_string = null;
+                tokens[tokens.length] = interpret_type(token.trim());
+                token = '';
+            } 
+        } else {
+            if (token_str[i] == '"' || token_str[i] == "'") {
+                processing_string = token_str[i];
+                token = token + token_str[i];
+            }
+            else if ('(),[].'.indexOf(token_str[i]) != -1) {
+                if (token) {
+                    tokens[tokens.length] = interpret_type(token.trim());
+                }
+                if (token_str[i] != ',') {
+                    tokens[tokens.length] = interpret_type(token_str[i]);
+                }
+                token = '';
+            } else {
+                token = token + token_str[i];
+            }
         }
     }
     if (token) {

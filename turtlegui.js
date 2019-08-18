@@ -12,6 +12,7 @@ var turtlegui = {};
 turtlegui.root_element = $(document);
 turtlegui.cached_snippets = {};
 turtlegui.loading_snippets = {};
+turtlegui.cached_tokens = {};
 
 
 turtlegui._get_safe_value = function(elem, datasrc) {
@@ -57,8 +58,7 @@ turtlegui._is_string = function(token) {
 turtlegui.resolve_field = function(gres, rel_data) {
     if (turtlegui._is_string(gres)) {
         return gres.substring(1, gres.length-1);
-    }
-    else if (gres in rel_data) {
+    } else if (gres in rel_data) {
         return rel_data[gres];
     } else if (gres in window) {
         return window[gres];
@@ -70,51 +70,54 @@ turtlegui.resolve_field = function(gres, rel_data) {
 }
 
 turtlegui._tokenize = function(token_str) {
-    var tokens = [];
-    var token = '';
-    function interpret_type(token) {
-        // Interpret strings / numbers
-        if (turtlegui._is_string(token)) {
-            return token; // token.substring(1, token.length-1);
-        } else if (token === 'true') {
-            return true;
-        } else if (token === 'false') {
-            return false;
-        } else {
-            return token;
-        }
-    }
-    var processing_string = null;
-    for (var i=0; i<token_str.length; i++) {
-        if (processing_string) {
-            token = token + token_str[i];
-            if (token_str[i] == processing_string) {
-                processing_string = null;
-                tokens[tokens.length] = interpret_type(token.trim());
-                token = '';
-            } 
-        } else {
-            if (token_str[i] == '"' || token_str[i] == "'") {
-                processing_string = token_str[i];
-                token = token + token_str[i];
-            }
-            else if ('(),[].'.indexOf(token_str[i]) != -1) {
-                if (token) {
-                    tokens[tokens.length] = interpret_type(token.trim());
-                }
-                if (token_str[i] != ',') {
-                    tokens[tokens.length] = interpret_type(token_str[i]);
-                }
-                token = '';
+    if (!(token_str in turtlegui.cached_tokens)) {
+        var tokens = [];
+        var token = '';
+        function interpret_type(token) {
+            // Interpret strings / numbers
+            if (turtlegui._is_string(token)) {
+                return token; // token.substring(1, token.length-1);
+            } else if (token === 'true') {
+                return true;
+            } else if (token === 'false') {
+                return false;
             } else {
-                token = token + token_str[i];
+                return token;
             }
         }
+        var processing_string = null;
+        for (var i=0; i<token_str.length; i++) {
+            if (processing_string) {
+                token = token + token_str[i];
+                if (token_str[i] == processing_string) {
+                    processing_string = null;
+                    tokens[tokens.length] = interpret_type(token.trim());
+                    token = '';
+                } 
+            } else {
+                if (token_str[i] == '"' || token_str[i] == "'") {
+                    processing_string = token_str[i];
+                    token = token + token_str[i];
+                }
+                else if ('(),[].'.indexOf(token_str[i]) != -1) {
+                    if (token) {
+                        tokens[tokens.length] = interpret_type(token.trim());
+                    }
+                    if (token_str[i] != ',') {
+                        tokens[tokens.length] = interpret_type(token_str[i]);
+                    }
+                    token = '';
+                } else {
+                    token = token + token_str[i];
+                }
+            }
+        }
+        if (token) {
+            tokens[tokens.length] = interpret_type(token);
+        }
+        turtlegui.cached_tokens[token_str] = tokens;
     }
-    if (token) {
-        tokens[tokens.length] = interpret_type(token);
-    }
-    return tokens;
+    return turtlegui.cached_tokens[token_str].slice();
 }
 
 
@@ -257,13 +260,13 @@ turtlegui.load_snippet = function(elem, url, rel_data) {
 }
 
 
-turtlegui.reload = function(elem, rel_data) {
+turtlegui.reload = function(elem) {
     var path = turtlegui.getstack($(document.activeElement));
     var path_indices = [];
     for (var i=0; i<path.length; i++) {
         path_indices[i] = path[i].index();
     }
-    turtlegui._reload(elem, rel_data);
+    turtlegui._reload(elem, null);
     var current_elem = $('body');
     for (var i=0; i<path_indices.length; i++) {
         current_elem = $(current_elem.children()[path_indices[i]]);
@@ -274,9 +277,9 @@ turtlegui.reload = function(elem, rel_data) {
 }
 
 
-turtlegui.deferred_reload = function(elem, rel_data, callback) {
+turtlegui.deferred_reload = function(elem, callback) {
     setTimeout(function() {
-        turtlegui.reload(elem, rel_data);
+        turtlegui.reload(elem);
         if (callback) {
             callback();
         }
@@ -334,9 +337,11 @@ turtlegui._reload = function(elem, rel_data) {
     if (!elem) {
         elem = turtlegui.root_element;
     }
-    if (rel_data) {
-        elem.data('data-rel', rel_data);
-    }
+
+    var old_rel_data = elem.data('data-rel') || {};
+    rel_data = jQuery.extend(old_rel_data, rel_data);
+    elem.data('data-rel', rel_data);
+
     if (elem.attr('data-gui-show')) {
         var value = turtlegui._get_safe_value(elem, 'data-gui-show');
         if (value) {

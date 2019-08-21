@@ -1,0 +1,69 @@
+<html>
+
+<link rel="stylesheet" type="text/css" href="../turtlegui.css"/>
+<style>
+
+div.tabs {
+    height: 50px;
+}
+div.tabs div.tab {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    border: 1px solid black;
+    cursor: pointer;
+}
+
+div.content {
+    top: 50px;
+    bottom: 0px;
+    width : 100%;
+    height : auto;
+}
+
+
+</style>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="../turtlegui.js"></script>
+
+<script>
+
+// Controller code / state
+var gui = {
+    panel_id: "first",
+    set_panel: function(panel_id) {
+        gui.panel_id = panel_id;
+        // Call reload to update the DOM
+        turtlegui.reload();
+    },
+    is_shown: function(panel_id) {
+        return gui.panel_id == panel_id;
+    }
+}
+
+$(document).ready(function() {
+    // call turtlegui.reload() when the page loads 
+    turtlegui.reload();
+});
+
+</script>
+
+<body>
+    <div class="fullscreen">
+        <div class="anchortop tabs">
+            <div class="tab" data-gui-click="gui.set_panel('first')">First</div>
+            <div class="tab" data-gui-click="gui.set_panel('second')">Second</div>
+            <div class="tab" data-gui-click="gui.set_panel('third')">Third</div>
+        </div>
+        <div class="anchorbottom content" data-gui-show="gui.is_shown('first')">
+            This is the first panel
+        </div>
+        <div class="anchorbottom content" data-gui-show="gui.is_shown('second')">
+            This is the second panel
+        </div>
+        <div class="anchorbottom content" data-gui-show="gui.is_shown('third')">
+            This is the third panel
+        </div>
+    </div>
+</body>

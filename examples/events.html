@@ -1,0 +1,56 @@
+<html>
+
+<link rel="stylesheet" type="text/css" href="../turtlegui.css"/>
+<style>
+
+
+</style>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="../turtlegui.js"></script>
+
+<script>
+
+// Controller code / state
+var data = {
+    saying: "A bird in the hand",
+    x: 0,
+    y: 0,
+    highlight: false,
+    set_coords: function() {
+        // most browsers set the variable "event" in the event of an event.
+        data.x = event.clientX;
+        data.y = event.clientY;
+        turtlegui.reload();
+    },
+    set_highlight: function(highlight) {
+        data.highlight = highlight
+        turtlegui.reload();
+    }
+}
+
+$(document).ready(function() {
+    // call turtlegui.reload() when the page loads 
+    turtlegui.reload();
+});
+
+</script>
+
+<body>
+
+<input type=text style="width: 200px; height: 200px; background-color=blue;"
+ data-gui-val="data.saying"
+ data-gui-change="turtlegui.reload()"
+ data-gui-mousemove="data.set_coords()"
+ data-gui-mouseover="data.set_highlight(true)"
+ data-gui-mouseout="data.set_highlight(false)"
+ >
+
+</input>
+
+<div data-gui-text="data.saying"></div>
+<div data-gui-text="data.x"></div>
+<div data-gui-text="data.y"></div>
+<div data-gui-show="data.highlight">HOVERED!</div>
+
+</body>

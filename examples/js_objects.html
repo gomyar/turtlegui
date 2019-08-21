@@ -1,0 +1,52 @@
+<html>
+
+<link rel="stylesheet" type="text/css" href="../turtlegui.css"/>
+<style>
+
+
+</style>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="../turtlegui.js"></script>
+
+<script>
+
+// Controller code / state
+var data = [
+    {
+        engine: {type: 'structural', name: 'Helios 1000'},
+        data_core: {type: 'internal', name: 'Manual'},
+        life_support: {type: 'internal', name: 'Freezer Unit'}
+    },
+    {
+        engine: {type: 'structural', name: 'Hyperspace 4000'},
+        weapons: {type: 'structural', name: 'Particle Accelerator'},
+        data_core: {type: 'internal', name: 'HAL'},
+        life_support: {type: 'internal', name: 'Artificial Atmosphere'}
+    }
+]
+
+$(document).ready(function() {
+    // call turtlegui.reload() when the page loads 
+    turtlegui.reload();
+});
+
+</script>
+
+<body>
+
+<label>Ships:</label>
+
+<hr/>
+
+<div data-gui-list="data" data-gui-item="ship">
+    <div data-gui-list="ship" data-gui-item="component" data-gui-key="component_type" data-gui-ordering="name">
+        <span data-gui-text="component_type"></span>
+        <span>: </span>
+        <span data-gui-text="component.name"></span>
+        <br/>
+    </div>
+    <br/>
+</div>
+
+</body>

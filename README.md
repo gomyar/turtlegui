@@ -1,94 +1,70 @@
-# turtlegui
-A gui library for javascript
+# TurtleGUI
+
+A Graphical User Interface library for HTML/javascript
 
 
 Requires Jquery 1.x or greater 
-To use:
-1. Create html template using data-gui-* tags
-2. Populate json object data (manually or using an ajax call).
-    var my_data = {'name': 'Turtle Soup', 'ingredients': [{'name': 'water'}, {'name': 'turtle'}]}
-3. Turtlegui evaluates model strings, i.e. "my_data.name"
-4. Whenever a change occurs (data load or user change), call:
-    turtlegui.reload()
-    which reloads the gui
-4. The html on the page will be populated with the loaded data, as per template.
 
-Example html template:
 
-~~~~
-<html>
-<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
-<script src="turtlegui.js"></script>
-<script>
-var my_data = {
-    'restaurant': {
-        'name': 'Turtle Soup',
-        'ingredients': [
-            {'name': 'water'},
-            {'name': 'turtle'}
-        ]
+# TLDR:
+
+Given this data:
+
+    var data = {
+        sentence: "The quick brown fox jumped over the lazy dog"
     }
-};
 
-function i_was_clicked(item) {
-    var index = jQuery.inArray(item, my_data.restaurant.ingredients);
-    alert("Ingredient: " + index + "->" + item.name);
-}
+With this HTML:
 
-function last_updated(item) {
-    return new Date();
-}
+    <div data-gui-text="data.sentence"></div>
 
-function add_ingredient() {
-    my_data.restaurant.ingredients.push({'name': 'salt'});
+Calling:
+
     turtlegui.reload()
-}
 
-function remove_ingredient(item) {
-    var index = jQuery.inArray(item, my_data.restaurant.ingredients);
-    my_data.restaurant.ingredients.splice(index, 1);
-    turtlegui.reload()
-}
+Will result in the HTML being changed to:
 
-function get_title_class(e, item) {
-    return "title";
-}
+    <div data-gui-text="data.sentence">The quick brown fox jumped over the lazy dog</div>
 
-$(document).ready(function() {
-    turtlegui.reload()
-});
-</script>
-<style>
-    div.title {
-        font-weight : bold;
-    }
-</style>
-<body>
-    <div data-gui-text="my_data.restaurant.name"></div>    <!-- refers to 'name' field in data -->
-    <div data-gui-list="my_data.restaurant.ingredients" data-gui-item="ingredient">   <!-- gui-list iterates over 'ingredients' list, stores each in 'ingredient' variable -->
-        <div>
-            <div data-gui-text="ingredient.name"></div>   <!-- 'ingredient' set for each item in list -->
-            <input type="button" data-gui-click="i_was_clicked(ingredient)" value="Info"></input>   <!-- function called with item -->
-            <input type="button" data-gui-click="remove_ingredient(ingredient)" value="Remove"></input>
-            <div data-gui-text="last_updated(ingredient)"></div>   <!-- text from function -->
-        </div>
-    </div>
-    <input type='button' onclick='add_ingredient()' value='Add'></input>
-</body>
-</html>
-~~~~
+[Full TLDR example](examples/tldr.html)
 
-Turtlegui uses a simplified model syntax for reading / writing data and calling functions. Most data-gui- fields use this model syntax unless otherwise stated.
+
+# Description:
+
+TurtleGUI works by altering the page's DOM based on directives in each element.
+Directives refer to model data / functions. The value of the data or function call will alter the DOM.
+Call turtlegui.reload() when the data changes to update the page.
+
+
+# Examples:
+
+* [show / hide panels](examples/show_hide.html) How to show or hide DOM elements based on data.
+* [switch panels](examples/switch_panels.html) Same as show hide with switch directive.
+* [popup panel](examples/popup_panel.html) How show / hide can be used to show popups.
+* [lists](examples/lists.html) How to display and update lists of data.
+* [js objects](examples/js_objects.html) Similar to lists, js objects can be iterated / displayed.
+* [tree structures](examples/tree.html) In the rare case a tree structure is needed.
+* [events (click)](examples/events.html) Example of how to respond to DOM events.
+* [templates](examples/templates.html) How to include HTML snippets from other HTML files.
+
+
+# Model syntax:
+
+Turtlegui uses a simplified model syntax to refer to any in-scope javascript data or functions. Most data-gui- fields use this model syntax unless otherwise stated.
 
 The syntax supports:
 * simple field names: i.e. 'myvar' evaluates to the myvar variable.
 * object syntax: i.e. 'myobj.myvar' evaluates the 'myvar' field of the 'myobj' object.
-* dict-like syntax: i.e. 'myobj[key]' evaluates 'key' first (key must be a variable) and uses that as the lookup in myobj
+* dicttionary-like syntax: i.e. 'myobj[key]' evaluates 'key' first (if key is a variable) and uses that as the lookup in myobj
 * function calls: i.e. 'callme(myvar)' will evaluate the 'myvar' variable and pass that into the callme function, returning the value
+* simple string and number types are supported: i.e. 'callme("Ghostbusters")' will call the function callme with the string "Ghostbusters"
+
+Note: TurtleGUI does not use eval() in order to avoid shenanigans.
+
+
+# Directive Reference:
 
 Turtlegui uses "data-" element fields
-
-Types of supported fields:
 
 * data-gui-text: populates element.text() with the evaluated value
 * data-gui-html: populates element.html() with the evaluated value

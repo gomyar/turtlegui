@@ -1,0 +1,58 @@
+<html>
+
+<link rel="stylesheet" type="text/css" href="../turtlegui.css"/>
+<style>
+
+
+</style>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="../turtlegui.js"></script>
+
+<script>
+
+// Controller code / state
+var filesystem = {files: {
+    'opt': {is_directory: true, files: {
+        'config.txt': {},
+        'app': {is_directory: true, files: {
+            'demo': {is_directory: true, files: {
+                'demo.py': {},
+                'demo.txt': {}
+            }},
+            'viewer': {is_directory: true, files: {
+                'view.py': {}
+            }}
+        }},
+        'games': {is_directory: true, files: {
+            'doom': {is_directory: true, files: {
+                'run.bat': {}
+            }},
+            'quake': {is_directory: true, files: {
+                'rungl.bat': {}
+            }}
+        }}
+    }}
+}}
+
+$(document).ready(function() {
+    // call turtlegui.reload() when the page loads 
+    turtlegui.reload();
+});
+
+</script>
+
+<body>
+
+<label>Filesystem:</label>
+
+<div data-gui-tree="filesystem" data-gui-nodeitem="directory">
+    <div style="margin-left: 10px" data-gui-list="directory.files" data-gui-item="file" data-gui-key="filename">
+        <span>/</span>
+        <span data-gui-text="filename"></span>
+        <br/>
+        <span data-gui-show="file.is_directory" data-gui-node="file"></span>
+    </div>
+</div>
+
+</body>

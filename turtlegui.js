@@ -383,8 +383,13 @@ turtlegui._reload = function(elem, rel_data) {
         $(elem).css(properties);
     }
     if (elem.attr('data-gui-id')) {
+        var orig_id = elem.attr('data-orig-id');
+        if (!orig_id && elem.attr('id')) {
+            elem.attr('data-orig-id', elem.attr('id'));
+            orig_id = elem.attr('id');
+        }
         var value = turtlegui._get_safe_value(elem, 'data-gui-id');
-        $(elem).attr('id', value);
+        $(elem).attr('id', (orig_id || '') + (value || ''));
     }
     if (elem.attr('data-gui-text')) {
         value = turtlegui._get_safe_value(elem, 'data-gui-text');
@@ -403,6 +408,26 @@ turtlegui._reload = function(elem, rel_data) {
         var bind = elem.attr('data-gui-bind');
         elem.unbind(bind).bind(bind, function(e) {
             return turtlegui._relative_eval(elem, elem.attr('data-gui-event'));
+        });
+    }
+    if (elem.attr('data-gui-mouseover')) {
+        elem.unbind('mouseover').bind('mouseover', function(e) {
+            return turtlegui._relative_eval(elem, elem.attr('data-gui-mouseover'));
+        });
+    }
+    if (elem.attr('data-gui-mouseout')) {
+        elem.unbind('mouseout').bind('mouseout', function(e) {
+            return turtlegui._relative_eval(elem, elem.attr('data-gui-mouseout'));
+        });
+    }
+    if (elem.attr('data-gui-mousemove')) {
+        elem.unbind('mousemove').bind('mousemove', function(e) {
+            return turtlegui._relative_eval(elem, elem.attr('data-gui-mousemove'));
+        });
+    }
+    if (elem.attr('data-gui-keydown')) {
+        elem.unbind('keydown').bind('keydown', function(e) {
+            return turtlegui._relative_eval(elem, elem.attr('data-gui-keydown'));
         });
     }
     if (elem.attr('data-gui-switch')) {

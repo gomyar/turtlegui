@@ -1,0 +1,23 @@
+<html>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="../turtlegui.js"></script>
+
+<script>
+
+var data = {
+    sentence: "The quick brown fox jumped over the lazy dog"
+}
+
+$(document).ready(function() {
+    // call turtlegui.reload() when the page loads 
+    turtlegui.reload();
+});
+
+</script>
+
+<body>
+
+    <div data-gui-text="data.sentence"></div>
+
+</body>

@@ -1,0 +1,78 @@
+<html>
+
+<link rel="stylesheet" type="text/css" href="../turtlegui.css"/>
+<style>
+
+
+</style>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="../turtlegui.js"></script>
+
+<script>
+
+// Controller code / state
+var data = {
+    ingredients: [
+        {name: "Flour", amount: 4},
+        {name: "Butter", amount: 1},
+        {name: "Eggs", amount: 2},
+        {name: "Vanilla", amount: 1},
+        {name: "Apple", amount: 4}
+    ]
+} 
+
+var recipe = {
+    new_ingredient: {
+        name: null
+    },
+    add_ingredient: function() {
+        data.ingredients[data.ingredients.length] = {
+            name: recipe.new_ingredient.name,
+            amount: 1
+        };
+        recipe.new_ingredient.name = null;
+        turtlegui.reload();
+    },
+    remove_ingredient: function(ingredient) {
+        data.ingredients.splice(data.ingredients.indexOf(ingredient), 1);
+        turtlegui.reload();
+    }
+}
+
+$(document).ready(function() {
+    // call turtlegui.reload() when the page loads 
+    turtlegui.reload();
+});
+
+</script>
+
+<body>
+
+<label>Our main list - alter amounts in text boxes:</label>
+<div data-gui-list="data.ingredients" data-gui-item="ingredient">
+    <label data-gui-text="ingredient.name"></label>
+    <input type="text" data-gui-val="ingredient.amount" data-gui-change="turtlegui.reload()"></input>
+    <input type="button" data-gui-click="recipe.remove_ingredient(ingredient)" value="Remove"></input>
+    <br/>
+</div>
+
+<hr/>
+
+<label>Add Ingredient to the list, and update</label>
+<br/>
+<input type="text" data-gui-val="recipe.new_ingredient.name"></input>
+<input type="button" data-gui-click="recipe.add_ingredient()" value="Add"></input>
+
+<hr/>
+
+<label>Echoing list one more time in slightly different format:</label>
+<div data-gui-list="data.ingredients" data-gui-item="ingredient">
+    <span data-gui-text="ingredient.amount"></span>
+    <span> spoons of </span>
+    <span data-gui-text="ingredient.name"></span>
+    <br/>
+</div>
+
+
+</body>

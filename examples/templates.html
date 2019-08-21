@@ -33,19 +33,19 @@ $(document).ready(function() {
 
 <label>Basic include:</label>
 
-<div data-gui-include="templates_include_one.html"></div>
+<div gui-include="templates_include_one.html"></div>
 
 <hr/>
 <label>Includes with parameters:</label>
 
-<div data-gui-include="templates_include_two.html" data-gui-include-params="param=data.first_param"></div>
-<div data-gui-include="templates_include_two.html" data-gui-include-params="param=data.second_param"></div>
+<div gui-include="templates_include_two.html" gui-include-params="param=data.first_param"></div>
+<div gui-include="templates_include_two.html" gui-include-params="param=data.second_param"></div>
 
 <hr/>
 <label>Parameters are scoped, like everything else:</label>
 
-<div data-gui-list="data.list" data-gui-item="param_item">
-    <div data-gui-include="templates_include_two.html" data-gui-include-params="param=param_item"></div>
+<div gui-list="data.list" gui-item="param_item">
+    <div gui-include="templates_include_two.html" gui-include-params="param=param_item"></div>
 </div>
 
 </body>

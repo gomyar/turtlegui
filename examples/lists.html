@@ -50,10 +50,10 @@ $(document).ready(function() {
 <body>
 
 <label>Our main list - alter amounts in text boxes:</label>
-<div data-gui-list="data.ingredients" data-gui-item="ingredient">
-    <label data-gui-text="ingredient.name"></label>
-    <input type="text" data-gui-val="ingredient.amount" data-gui-change="turtlegui.reload()"></input>
-    <input type="button" data-gui-click="recipe.remove_ingredient(ingredient)" value="Remove"></input>
+<div gui-list="data.ingredients" gui-item="ingredient">
+    <label gui-text="ingredient.name"></label>
+    <input type="text" gui-val="ingredient.amount" gui-change="turtlegui.reload()"></input>
+    <input type="button" gui-click="recipe.remove_ingredient(ingredient)" value="Remove"></input>
     <br/>
 </div>
 
@@ -61,16 +61,16 @@ $(document).ready(function() {
 
 <label>Add Ingredient to the list, and update</label>
 <br/>
-<input type="text" data-gui-val="recipe.new_ingredient.name"></input>
-<input type="button" data-gui-click="recipe.add_ingredient()" value="Add"></input>
+<input type="text" gui-val="recipe.new_ingredient.name"></input>
+<input type="button" gui-click="recipe.add_ingredient()" value="Add"></input>
 
 <hr/>
 
 <label>Echoing list one more time in slightly different format:</label>
-<div data-gui-list="data.ingredients" data-gui-item="ingredient">
-    <span data-gui-text="ingredient.amount"></span>
+<div gui-list="data.ingredients" gui-item="ingredient">
+    <span gui-text="ingredient.amount"></span>
     <span> spoons of </span>
-    <span data-gui-text="ingredient.name"></span>
+    <span gui-text="ingredient.name"></span>
     <br/>
 </div>
 

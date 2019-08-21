@@ -33,29 +33,29 @@
         This menu panel is anchored on the left
         </div>
         <div class="sidemenuitem"
-             data-gui-click="gui.open_dialog()">
+             gui-click="gui.open_dialog()">
         Click to show dialog popup
         </div>
         <div class="sidemenuitem"
-             data-gui-click="gui.open_notification()">
+             gui-click="gui.open_notification()">
         Click to show notification
         </div>
     </div>
 </div>
 <div class="layer anchorbottom">
     <div class="notify"
-         data-gui-show="gui.show_notification"
-         data-gui-onshow="gui.scroll_vertical_in(200)"
-         data-gui-onhide="gui.fade_out()">
+         gui-show="gui.show_notification"
+         gui-onshow="gui.scroll_vertical_in(200)"
+         gui-onhide="gui.fade_out()">
         This notification is anchored to the bottom right of the screen
     </div>
 </div>
 <div class="layer fullscreen popupfill"
-     data-gui-show="gui.show_dialog"
-     data-gui-onshow="gui.fade_in()">
+     gui-show="gui.show_dialog"
+     gui-onshow="gui.fade_in()">
     <div class="popup">
         <div class="close"
-             data-gui-click="gui.close_dialog()">
+             gui-click="gui.close_dialog()">
             <div>&times;</div>
         </div>
         This notification is centered

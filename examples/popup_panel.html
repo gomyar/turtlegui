@@ -72,14 +72,14 @@ $(document).ready(function() {
 <body>
 
 <div class="layer anchorleft">
-    <div class="button" data-gui-click="gui.open()">Show popup</div>
+    <div class="button" gui-click="gui.open()">Show popup</div>
 </div>
 
 <div class="layer fullscreen popupfill"
-     data-gui-show="gui.show_popup">
+     gui-show="gui.show_popup">
     <div class="popup">
         <div class="close"
-             data-gui-click="gui.close()">
+             gui-click="gui.close()">
             <div>&times;</div>
         </div>
         Popups are really just a clever application of CSS. I've found that no two popups are as alike as you might think, so I usually make multiple hidden popup elements for each popup I need.

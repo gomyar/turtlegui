@@ -126,7 +126,7 @@
         <div class="section">
             <div class="title">Basic Text</div>
             <div class="body">
-                <div>My name is: </div><div class="thing" data-gui-text="example.data.name"></div>
+                <div>My name is: </div><div class="thing" gui-text="example.data.name"></div>
             </div>
         </div>
  
@@ -134,10 +134,10 @@
         <div class="section">
             <div class="title">Lists of Things</div>
             <div class="body">
-                <div data-gui-list="example.data.address" data-gui-item="line">
+                <div gui-list="example.data.address" gui-item="line">
                     <!-- all subelements are duplicated for each item in the list -->
-                    <div data-gui-text="line"></div>
-                    <div data-gui-text="contextual_function_call(line)"></div>
+                    <div gui-text="line"></div>
+                    <div gui-text="contextual_function_call(line)"></div>
                 </div>
             </div>
         </div>
@@ -145,40 +145,40 @@
         <div class="section">
             <div class="title">Show / Hide and Click a Button</div>
             <div class="body">
-                <div class="box" data-gui-show="example.data.can_pay_rent">
+                <div class="box" gui-show="example.data.can_pay_rent">
                     I can pay rent this month
                 </div>
-                <input id="btn_rent" type="button" data-gui-click="spend_rent()" value="Spend Rent"></input>
+                <input id="btn_rent" type="button" gui-click="spend_rent()" value="Spend Rent"></input>
             </div>
         </div>
 
         <div class="section">
             <div class="body">
                 <div class="title">Enter value and listen for change</div>
-                <input type="text" data-gui-val="example.data.profession" data-gui-change="turtlegui.reload()"></input>
-                <div>You are a: </div><div class="thing" data-gui-text="example.data.profession"></div>
+                <input type="text" gui-val="example.data.profession" gui-change="turtlegui.reload()"></input>
+                <div>You are a: </div><div class="thing" gui-text="example.data.profession"></div>
 
                 <div>&nbsp;</div>
                 <div class="title">Input using a function</div>
-                <input type="text" data-gui-val="bobs_likes()" data-gui-change="turtlegui.reload()"></input>
-                <div>Your likes include: </div><div class="thing" data-gui-text="example.data.likes"></div>
+                <input type="text" gui-val="bobs_likes()" gui-change="turtlegui.reload()"></input>
+                <div>Your likes include: </div><div class="thing" gui-text="example.data.likes"></div>
             </div>
         </div>
 
         <div class="section">
             <div class="title">Switch between panels</div>
             <div class="body">
-                <input type="button" data-gui-click="order('burger')" value="Order burger"></input>
-                <input type="button" data-gui-click='order("fries")' value="Order fries"></input>
-                <input type="button" data-gui-click="order('soda')" value="Order soda"></input>
-                <div data-gui-switch="example.data.order_id">
-                    <div class="listitem" data-gui-case="burger">
+                <input type="button" gui-click="order('burger')" value="Order burger"></input>
+                <input type="button" gui-click='order("fries")' value="Order fries"></input>
+                <input type="button" gui-click="order('soda')" value="Order soda"></input>
+                <div gui-switch="example.data.order_id">
+                    <div class="listitem" gui-case="burger">
                          Burger
                     </div>
-                    <div class="listitem" data-gui-case="fries">
+                    <div class="listitem" gui-case="fries">
                          Fries
                     </div>
-                    <div class="listitem" data-gui-case="soda">
+                    <div class="listitem" gui-case="soda">
                          Soda
                     </div>
                 </div>
@@ -188,11 +188,11 @@
         <div class="section">
             <div class="title">Tree Structures</div>
             <div class="body">
-                <div class="tree" data-gui-tree="example.data.family" data-gui-nodeitem="member">
+                <div class="tree" gui-tree="example.data.family" gui-nodeitem="member">
                     <div class="node">
-                        <div class="box" data-gui-text="member.name"></div>
-                        <div data-gui-list="member.kids" data-gui-item="kid">
-                            <div data-gui-node="kid"></div>
+                        <div class="box" gui-text="member.name"></div>
+                        <div gui-list="member.kids" gui-item="kid">
+                            <div gui-node="kid"></div>
                         </div>
                     </div>
                 </div>
@@ -203,43 +203,43 @@
         <div class="section">
             <div class="title">Custom Attributes</div>
             <div class="body">
-                <div data-gui-attrs="style=custom_style">This should look purple</div>
+                <div gui-attrs="style=custom_style">This should look purple</div>
             </div>
         </div>
 
         <div class="section">
             <div class="title">Event Binds</div>
             <div class="body">
-                <div data-gui-bind="mouseenter" data-gui-event="bind_enter()">Hover here</div>
+                <div gui-bind="mouseenter" gui-event="bind_enter()">Hover here</div>
             </div>
         </div>
 
         <div class="section">
             <div class="title">Included Template</div>
             <div class="body">
-                <div data-gui-include="examples_include.html" data-gui-include-params="included_param=example.data.name"></div>
+                <div gui-include="examples_include.html" gui-include-params="included_param=example.data.name"></div>
             </div>
             <div>&nbsp;</div>
             <div class="title">Included Template List (template cached)</div>
-            <div class="body" data-gui-list="example.data.address" data-gui-item="line">
-                <div data-gui-include="examples_include.html" data-gui-include-params="included_param=line"></div>
+            <div class="body" gui-list="example.data.address" gui-item="line">
+                <div gui-include="examples_include.html" gui-include-params="included_param=line"></div>
             </div>
         </div>
 
         <div class="section">
             <div class="title">Switch between panels (animate)</div>
             <div class="body">
-                <input type="button" data-gui-click="order('burger')" value="Order burger"></input>
-                <input type="button" data-gui-click='order("fries")' value="Order fries"></input>
-                <input type="button" data-gui-click="order('soda')" value="Order soda"></input>
-                <div data-gui-switch="example.data.order_id">
-                    <div class="listitem" data-gui-case="burger" data-gui-onshow="fadein()">
+                <input type="button" gui-click="order('burger')" value="Order burger"></input>
+                <input type="button" gui-click='order("fries")' value="Order fries"></input>
+                <input type="button" gui-click="order('soda')" value="Order soda"></input>
+                <div gui-switch="example.data.order_id">
+                    <div class="listitem" gui-case="burger" gui-onshow="fadein()">
                          Burger
                     </div>
-                    <div class="listitem" data-gui-case="fries" data-gui-onshow="fadein()">
+                    <div class="listitem" gui-case="fries" gui-onshow="fadein()">
                          Fries
                     </div>
-                    <div class="listitem" data-gui-case="soda" data-gui-onshow="fadein()">
+                    <div class="listitem" gui-case="soda" gui-onshow="fadein()">
                          Soda
                     </div>
                 </div>
@@ -249,10 +249,10 @@
         <div class="section">
             <div class="title">Reversed Lists of Things</div>
             <div class="body">
-                <div data-gui-list="example.data.address" data-gui-item="line" data-gui-ordering="line" data-gui-reversed="true">
+                <div gui-list="example.data.address" gui-item="line" gui-ordering="line" gui-reversed="true">
                     <div class="listitem">
-                        <div data-gui-text="line"></div>
-                        <div data-gui-text="contextual_function_call(line)"></div>
+                        <div gui-text="line"></div>
+                        <div gui-text="contextual_function_call(line)"></div>
                     </div>
                 </div>
             </div>
@@ -261,16 +261,16 @@
         <div class="section">
             <div class="title">Various function calls</div>
             <div class="body">
-                <input type="button" data-gui-click="string_function('hello', 'there')" value="String function"></input>
-                <input type="button" data-gui-click="number_function(10, 20)" value="Number function"></input>
-                <input type="button" data-gui-click="string_function('Result of one function passed into another function:', number_function(30, 40))" value="Combined functions"></input>
+                <input type="button" gui-click="string_function('hello', 'there')" value="String function"></input>
+                <input type="button" gui-click="number_function(10, 20)" value="Number function"></input>
+                <input type="button" gui-click="string_function('Result of one function passed into another function:', number_function(30, 40))" value="Combined functions"></input>
             </div>
         </div>
 
         <div class="section">
             <div class="title">Strings</div>
             <div class="body">
-                <div>My name is: </div><div class="thing" data-gui-text="same('example.data.name')"></div>
+                <div>My name is: </div><div class="thing" gui-text="same('example.data.name')"></div>
             </div>
         </div>
  

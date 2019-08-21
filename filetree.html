@@ -60,15 +60,15 @@ $(document).ready(function() {
 
 <div id="main">
     <div id="filetree">
-        <div data-gui-tree="rootdirectory" data-gui-nodeitem="directory">
-            <div data-gui-list="directory.files" data-gui-item='file'>
+        <div gui-tree="rootdirectory" gui-nodeitem="directory">
+            <div gui-list="directory.files" gui-item='file'>
                 <div>
-                    <div data-gui-show="file.type == 'file'">
-                        <div data-gui-text="file.name"></div>
+                    <div gui-show="file.type == 'file'">
+                        <div gui-text="file.name"></div>
                     </div>
-                    <div data-gui-show="file.type == 'dir'">
-                        <div data-gui-text="file.name"></div>
-                        <div style="margin-left: 20px" data-gui-node='file'></div>
+                    <div gui-show="file.type == 'dir'">
+                        <div gui-text="file.name"></div>
+                        <div style="margin-left: 20px" gui-node='file'></div>
                     </div>
                 </div>
             </div>

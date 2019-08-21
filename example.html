@@ -145,26 +145,26 @@
         }
     </style>
     <body>
-        <div data-gui-text="my_data.restaurant.name"></div>    <!-- refers to 'name' field in data -->
-        <div data-gui-list="my_data.restaurant.ingredients" data-gui-item="ingredient" data-gui-key="index">   <!-- gui-list iterates over 'ingredients' list, stores each in 'ingredient' variable -->
+        <div gui-text="my_data.restaurant.name"></div>    <!-- refers to 'name' field in data -->
+        <div gui-list="my_data.restaurant.ingredients" gui-item="ingredient" gui-key="index">   <!-- gui-list iterates over 'ingredients' list, stores each in 'ingredient' variable -->
             <div>
-                <div data-gui-text="ingredient.name"></div>   <!-- 'ingredient' set for each item in list -->
-                <input type="button" id="btn1"data-gui-click="i_was_clicked(ingredient, index)" value="Info"></input>   <!-- function called with item -->
-                <input type="button" data-gui-click="remove_ingredient(ingredient)" value="Remove"></input>
-                <div data-gui-text="last_updated(ingredient)"></div>   <!-- text from function -->
+                <div gui-text="ingredient.name"></div>   <!-- 'ingredient' set for each item in list -->
+                <input type="button" id="btn1"gui-click="i_was_clicked(ingredient, index)" value="Info"></input>   <!-- function called with item -->
+                <input type="button" gui-click="remove_ingredient(ingredient)" value="Remove"></input>
+                <div gui-text="last_updated(ingredient)"></div>   <!-- text from function -->
             </div>
         </div>
         <input type='button' onclick='add_ingredient()' value='Add'></input>
-        <div id="tree" data-gui-tree="my_data.tree" data-gui-nodeitem="node">
+        <div id="tree" gui-tree="my_data.tree" gui-nodeitem="node">
             <div>
-                <div data-gui-list="node.basic_list" data-gui-item="basic_item">
+                <div gui-list="node.basic_list" gui-item="basic_item">
                     <div>
-                        <div data-gui-text="basic_item"></div>
+                        <div gui-text="basic_item"></div>
                     </div>
                 </div>
-                <div data-gui-list="node.children" data-gui-item="child">
+                <div gui-list="node.children" gui-item="child">
                     <div>
-                        <div style="margin-left: 20px" data-gui-node="child"></div>
+                        <div style="margin-left: 20px" gui-node="child"></div>
                     </div>
                 </div>
             </div>
@@ -174,9 +174,9 @@
         <input type="button" onclick="tree_3()" value="tree 3"></input>
 
 Time:
-<div data-gui-text="get_time()"></div>
+<div gui-text="get_time()"></div>
 
-        <div data-gui-include='"included.html"'></div>
+        <div gui-include='"included.html"'></div>
 
 
     </body>

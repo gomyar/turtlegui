@@ -52,17 +52,17 @@ $(document).ready(function() {
 <body>
     <div class="fullscreen">
         <div class="anchortop tabs">
-            <div class="tab" data-gui-click="gui.set_panel('first')">First</div>
-            <div class="tab" data-gui-click="gui.set_panel('second')">Second</div>
-            <div class="tab" data-gui-click="gui.set_panel('third')">Third</div>
+            <div class="tab" gui-click="gui.set_panel('first')">First</div>
+            <div class="tab" gui-click="gui.set_panel('second')">Second</div>
+            <div class="tab" gui-click="gui.set_panel('third')">Third</div>
         </div>
-        <div class="anchorbottom content" data-gui-show="gui.is_shown('first')">
+        <div class="anchorbottom content" gui-show="gui.is_shown('first')">
             This is the first panel
         </div>
-        <div class="anchorbottom content" data-gui-show="gui.is_shown('second')">
+        <div class="anchorbottom content" gui-show="gui.is_shown('second')">
             This is the second panel
         </div>
-        <div class="anchorbottom content" data-gui-show="gui.is_shown('third')">
+        <div class="anchorbottom content" gui-show="gui.is_shown('third')">
             This is the third panel
         </div>
     </div>

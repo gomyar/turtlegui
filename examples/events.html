@@ -39,18 +39,18 @@ $(document).ready(function() {
 <body>
 
 <input type=text style="width: 200px; height: 200px; background-color=blue;"
- data-gui-val="data.saying"
- data-gui-change="turtlegui.reload()"
- data-gui-mousemove="data.set_coords()"
- data-gui-mouseover="data.set_highlight(true)"
- data-gui-mouseout="data.set_highlight(false)"
+ gui-val="data.saying"
+ gui-change="turtlegui.reload()"
+ gui-mousemove="data.set_coords()"
+ gui-mouseover="data.set_highlight(true)"
+ gui-mouseout="data.set_highlight(false)"
  >
 
 </input>
 
-<div data-gui-text="data.saying"></div>
-<div data-gui-text="data.x"></div>
-<div data-gui-text="data.y"></div>
-<div data-gui-show="data.highlight">HOVERED!</div>
+<div gui-text="data.saying"></div>
+<div gui-text="data.x"></div>
+<div gui-text="data.y"></div>
+<div gui-show="data.highlight">HOVERED!</div>
 
 </body>

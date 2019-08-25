@@ -495,8 +495,7 @@ turtlegui._reload = function(elem, rel_data) {
             orig_class = elem.getAttribute('class');
         }
         var value = turtlegui._get_safe_value(elem, 'gui-class');
-        elem.removeClass();
-        elem.addClass((orig_class || '') + ' ' + (value || ''));
+        elem.classList.value = (orig_class || '') + ' ' + (value || '');
     }
     if (elem.getAttribute('gui-css')) {
         var properties = turtlegui._semicolon_separated(elem, elem.getAttribute('gui-css'));

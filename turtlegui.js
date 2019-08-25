@@ -57,7 +57,7 @@ turtlegui._get_safe_value = function(elem, datasrc) {
 
 
 turtlegui.getstack = function(elm) {
-    return elm.parentElement && elm.parentElement.nodeName != 'BODY' ? turtlegui.getstack(elm.parentElement).concat([elm]) : [elm];
+    return elm.parentElement && elm.nodeName != 'BODY' && elm.parentElement.nodeName != 'BODY' ? turtlegui.getstack(elm.parentElement).concat([elm]) : [elm];
 }
 
 
@@ -350,11 +350,14 @@ turtlegui.load_snippet = function(elem, url, rel_data) {
 turtlegui.reload = function(elem) {
     function index(e) {
         var i = 0;
-        while( (e = e.previousSibling) != null ) 
+        while( (e = e.previousElementSibling) != null ) 
             i++;
         return i;
     }
-    var path = turtlegui.getstack(document.activeElement);
+    var path = [];
+    if (document.activeElement.nodeName != 'BODY') {
+        path = turtlegui.getstack(document.activeElement);
+    }
     var path_indices = [];
     for (var i=0; i<path.length; i++) {
         path_indices[i] = index(path[i]);

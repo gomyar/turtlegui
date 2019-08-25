@@ -793,7 +793,7 @@ turtlegui._reload = function(elem, rel_data) {
                     value = turtlegui._relative_eval(elem, elem.getAttribute('gui-format-func'))(value);
                 }
             }
-            elem.value = value;
+            elem.value = value || '';
         }
         turtlegui._rebind(elem, 'change', turtlegui._val_change);
     }

@@ -1,6 +1,5 @@
 <html>
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
-<!--    <script src="jquery-1.12.4.js"></script>-->
+
     <script src="turtlegui.js"></script>
     <script>
     var example = {
@@ -51,7 +50,7 @@
     function bind_enter() {
         // this is set to the element the event is attached to
         console.log("entered");
-        $(this).css("background-color", "green");
+        this.style.backgroundColor = "green";
     }
 
     function bobs_likes(likes) {
@@ -67,7 +66,8 @@
     }
 
     function fadein() {
-        $(this).fadeIn();
+//        this.style.opacity = 0;
+        this.style.display = 'block';
     }
 
     function string_function(str1, str2) {
@@ -84,8 +84,8 @@
         return str;
     }
 
-    $(document).ready(function() {
-        turtlegui.reload();
+    document.addEventListener("DOMContentLoaded", function(){
+      turtlegui.reload();
     });
     </script>
     <style>
@@ -126,7 +126,7 @@
         <div class="section">
             <div class="title">Basic Text</div>
             <div class="body">
-                <div>My name is: </div><div class="thing" gui-text="example.data.name"></div>
+                <div>My name is: </div><div id="data_text" class="thing" gui-text="example.data.name"></div>
             </div>
         </div>
  
@@ -203,7 +203,8 @@
         <div class="section">
             <div class="title">Custom Attributes</div>
             <div class="body">
-                <div gui-attrs="style=custom_style">This should look purple</div>
+                <div gui-attrs="style=custom_style()">This should look purple</div>
+                <div gui-attrs="style='background-color: yellow;color:black;'">This should look yellow</div>
             </div>
         </div>
 

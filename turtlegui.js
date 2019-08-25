@@ -16,11 +16,11 @@ turtlegui.store_key = 0;
 
 turtlegui.store = function(elem, key, value) {
     var elem_key;
-    if (elem.getAttribute('_turtlegui_store_key')) {
-        elem_key = elem.getAttribute('_turtlegui_store_key');
+    if (elem.dataset['turtlegui_store_key']) {
+        elem_key = elem.dataset['turtlegui_store_key'];
     } else {
         elem_key = ++turtlegui.store_key;
-        elem.setAttribute('_turtlegui_store_key', elem_key); 
+        elem.dataset['turtlegui_store_key'] = elem_key; 
     }
     if (!(elem_key in turtlegui.stored_objects)) {
         turtlegui.stored_objects[elem_key] = {}
@@ -29,8 +29,8 @@ turtlegui.store = function(elem, key, value) {
 }
 
 turtlegui.retrieve = function(elem, key) {
-    if (elem.getAttribute('_turtlegui_store_key')) {
-        return turtlegui.stored_objects[elem.getAttribute('_turtlegui_store_key')][key];
+    if (elem.dataset['turtlegui_store_key']) {
+        return turtlegui.stored_objects[elem.dataset['turtlegui_store_key']][key];
     } else {
         return null;
     }
@@ -39,8 +39,8 @@ turtlegui.retrieve = function(elem, key) {
 turtlegui.remove_elements = function(elements) {
     for (var e=0; e<elements.length; e++) {
         var elem = elements[e];
-        if (elem.getAttribute('_turtlegui_store_key')) {
-            delete turtlegui.stored_objects[elem.getAttribute('_turtlegui_store_key')];
+        if (elem.dataset['turtlegui_store_key']) {
+            delete turtlegui.stored_objects[elem.dataset['turtlegui_store_key']];
         }
         elem.remove()
     }
@@ -57,7 +57,7 @@ turtlegui._get_safe_value = function(elem, datasrc) {
 
 
 turtlegui.getstack = function(elm) {
-    return elm.parentElement.length > 0 && !elm.parentElement.nodeName == 'body' ? turtlegui.getstack(elm.parentElement).concat([elm]) : [elm];
+    return elm.parentElement && elm.parentElement.nodeName != 'BODY' ? turtlegui.getstack(elm.parentElement).concat([elm]) : [elm];
 }
 
 
@@ -68,7 +68,7 @@ turtlegui.log_error = function(msg, elem) {
         var elm = stack[i];
         var desc = elm.nodeName + (elm.getAttribute('id')?'#'+elm.getAttribute('id'):"") + "\"" + elm.getAttribute('class') + "\"";
         try {
-            var attributes = stack[i][0].getAttributeNames();
+            var attributes = stack[i].getAttributeNames();
             var desc = '<' + elm.nodeName;
             for (var key=0; key<attributes.length; key++) {
                 desc = desc + ' ' + attributes[key] + '="' + stack[i].getAttribute(attributes[key]) + '"';
@@ -290,7 +290,11 @@ turtlegui._relative_eval = function(elem, gres, params) {
     } catch(e) {
         try {
             turtlegui.log_error("Error evaluating " + gres + " on elem : " + e, elem)
-            console.log("Stacktrace: ", e.stack);
+            if (e.stack) {
+                console.log("Stacktrace: ", e.stack);
+            } else {
+                console.trace();
+            }
         } catch (noconsole) {
             throw e;
         }

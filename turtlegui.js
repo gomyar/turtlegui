@@ -16,11 +16,11 @@ turtlegui.store_key = 0;
 
 turtlegui.store = function(elem, key, value) {
     var elem_key;
-    if (elem.dataset['turtlegui_store_key']) {
-        elem_key = elem.dataset['turtlegui_store_key'];
+    if (elem.turtlegui_store_key) {
+        elem_key = elem.turtlegui_store_key;
     } else {
         elem_key = ++turtlegui.store_key;
-        elem.dataset['turtlegui_store_key'] = elem_key; 
+        Object.defineProperty(elem, 'turtlegui_store_key', {value: elem_key, configurable: true}); 
     }
     if (!(elem_key in turtlegui.stored_objects)) {
         turtlegui.stored_objects[elem_key] = {}
@@ -29,8 +29,8 @@ turtlegui.store = function(elem, key, value) {
 }
 
 turtlegui.retrieve = function(elem, key) {
-    if (elem.dataset['turtlegui_store_key']) {
-        return turtlegui.stored_objects[elem.dataset['turtlegui_store_key']][key];
+    if (elem.turtlegui_store_key) {
+        return turtlegui.stored_objects[elem.turtlegui_store_key][key];
     } else {
         return null;
     }
@@ -39,8 +39,8 @@ turtlegui.retrieve = function(elem, key) {
 turtlegui.remove_elements = function(elements) {
     for (var e=0; e<elements.length; e++) {
         var elem = elements[e];
-        if (elem.dataset['turtlegui_store_key']) {
-            delete turtlegui.stored_objects[elem.dataset['turtlegui_store_key']];
+        if (elem.turtlegui_store_key) {
+            delete turtlegui.stored_objects[elem.turtlegui_store_key];
         }
         elem.remove()
     }

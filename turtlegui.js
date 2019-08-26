@@ -348,6 +348,11 @@ turtlegui.load_snippet = function(elem, url, rel_data) {
 
 
 turtlegui.reload = function(elem) {
+
+    if (!elem) {
+        elem = turtlegui.root_element || document.body;
+    }
+
     function index(e) {
         var i = 0;
         while( (e = e.previousElementSibling) != null ) 
@@ -471,10 +476,6 @@ turtlegui._keydown_listener = function(e) {
 turtlegui._reload = function(elem, rel_data) {
     if (!rel_data) rel_data = {};
 
-    if (!elem) {
-        elem = turtlegui.root_element || document.body;
-    }
-
     var old_rel_data = turtlegui.retrieve(elem, 'data-rel') || {};
     rel_data = Object.assign(old_rel_data, rel_data);
     turtlegui.store(elem, 'data-rel', rel_data);
@@ -515,7 +516,7 @@ turtlegui._reload = function(elem, rel_data) {
         elem.classList.value = (orig_class || '') + ' ' + (value || '');
     }
     if (elem.getAttribute('gui-css')) {
-        var properties = turtlegui._semicolon_separated(elem, elem.getAttribute('gui-css'));
+        var properties = turtlegui._get_safe_value(elem, 'gui-css');
         for (var p in properties) {
             elem.style[p] = properties[p];
         }
@@ -790,9 +791,9 @@ turtlegui._reload = function(elem, rel_data) {
         }
         if (elem.type == 'checkbox' || elem.type == 'radio') {
             if (value) {
-                elem.setAttribute('checked', true);
+                elem.checked = true;
             } else {
-                elem.setAttribute('checked', false);
+                elem.checked = false;
             }
         } else {
             if (elem.getAttribute('gui-format-func')) {
@@ -800,7 +801,11 @@ turtlegui._reload = function(elem, rel_data) {
                     value = turtlegui._relative_eval(elem, elem.getAttribute('gui-format-func'))(value);
                 }
             }
-            elem.value = value || '';
+            if (value == null) {
+                elem.value = '';
+            } else {
+                elem.value = value;
+            }
         }
         turtlegui._rebind(elem, 'change', turtlegui._val_change);
     }
@@ -815,7 +820,7 @@ turtlegui._val_change = function(e) {
     var gres = elem.getAttribute('gui-val');
 
     if (elem.type == 'checkbox' || elem.type == 'radio') {
-        var elem_val = elem.getAttribute('checked');
+        var elem_val = elem.checked;
     } else {
         var elem_val = elem.value;
     }

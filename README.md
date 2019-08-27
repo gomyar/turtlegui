@@ -263,13 +263,39 @@ Useful for lists of things:
 ```
 
 ## *gui-change*
-Evaluates on change event (usually for an input field)
+Evaluates on change event. Usually for an input field. Used to call reload or perform another action on value change.
+```html
+<input gui-val="data.name" data-change="turtlegui.reload()"></input>
+```
+_**gui-change**_ is a good place to add calls to save the data back to the server.
 
-gui-attrs|semicolon-separated string of values used as attributes on an element (i.e. 'style=')
-gui-data|semicolon-separated string of values used to set arbitrary data on an element (i.e. 'mylocal=')
-gui-tree|process a tree structure using gui-nodeitem and gui-node.
-gui-nodeitem|specify the local variable used to iterate the tree
-gui-node|repeat last gui-tree template snippet at this point with the specified item as the root
+## *gui-attrs*
+Semicolon-separated string of values used as attributes on an element (i.e. 'style=')
+```html
+<div gui-attrs="style='background-color:blue'">The background should show as blue</div>
+```
+
+## *gui-data*
+Semicolon-separated string of values used to set arbitrary data on an element (i.e. 'mylocal=')
+
+## *gui-tree*
+In the event that you need to display a tree structure, process a tree structure using _**gui-nodeitem**_ and _**gui-node**_.
+```html
+<div class="tree" gui-tree="example.data.family" gui-nodeitem="member">
+    <div class="node">
+        <div class="box" gui-text="member.name"></div>
+        <div gui-list="member.kids" gui-item="kid">
+            <div gui-node="kid"></div>
+        </div>
+    </div>
+</div>
+```
+
+### *gui-nodeitem*
+Specify the local variable used to iterate the tree
+
+### *gui-node*
+Repeat last gui-tree template snippet at this point with the specified item as the root
 
 ~~~~
 Notes:

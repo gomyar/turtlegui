@@ -62,7 +62,21 @@ The syntax supports:
 Note: TurtleGUI does not use eval() in order to avoid shenanigans.
 
 
-# Directive Reference:
+# Full Reference:
+
+## Directives:
+
+### gui-text
+populates element.textContent with the evaluated value
+```html
+<div gui-text="data.full_name"></div>
+```
+
+### gui-html
+populates element.innerHTML with the evaluated value
+```html
+<div gui-text="data.full_name"></div>
+```
 
 Turtlegui uses "gui-" element fields
 

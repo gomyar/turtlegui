@@ -86,10 +86,10 @@ creates copies of its subelement, one for each item in the list or object, store
 </div>
 ```
 ### *gui-item*
-The local variable which represents the item in the list, for each item
+_Required by gui-list_ The local variable which represents the item in the list, for each item
 
 ### *gui-ordering*
-Specify the field name used to order the list
+_Optional part of gui-list_ Specify the field name used to order the list
 ```html
 <div gui-list="data.siblings" gui-item="sibling" gui-ordering="name">
     <div gui-text="sibling.name"></div>
@@ -97,10 +97,10 @@ Specify the field name used to order the list
 ```
 
 ### *gui-reversed*
-Reversed the order of the list
+_Optional part of gui-list_ Reversed the order of the list
 
 ### *gui-key*
-Populates the given variable with the current key in the list, or the field name of the Object being iterated.
+_Optional part of gui-list_ Populates the given variable with the current key in the list, or the field name of the Object being iterated.
 ```html
 <div gui-list="data.siblings" gui-item="sibling" gui-key="index">
     <div gui-text="index"></div>

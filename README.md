@@ -5,22 +5,26 @@ A Graphical User Interface library for HTML/javascript
 ## TLDR:
 
 Given this data:
-
-    var data = {
-        sentence: "The quick brown fox jumped over the lazy dog"
-    }
+```javascript
+var data = {
+    sentence: "The quick brown fox jumped over the lazy dog"
+}
+```
 
 With this HTML:
-
-    <div gui-text="data.sentence"></div>
+```html
+<div gui-text="data.sentence"></div>
+```
 
 Calling:
-
-    turtlegui.reload()
+```javascript
+turtlegui.reload()
+```
 
 Will result in the HTML being changed to:
-
-    <div gui-text="data.sentence">The quick brown fox jumped over the lazy dog</div>
+```html
+<div gui-text="data.sentence">The quick brown fox jumped over the lazy dog</div>
+```
 
 [Full TLDR example](examples/tldr.html)
 

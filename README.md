@@ -63,11 +63,11 @@ Note: TurtleGUI does not use eval() in order to avoid shenanigans.
 
 # Code Reference:
 
-TurtleGUI has only one real function: `turtlegui.reload()`. It also has `turtlegui.deferred_reload()` when the reload needs to happen asynchronously.
+TurtleGUI has only one real function: `turtlegui.reload()`. It also has `turtlegui.deferred_reload()` when the reload needs to happen asynchronously. Call `turtlegui.reload()` when the data model changes. Changes to the HTML are not implied - you must call reload.
 
-`turtlegui.reload()` will execute all the directives on the page. Passing an element into the function will execute all the directives for that element, which can be used for optimisation.
+`turtlegui.reload()` will execute all the directives on the page. Passing an element into the function will execute all the directives for that element, which can be used for optimisation; reloading specific page sections.
 
-`turtlegui.deferred_reload()` can be useful when reloading a table of information interferes with an input's focus.
+`turtlegui.deferred_reload()` can be useful when reloading a table of information interferes with an input's focus. It performs the reload in the background.
 
 # Full Directive Reference:
 

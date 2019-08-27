@@ -64,38 +64,40 @@ Note: TurtleGUI does not use eval() in order to avoid shenanigans.
 
 # Directive Reference:
 
-Turtlegui uses "data-" element fields
+Turtlegui uses "gui-" element fields
 
-* gui-text: populates element.text() with the evaluated value
-* gui-html: populates element.html() with the evaluated value
-* gui-list: creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by 'gui-item'
-* gui-item: used during gui-list - the name of the local variable to store the current list value
-* gui-key: used during gui-list - the name of the local variable used to store the current key of the list or object
-* gui-ordering: for each item in gui-list, specify the key to sort by
-* gui-reversed: reverse the order of gui-list
-* gui-show: shows or hides based on evaluated value (true/false)
-* gui-onshow: callback function used when the value of gui-show changes (can be used for transitions)
-* gui-onhide: callback function used when the value of gui-show changes (can be used for transitions)
-* gui-switch: shows or hides child elements based on values of gui-case attributes of those children
-* gui-case: show/hide element if value is equal to parent gui-switch
-* gui-click: evaluates on click (normally a function call)
-* gui-bind: binds to arbitrary event name, for use with gui-event
-* gui-event: evaluates when the event specified by gui-bind fires
-* gui-include: include an html snippet
-* gui-include-params: semicolon-separated string of values to send to the template as local variables
-* gui-include-nocache: if present, will not cache the template
-* gui-class: sets classname(s) on element
-* gui-css: set css as properties object
-* gui-val: sets value on element - will write back a changed value if the target is a simple type (number, string). If target is a function, calls the function with the value as an extra parameter
-* gui-id: sets id on element
-* gui-change: evaluates on change event (usually for an input field)
-* gui-format-func: used for gui-val - reference to a function expected to format the string on a read
-* gui-parse-func: used for gui-val - reference to a function expected to parse the string on a write (i.e. parseFloat)
-* gui-attrs: semicolon-separated string of values used as attributes on an element (i.e. 'style=')
-* gui-data: semicolon-separated string of values used to set arbitrary data on an element (i.e. 'mylocal=')
-* gui-tree: process a tree structure using gui-nodeitem and gui-node.
-* gui-nodeitem: specify the local variable used to iterate the tree
-* gui-node: repeat last gui-tree template snippet at this point with the specified item as the root
+Directive|Description
+---------|-----------
+gui-text|populates element.textContent with the evaluated value
+gui-html|populates element.innerHTML with the evaluated value
+gui-list|creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by 'gui-item'
+gui-item|used during gui-list - the name of the local variable to store the current list value
+gui-key|used during gui-list - the name of the local variable used to store the current key of the list or object
+gui-ordering|for each item in gui-list, specify the key to sort by
+gui-reversed|reverse the order of gui-list
+gui-show|shows or hides based on evaluated value (true/false)
+gui-onshow|callback function used when the value of gui-show changes (can be used for transitions)
+gui-onhide|callback function used when the value of gui-show changes (can be used for transitions)
+gui-switch|shows or hides child elements based on values of gui-case attributes of those children
+gui-case|show/hide element if value is equal to parent gui-switch
+gui-click|evaluates on click (normally a function call)
+gui-bind|binds to arbitrary event name, for use with gui-event
+gui-event|evaluates when the event specified by gui-bind fires
+gui-include|include an html snippet
+gui-include-params|semicolon-separated string of values to send to the template as local variables
+gui-include-nocache|if present, will not cache the template
+gui-class|sets classname(s) on element
+gui-css|set css as properties object
+gui-val|sets value on element - will write back a changed value if the target is a simple type (number, string). If target is a function, calls the function with the value as an extra parameter
+gui-id|sets id on element
+gui-change|evaluates on change event (usually for an input field)
+gui-format-func|used for gui-val - reference to a function expected to format the string on a read
+gui-parse-func|used for gui-val - reference to a function expected to parse the string on a write (i.e. parseFloat)
+gui-attrs|semicolon-separated string of values used as attributes on an element (i.e. 'style=')
+gui-data|semicolon-separated string of values used to set arbitrary data on an element (i.e. 'mylocal=')
+gui-tree|process a tree structure using gui-nodeitem and gui-node.
+gui-nodeitem|specify the local variable used to iterate the tree
+gui-node|repeat last gui-tree template snippet at this point with the specified item as the root
 
 ~~~~
 Notes:

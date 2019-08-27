@@ -140,26 +140,131 @@ Shows or hides child elements based on values of the _**gui-case**_ attribute of
 ### *gui-case*
 _Required by **gui-switch**._ Show/hide element if value is equal to parent _**gui-switch**_.
 
-
 ## *gui-click*
 Evaluates on click (normally a function call)
 ```html
 <input type="button" gui-click="gui.button_clicked()"></input>
 ```
 You're probably wondering why this is useful, when there's an `onclick` field on elements - it's because _**gui-click**_ will resolve any local variables set by _**gui-list**_ or _**gui-tree**_ etc.
+```html
+<div gui-list="data.siblings" gui-item="sibling">
+    <input type="button" gui-click="gui.button_clicked(sibling)"></input>
+</div>
+```
 
-gui-bind|binds to arbitrary event name, for use with gui-event
-gui-event|evaluates when the event specified by gui-bind fires
-gui-include|include an html snippet
-gui-include-params|semicolon-separated string of values to send to the template as local variables
-gui-include-nocache|if present, will not cache the template
-gui-class|sets classname(s) on element
-gui-css|set css as properties object
-gui-val|sets value on element - will write back a changed value if the target is a simple type (number, string). If target is a function, calls the function with the value as an extra parameter
-gui-id|sets id on element
-gui-change|evaluates on change event (usually for an input field)
-gui-format-func|used for gui-val - reference to a function expected to format the string on a read
-gui-parse-func|used for gui-val - reference to a function expected to parse the string on a write (i.e. parseFloat)
+## *gui-bind*
+Binds to arbitrary event name, for use with _**gui-event**_.
+```html
+<div gui-bind="mousemove" gui-event="gui.mouse_moved()"></div>
+```
+
+### *gui-event*
+
+_Required by **gui-bind**._ Evaluates when the event specified by gui-bind fires
+
+## *gui-include*
+Specifies a url path to an html template. Loads and evaluates the html snippet from the web server.
+```html
+<div gui-include="/template.html"></div>
+```
+
+### *gui-include-params*
+Semicolon-separated string of values to send to the template as local variables.
+```html
+<div gui-include="/template.html" gui-include-params="first_name='Roger';surname='Dunne'"></div>
+```
+
+### *gui-include-nocache*
+By default, Turtlegui will cache any templates loaded. If, say, the template is being loaded dynamically from a server, set _**gui-include-nocache**_ and the template will not be cached, but requested on every reload.
+
+## *gui-class*
+Adds classname(s) to an element. Will evaluate and add the list of class names to the elements' class list. Existing class names specified by the element are not affected.
+```html
+<div class="pink_background" gui-class="gui.green_if_loaded()"></div>
+```
+
+## *gui-css*
+Function expected to return an Object, which describes the CSS properties to apply to the element.
+```html
+<div gui-css="create_css()"></div>
+```
+where:
+```javascript
+function create_css() {
+    return {
+        "background-color": "green",
+        "border": "1px solid black",
+        "color": "yellow"
+    }
+}
+```
+
+## *gui-val*
+Used for input elements / selects etc. Sets value on element - will write back a changed value if the target is a simple type (number, string). If target is a function, calls the function with the value as an extra parameter.
+
+Given:
+```javascript
+var data = {
+    name: "Bob"
+}
+```
+
+This will get/set the `data.name` value:
+```html
+<input gui-val="data.name"></input>
+```
+
+This will select the `data.name` value:
+```html
+<select gui-val="data.name">
+    <option value="1">Curly</option>
+    <option value="2">Moe</option>
+    <option value="3">Larry</option>
+</select>
+```
+
+Combine selects with a list of data for a dynamic list:
+Given:
+```javascript
+var stooges = [
+    {id: 1, name: "Curly"},
+    {id: 2, name: "Moe"},
+    {id: 3, name: "Larry"}
+]
+```
+```html
+<select gui-val="data.name" gui-list="stooges" gui-item="stooge">
+    <option gui-val="stooge.id" gui-text="stooge.name"></option>
+</select>
+```
+
+### *gui-parse-func*
+_Optionally used with **gui-val**._ Reference to a function expected to parse the string on a write (i.e. parseFloat). Different to normal resolve - don't specify the brackets, just reference the function itself.
+```html
+<input gui-val="data.year" data-format-func="parseInt"></input>
+```
+
+### *gui-format-func*
+_Optionally used with **gui-val**._ Reference to a function expected to format the string on a read. Different to normal resolve - don't specify the brackets, just reference the function itself.
+```html
+<input gui-val="data.year" data-format-func="formatISOYear"></input>
+```
+
+## *gui-id*
+Appends the evaluated value to the of the element.
+```html
+<div id="mydiv_" gui-id="data.id"></div>
+```
+Useful for lists of things:
+```html
+<div gui-list="data.siblings" gui-item="sibling">
+    <div id="sib_" gui-id="sibling.id"></div>
+</div>
+```
+
+## *gui-change*
+Evaluates on change event (usually for an input field)
+
 gui-attrs|semicolon-separated string of values used as attributes on an element (i.e. 'style=')
 gui-data|semicolon-separated string of values used to set arbitrary data on an element (i.e. 'mylocal=')
 gui-tree|process a tree structure using gui-nodeitem and gui-node.

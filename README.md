@@ -2,29 +2,29 @@
 
 A Graphical User Interface library for HTML/javascript
 
-
-Requires Jquery 1.x or greater 
-
-
-# TLDR:
+## TLDR:
 
 Given this data:
-
-    var data = {
-        sentence: "The quick brown fox jumped over the lazy dog"
-    }
+```javascript
+var data = {
+    sentence: "The quick brown fox jumped over the lazy dog"
+}
+```
 
 With this HTML:
-
-    <div gui-text="data.sentence"></div>
+```html
+<div gui-text="data.sentence"></div>
+```
 
 Calling:
-
-    turtlegui.reload()
+```javascript
+turtlegui.reload()
+```
 
 Will result in the HTML being changed to:
-
-    <div gui-text="data.sentence">The quick brown fox jumped over the lazy dog</div>
+```html
+<div gui-text="data.sentence">The quick brown fox jumped over the lazy dog</div>
+```
 
 [Full TLDR example](examples/tldr.html)
 
@@ -50,7 +50,7 @@ Call turtlegui.reload() when the data changes to update the page.
 
 # Model syntax:
 
-Turtlegui uses a simplified model syntax to refer to any in-scope javascript data or functions. Most gui- fields use this model syntax unless otherwise stated.
+TurtleGUI uses a simplified model syntax to refer to any in-scope javascript data or functions. Most gui- fields use this model syntax unless otherwise stated.
 
 The syntax supports:
 * simple field names: i.e. 'myvar' evaluates to the myvar variable.
@@ -61,47 +61,258 @@ The syntax supports:
 
 Note: TurtleGUI does not use eval() in order to avoid shenanigans.
 
+# Code Reference:
 
-# Directive Reference:
+TurtleGUI has only one real function: `turtlegui.reload()`. It also has `turtlegui.deferred_reload()` when the reload needs to happen asynchronously. Call `turtlegui.reload()` when the data model changes. Changes to the HTML are not implied - you must call reload.
 
-Turtlegui uses "data-" element fields
+`turtlegui.reload()` will execute all the directives on the page. Passing an element into the function will execute all the directives for that element, which can be used for optimisation; reloading specific page sections.
 
-* gui-text: populates element.text() with the evaluated value
-* gui-html: populates element.html() with the evaluated value
-* gui-list: creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by 'gui-item'
-* gui-item: used during gui-list - the name of the local variable to store the current list value
-* gui-key: used during gui-list - the name of the local variable used to store the current key of the list or object
-* gui-ordering: for each item in gui-list, specify the key to sort by
-* gui-reversed: reverse the order of gui-list
-* gui-show: shows or hides based on evaluated value (true/false)
-* gui-onshow: callback function used when the value of gui-show changes (can be used for transitions)
-* gui-onhide: callback function used when the value of gui-show changes (can be used for transitions)
-* gui-switch: shows or hides child elements based on values of gui-case attributes of those children
-* gui-case: show/hide element if value is equal to parent gui-switch
-* gui-click: evaluates on click (normally a function call)
-* gui-bind: binds to arbitrary event name, for use with gui-event
-* gui-event: evaluates when the event specified by gui-bind fires
-* gui-include: include an html snippet
-* gui-include-params: semicolon-separated string of values to send to the template as local variables
-* gui-include-nocache: if present, will not cache the template
-* gui-class: sets classname(s) on element
-* gui-css: set css as properties object
-* gui-val: sets value on element - will write back a changed value if the target is a simple type (number, string). If target is a function, calls the function with the value as an extra parameter
-* gui-id: sets id on element
-* gui-change: evaluates on change event (usually for an input field)
-* gui-format-func: used for gui-val - reference to a function expected to format the string on a read
-* gui-parse-func: used for gui-val - reference to a function expected to parse the string on a write (i.e. parseFloat)
-* gui-attrs: semicolon-separated string of values used as attributes on an element (i.e. 'style=')
-* gui-data: semicolon-separated string of values used to set arbitrary data on an element (i.e. 'mylocal=')
-* gui-tree: process a tree structure using gui-nodeitem and gui-node.
-* gui-nodeitem: specify the local variable used to iterate the tree
-* gui-node: repeat last gui-tree template snippet at this point with the specified item as the root
+`turtlegui.deferred_reload()` can be useful when reloading a table of information interferes with an input's focus. It performs the reload in the background.
 
-~~~~
-Notes:
+# Full Directive Reference:
 
-Deferred reload:
-turtlegui.deferred_reload() can be used for some cases where the change event is interfering with building a list or included template.
-If you've got a change event in a dynamically create element like a list, it can knock out the focused element, making forms awkward to work with.
-deferred_reload() will fire the reload after the change event has finished.
-(basically if you find yourself losing input focus in places, try using deferred_reload)
+
+uses _**gui-**_ element fields.
+
+## *gui-text*
+Populates element.textContent with the evaluated value.
+```html
+<div gui-text="data.full_name"></div>
+```
+
+## *gui-html*
+Populates element.innerHTML with the evaluated value.
+```html
+<div gui-html="website.html_template"></div>
+```
+
+## *gui-list*
+Iterate over each item in the given Array or Object, and clone the subelements for each item, specified by _**gui-item**_. Kind of like `for gui-item in gui-list` but for HTML.
+```html
+<div gui-list="data.siblings" gui-item="sibling">
+    <div gui-text="sibling.name"></div>
+</div>
+```
+### *gui-item*
+_Required by **gui-list**._ The local variable which represents the item in the list, for each item
+
+### *gui-ordering*
+_Optionally used with **gui-list**._ Specify the field name used to order the list
+```html
+<div gui-list="data.siblings" gui-item="sibling" gui-ordering="name">
+    <div gui-text="sibling.name"></div>
+</div>
+```
+
+### *gui-reversed*
+_Optionally used with **gui-list**._ Reversed the order of the list
+
+### *gui-key*
+_Optionally used with **gui-list**._ Populates the given variable with the current key in the list, or the field name of the Object being iterated.
+```html
+<div gui-list="data.siblings" gui-item="sibling" gui-key="index">
+    <div gui-text="index"></div>
+    <div gui-text="sibling.name"></div>
+</div>
+```
+
+## *gui-show*
+Shows or hides element based on evaluated value (true/false). Uses the _display_ style to show and hide.
+```html
+<div gui-show="gui.show_popup">
+    You should only see this if <b>gui.show_popup</b> is true
+</div>
+```
+
+### *gui-onshow*
+_Optionally used with **gui-show**._ Function evaluated in place of the default _display_ style behaviour. Intended to allow fades and transitions and the like.
+```html
+<div gui-show="gui.show_popup" gui-onshow="gui.fadein()">
+    How the fade is done is up to you, the gui.fadein() function is expected to affect the fade, using css transitions or another similar method.
+</div>
+```
+
+### *gui-onhide*
+_Optionally used with **gui-show**._ Function evaluated in place of the default _display_ style behaviour. Opposite of _**gui-onshow**_ above.
+
+## *gui-switch*
+Shows or hides child elements based on values of the _**gui-case**_ attribute of each child. Only works with direct children.
+```html
+<div gui-switch="gui.tab_id">
+    <div gui-case="'video'">This is the video tab</div>
+    <div gui-case="'sound'">This is the sound tab</div>
+    <div gui-case="'controls'">This is the controls tab</div>
+</div>
+```
+
+### *gui-case*
+_Required by **gui-switch**._ Show/hide element if value is equal to parent _**gui-switch**_.
+
+## *gui-click*
+Evaluates on click (normally a function call)
+```html
+<input type="button" gui-click="gui.button_clicked()"></input>
+```
+You're probably wondering why this is useful, when there's an `onclick` field on elements - it's because _**gui-click**_ will resolve any local variables set by _**gui-list**_ or _**gui-tree**_ etc.
+```html
+<div gui-list="data.siblings" gui-item="sibling">
+    <input type="button" gui-click="gui.button_clicked(sibling)"></input>
+</div>
+```
+
+## *gui-bind*
+Binds to arbitrary event name, for use with _**gui-event**_.
+```html
+<div gui-bind="mousemove" gui-event="gui.mouse_moved()"></div>
+```
+
+### *gui-event*
+
+_Required by **gui-bind**._ Evaluates when the event specified by gui-bind fires
+
+## *gui-mouseover*
+Evaluates in the event of a 'mouseover' event.
+
+## *gui-mouseout*
+Evaluates in the event of a 'mouseout' event.
+
+## *gui-mousemove*
+Evaluates in the event of a 'mousemove' event.
+
+## *gui-keydown*
+Evaluates in the event of a 'keydown' event. _Note: this event gets fired before the value is changed, which can make it act odd if gui-val is used as well._
+
+## *gui-include*
+Specifies a url path to an html template. Loads and evaluates the html snippet from the web server.
+```html
+<div gui-include="/template.html"></div>
+```
+
+### *gui-include-params*
+Semicolon-separated string of values to send to the template as local variables.
+```html
+<div gui-include="/template.html" gui-include-params="first_name='Roger';surname='Dunne'"></div>
+```
+
+### *gui-include-nocache*
+By default, TurtleGUI will cache any templates loaded. If, say, the template is being loaded dynamically from a server, set _**gui-include-nocache**_ and the template will not be cached, but requested on every reload.
+
+## *gui-class*
+Adds classname(s) to an element. Will evaluate and add the list of class names to the elements' class list. Existing class names specified by the element are not affected.
+```html
+<div class="pink_background" gui-class="gui.green_if_loaded()"></div>
+```
+
+## *gui-css*
+Function expected to return an Object, which describes the CSS properties to apply to the element.
+```html
+<div gui-css="create_css()"></div>
+```
+where:
+```javascript
+function create_css() {
+    return {
+        "background-color": "green",
+        "border": "1px solid black",
+        "color": "yellow"
+    }
+}
+```
+
+## *gui-val*
+Used for input elements / selects etc. Sets value on element - will write back a changed value if the target is a simple type (number, string). If target is a function, calls the function with the value as an extra parameter.
+
+Given:
+```javascript
+var data = {
+    name: "Bob"
+}
+```
+
+This will get/set the `data.name` value:
+```html
+<input gui-val="data.name"></input>
+```
+
+This will select the `data.name` value:
+```html
+<select gui-val="data.name">
+    <option value="1">Curly</option>
+    <option value="2">Moe</option>
+    <option value="3">Larry</option>
+</select>
+```
+
+Combine selects with a list of data for a dynamic list:
+Given:
+```javascript
+var stooges = [
+    {id: 1, name: "Curly"},
+    {id: 2, name: "Moe"},
+    {id: 3, name: "Larry"}
+]
+```
+```html
+<select gui-val="data.name" gui-list="stooges" gui-item="stooge">
+    <option gui-val="stooge.id" gui-text="stooge.name"></option>
+</select>
+```
+
+### *gui-parse-func*
+_Optionally used with **gui-val**._ Reference to a function expected to parse the string on a write (i.e. parseFloat). Different to normal resolve - don't specify the brackets, just reference the function itself.
+```html
+<input gui-val="data.year" data-format-func="parseInt"></input>
+```
+
+### *gui-format-func*
+_Optionally used with **gui-val**._ Reference to a function expected to format the string on a read. Different to normal resolve - don't specify the brackets, just reference the function itself.
+```html
+<input gui-val="data.year" data-format-func="formatISOYear"></input>
+```
+
+## *gui-id*
+Appends the evaluated value to the of the element.
+```html
+<div id="mydiv_" gui-id="data.id"></div>
+```
+Useful for lists of things:
+```html
+<div gui-list="data.siblings" gui-item="sibling">
+    <div id="sib_" gui-id="sibling.id"></div>
+</div>
+```
+
+## *gui-change*
+Evaluates on change event. Usually for an input field. Used to call reload or perform another action on value change.
+```html
+<input gui-val="data.name" data-change="turtlegui.reload()"></input>
+```
+_**gui-change**_ is a good place to add calls to save the data back to the server.
+
+## *gui-attrs*
+Semicolon-separated string of values used as attributes on an element (i.e. 'style=')
+```html
+<div gui-attrs="style='background-color:blue'">The background should show as blue</div>
+```
+
+## *gui-data*
+Semicolon-separated string of values used to set arbitrary data on an element (i.e. 'mylocal=')
+
+## *gui-tree*
+In the event that you need to display a tree structure, process a tree structure using _**gui-nodeitem**_ and _**gui-node**_.
+```html
+<div class="tree" gui-tree="example.data.family" gui-nodeitem="member">
+    <div class="node">
+        <div class="box" gui-text="member.name"></div>
+        <div gui-list="member.kids" gui-item="kid">
+            <div gui-node="kid"></div>
+        </div>
+    </div>
+</div>
+```
+
+### *gui-nodeitem*
+Specify the local variable used to iterate the tree
+
+### *gui-node*
+Repeat last gui-tree template snippet at this point with the specified item as the root

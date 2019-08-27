@@ -68,10 +68,7 @@ Turtlegui uses "gui-" element fields
 
 Directive        |Description
 -----------------|-----------
-gui-text|populates element.textContent with the evaluated value
-        |''' js example
-        |    more js
-        |'''
+gui-text|populates element.textContent with the evaluated value\nmore text\n''' js example \n more js '''
 gui-html|populates element.innerHTML with the evaluated value
 gui-list|creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by 'gui-item'
 gui-item|used during gui-list - the name of the local variable to store the current list value

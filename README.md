@@ -67,19 +67,19 @@ Note: TurtleGUI does not use eval() in order to avoid shenanigans.
 Turtlegui uses *gui-* element fields
 
 ## *gui-text*
-populates element.textContent with the evaluated value
+Populates element.textContent with the evaluated value
 ```html
 <div gui-text="data.full_name"></div>
 ```
 
 ## *gui-html*
-populates element.innerHTML with the evaluated value
+Populates element.innerHTML with the evaluated value
 ```html
 <div gui-html="website.html_template"></div>
 ```
 
 ## *gui-list*
-creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by _**gui-item**_
+Creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by _**gui-item**_
 ```html
 <div gui-list="data.siblings" gui-item="sibling">
     <div gui-text="sibling.name"></div>
@@ -108,8 +108,24 @@ _Optionally used with **gui-list**._ Populates the given variable with the curre
 </div>
 ```
 
+## *gui-show*
+Shows or hides element based on evaluated value (true/false). Uses the _display_ style to show and hide.
+```html
+<div gui-show="gui.show_popup">
+    You should only see this if <b>gui.show_popup</b> is true
+</div>
+```
 
+### *gui-onshow*
+_Optionally used with **gui-show**._ Function evaluated in place of the default _display_ style behaviour. Intended to allow fades and transitions and the like.
+```html
+<div gui-show="gui.show_popup" gui-onshow="gui.fadein()">
+    How the fade is done is up to you, the gui.fadein() function is expected to affect the fade, using css transitions or another similar method.
+</div>
+```
 
+### *gui-onhide*
+_Optionally used with **gui-show**._ Function evaluated in place of the default _display_ style behaviour. Opposite of _**gui-onshow**_ above.
 
 gui-show|shows or hides based on evaluated value (true/false)
 gui-onshow|callback function used when the value of gui-show changes (can be used for transitions)

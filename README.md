@@ -2,10 +2,6 @@
 
 A Graphical User Interface library for HTML/javascript
 
-
-Requires Jquery 1.x or greater 
-
-
 # TLDR:
 
 Given this data:
@@ -50,7 +46,7 @@ Call turtlegui.reload() when the data changes to update the page.
 
 # Model syntax:
 
-Turtlegui uses a simplified model syntax to refer to any in-scope javascript data or functions. Most gui- fields use this model syntax unless otherwise stated.
+TurtleGUI uses a simplified model syntax to refer to any in-scope javascript data or functions. Most gui- fields use this model syntax unless otherwise stated.
 
 The syntax supports:
 * simple field names: i.e. 'myvar' evaluates to the myvar variable.
@@ -61,10 +57,18 @@ The syntax supports:
 
 Note: TurtleGUI does not use eval() in order to avoid shenanigans.
 
+# Code Reference:
+
+TurtleGUI has only one real function: `turtlegui.reload()`. It also has `turtlegui.deferred_reload()` when the reload needs to happen asynchronously.
+
+`turtlegui.reload()` will execute all the directives on the page. Passing an element into the function will execute all the directives for that element, which can be used for optimisation.
+
+`turtlegui.deferred_reload()` can be useful when reloading a table of information interferes with an input's focus.
 
 # Full Directive Reference:
 
-Turtlegui uses _**gui-**_ element fields.
+
+uses _**gui-**_ element fields.
 
 ## *gui-text*
 Populates element.textContent with the evaluated value.
@@ -175,7 +179,7 @@ Semicolon-separated string of values to send to the template as local variables.
 ```
 
 ### *gui-include-nocache*
-By default, Turtlegui will cache any templates loaded. If, say, the template is being loaded dynamically from a server, set _**gui-include-nocache**_ and the template will not be cached, but requested on every reload.
+By default, TurtleGUI will cache any templates loaded. If, say, the template is being loaded dynamically from a server, set _**gui-include-nocache**_ and the template will not be cached, but requested on every reload.
 
 ## *gui-class*
 Adds classname(s) to an element. Will evaluate and add the list of class names to the elements' class list. Existing class names specified by the element are not affected.
@@ -296,12 +300,3 @@ Specify the local variable used to iterate the tree
 
 ### *gui-node*
 Repeat last gui-tree template snippet at this point with the specified item as the root
-
-~~~~
-Notes:
-
-Deferred reload:
-turtlegui.deferred_reload() can be used for some cases where the change event is interfering with building a list or included template.
-If you've got a change event in a dynamically create element like a list, it can knock out the focused element, making forms awkward to work with.
-deferred_reload() will fire the reload after the change event has finished.
-(basically if you find yourself losing input focus in places, try using deferred_reload)

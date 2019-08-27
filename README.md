@@ -64,50 +64,53 @@ Note: TurtleGUI does not use eval() in order to avoid shenanigans.
 
 # Full Directive Reference:
 
-## gui-text
+Turtlegui uses *gui-* element fields
+
+## *gui-text*
 populates element.textContent with the evaluated value
 ```html
 <div gui-text="data.full_name"></div>
 ```
 
-## gui-html
+## *gui-html*
 populates element.innerHTML with the evaluated value
 ```html
 <div gui-html="data.full_name"></div>
 ```
 
-## gui-list
-creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by ***gui-item***
+## *gui-list*
+creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by _gui-item_
 ```html
 <div gui-list="data.siblings" gui-item="sibling">
     <div gui-text="sibling.name"></div>
 </div>
 ```
-#### gui-item
+### *gui-item*
 The local variable which represents the item in the list, for each item
 
-#### gui-ordering
+### *gui-ordering*
 Specify the field name used to order the list
 ```html
 <div gui-list="data.siblings" gui-item="sibling" gui-ordering="name">
     <div gui-text="sibling.name"></div>
 </div>
 ```
-#### gui-reversed
+
+### *gui-reversed*
 Reversed the order of the list
 
-#### gui-key
+### *gui-key*
 Populates the given variable with the current key in the list, or the field name of the Object being iterated.
+```html
+<div gui-list="data.siblings" gui-item="sibling" gui-key="index">
+    <div gui-text="index"></div>
+    <div gui-text="sibling.name"></div>
+</div>
+```
 
 
 
-Turtlegui uses "gui-" element fields
 
-
-gui-item|used during gui-list - the name of the local variable to store the current list value
-gui-key|used during gui-list - the name of the local variable used to store the current key of the list or object
-gui-ordering|for each item in gui-list, specify the key to sort by
-gui-reversed|reverse the order of gui-list
 gui-show|shows or hides based on evaluated value (true/false)
 gui-onshow|callback function used when the value of gui-show changes (can be used for transitions)
 gui-onhide|callback function used when the value of gui-show changes (can be used for transitions)

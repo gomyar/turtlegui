@@ -128,10 +128,26 @@ _Optionally used with **gui-show**._ Function evaluated in place of the default 
 _Optionally used with **gui-show**._ Function evaluated in place of the default _display_ style behaviour. Opposite of _**gui-onshow**_ above.
 
 ## *gui-switch*
+Shows or hides child elements based on values of the _**gui-case**_ attribute of each child. Only works with direct children.
+```html
+<div gui-switch="gui.tab_id">
+    <div gui-case="'video'">This is the video tab</div>
+    <div gui-case="'sound'">This is the sound tab</div>
+    <div gui-case="'controls'">This is the controls tab</div>
+</div>
+```
 
-gui-switch|shows or hides child elements based on values of gui-case attributes of those children
-gui-case|show/hide element if value is equal to parent gui-switch
-gui-click|evaluates on click (normally a function call)
+### *gui-case*
+_Required by **gui-switch**._ Show/hide element if value is equal to parent _**gui-switch**_.
+
+
+## *gui-click*
+Evaluates on click (normally a function call)
+```html
+<input type="button" gui-click="gui.button_clicked()"></input>
+```
+You're probably wondering why this is useful, when there's an `onclick` field on elements - it's because _**gui-click**_ will resolve any local variables set by _**gui-list**_ or _**gui-tree**_ etc.
+
 gui-bind|binds to arbitrary event name, for use with gui-event
 gui-event|evaluates when the event specified by gui-bind fires
 gui-include|include an html snippet

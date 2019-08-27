@@ -79,7 +79,7 @@ Populates element.innerHTML with the evaluated value.
 ```
 
 ## *gui-list*
-Iterate over each item in the given Array or Object, and clone the subelements for each item, specified by _**gui-item**_. Kind of like '''for gui-item in gui-list''' but for HTML.
+Iterate over each item in the given Array or Object, and clone the subelements for each item, specified by _**gui-item**_. Kind of like `for gui-item in gui-list` but for HTML.
 ```html
 <div gui-list="data.siblings" gui-item="sibling">
     <div gui-text="sibling.name"></div>

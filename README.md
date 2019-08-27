@@ -64,22 +64,22 @@ Note: TurtleGUI does not use eval() in order to avoid shenanigans.
 
 # Full Directive Reference:
 
-Turtlegui uses *gui-* element fields
+Turtlegui uses _**gui-**_ element fields.
 
 ## *gui-text*
-Populates element.textContent with the evaluated value
+Populates element.textContent with the evaluated value.
 ```html
 <div gui-text="data.full_name"></div>
 ```
 
 ## *gui-html*
-Populates element.innerHTML with the evaluated value
+Populates element.innerHTML with the evaluated value.
 ```html
 <div gui-html="website.html_template"></div>
 ```
 
 ## *gui-list*
-Creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by _**gui-item**_
+Analagous to "for gui-item in gui-list". Creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by _**gui-item**_.
 ```html
 <div gui-list="data.siblings" gui-item="sibling">
     <div gui-text="sibling.name"></div>
@@ -127,9 +127,8 @@ _Optionally used with **gui-show**._ Function evaluated in place of the default 
 ### *gui-onhide*
 _Optionally used with **gui-show**._ Function evaluated in place of the default _display_ style behaviour. Opposite of _**gui-onshow**_ above.
 
-gui-show|shows or hides based on evaluated value (true/false)
-gui-onshow|callback function used when the value of gui-show changes (can be used for transitions)
-gui-onhide|callback function used when the value of gui-show changes (can be used for transitions)
+## *gui-switch*
+
 gui-switch|shows or hides child elements based on values of gui-case attributes of those children
 gui-case|show/hide element if value is equal to parent gui-switch
 gui-click|evaluates on click (normally a function call)

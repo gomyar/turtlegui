@@ -528,7 +528,7 @@ turtlegui._reload = function(elem, rel_data) {
             orig_id = elem.getAttribute('id');
         }
         var value = turtlegui._get_safe_value(elem, 'gui-id');
-        elem.setAttribute('id', (orig_id || '') + (value || ''));
+        elem.setAttribute('id', (orig_id == null ? '' : orig_id) + (value == null ? '' : value));
     }
     if (elem.getAttribute('gui-text')) {
         value = turtlegui._get_safe_value(elem, 'gui-text');

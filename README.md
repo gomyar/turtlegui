@@ -75,21 +75,21 @@ populates element.textContent with the evaluated value
 ## *gui-html*
 populates element.innerHTML with the evaluated value
 ```html
-<div gui-html="data.full_name"></div>
+<div gui-html="website.html_template"></div>
 ```
 
 ## *gui-list*
-creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by _gui-item_
+creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by _**gui-item**_
 ```html
 <div gui-list="data.siblings" gui-item="sibling">
     <div gui-text="sibling.name"></div>
 </div>
 ```
 ### *gui-item*
-_Required by gui-list._ The local variable which represents the item in the list, for each item
+_Required by **gui-list**._ The local variable which represents the item in the list, for each item
 
 ### *gui-ordering*
-_Optionally used with gui-list._ Specify the field name used to order the list
+_Optionally used with **gui-list**._ Specify the field name used to order the list
 ```html
 <div gui-list="data.siblings" gui-item="sibling" gui-ordering="name">
     <div gui-text="sibling.name"></div>
@@ -97,10 +97,10 @@ _Optionally used with gui-list._ Specify the field name used to order the list
 ```
 
 ### *gui-reversed*
-_Optionally used with gui-list._ Reversed the order of the list
+_Optionally used with **gui-list**._ Reversed the order of the list
 
 ### *gui-key*
-_Optionally used with gui-list._ Populates the given variable with the current key in the list, or the field name of the Object being iterated.
+_Optionally used with **gui-list**._ Populates the given variable with the current key in the list, or the field name of the Object being iterated.
 ```html
 <div gui-list="data.siblings" gui-item="sibling" gui-key="index">
     <div gui-text="index"></div>

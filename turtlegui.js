@@ -547,13 +547,13 @@ turtlegui._reload = function(elem, rel_data) {
     if (elem.getAttribute('gui-mouseover')) {
         turtlegui._rebind(elem, 'mouseover', turtlegui._mouseover_listener);
     }
-    if (elem.getAttribute('mouseout')) {
+    if (elem.getAttribute('gui-mouseout')) {
         turtlegui._rebind(elem, 'mouseout', turtlegui._mouseout_listener);
     }
-    if (elem.getAttribute('mousemove')) {
+    if (elem.getAttribute('gui-mousemove')) {
         turtlegui._rebind(elem, 'mousemove', turtlegui._mousemove_listener);
     }
-    if (elem.getAttribute('keydown')) {
+    if (elem.getAttribute('gui-keydown')) {
         turtlegui._rebind(elem, 'keydown', turtlegui._keydown_listener);
     }
     if (elem.getAttribute('gui-switch')) {

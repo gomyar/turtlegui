@@ -170,6 +170,18 @@ Binds to arbitrary event name, for use with _**gui-event**_.
 
 _Required by **gui-bind**._ Evaluates when the event specified by gui-bind fires
 
+## *gui-mouseover*
+Evaluates in the event of a 'mouseover' event.
+
+## *gui-mouseout*
+Evaluates in the event of a 'mouseout' event.
+
+## *gui-mousemove*
+Evaluates in the event of a 'mousemove' event.
+
+## *gui-keydown*
+Evaluates in the event of a 'keydown' event. _Note: this event gets fired before the value is changed, which can make it act odd if gui-val is used as well._
+
 ## *gui-include*
 Specifies a url path to an html template. Loads and evaluates the html snippet from the web server.
 ```html

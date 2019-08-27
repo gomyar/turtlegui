@@ -35,20 +35,21 @@ gui.open_notification = function() {
 
 
 gui.fade_in = function() {
-    this.stop();
-    this.css('opacity', '0');
-    this.show();
-    this.animate({
+    var self = $(this);
+    self.stop();
+    self.css('opacity', '0');
+    self.show();
+    self.animate({
         opacity: "1",
     }, 1000);
 }
 
 
 gui.fade_out = function() {
-    var self = this;
-    this.stop();
-    if (this.is(":visible")) {
-        this.animate(
+    var self = $(this);
+    self.stop();
+    if (self.is(":visible")) {
+        self.animate(
             {opacity: "0"},
             1000,
             self.hide);
@@ -57,12 +58,13 @@ gui.fade_out = function() {
 
 
 gui.scroll_vertical_in = function(height) {
-    this.stop();
-    this.css('height', 0);
-    this.css('top', -20);
-    this.css('opacity', 1);
-    this.show();
-    this.animate({
+    var self = $(this);
+    self.stop();
+    self.css('height', 0);
+    self.css('top', -20);
+    self.css('opacity', 1);
+    self.show();
+    self.animate({
         height: height,
         top: -220
     }, 1000);

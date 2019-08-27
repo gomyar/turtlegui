@@ -78,23 +78,34 @@ populates element.innerHTML with the evaluated value
 <div gui-html="data.full_name"></div>
 ```
 
-### gui-list  + gui-item 
+### gui-list  + gui-item  + gui-key  + gui-ordering  + gui-reversed
 creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by 'gui-item'
 ```html
 <div gui-list="data.siblings" gui-item="sibling">
     <div gui-text="sibling.name"></div>
 </div>
 ```
+#### gui-item
+The local variable which represents the item in the list, for each item
+
+#### gui-ordering
+Specify the field name used to order the list
+```html
+<div gui-list="data.siblings" gui-item="sibling" gui-ordering="name">
+    <div gui-text="sibling.name"></div>
+</div>
+```
+#### gui-reversed
+Reversed the order of the list
+
+#### gui-key
+Populates the given variable with the current key in the list, or the field name of the Object being iterated.
+
 
 
 Turtlegui uses "gui-" element fields
 
-Directive        |Description
------------------|-----------
-gui-text|populates element.textContent with the evaluated value<br>more text<br>``` js example 
-more js ```<br>text
-gui-html|populates element.innerHTML with the evaluated value
-gui-list|creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by 'gui-item'
+
 gui-item|used during gui-list - the name of the local variable to store the current list value
 gui-key|used during gui-list - the name of the local variable used to store the current key of the list or object
 gui-ordering|for each item in gui-list, specify the key to sort by

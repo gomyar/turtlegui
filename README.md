@@ -75,8 +75,17 @@ populates element.textContent with the evaluated value
 ### gui-html
 populates element.innerHTML with the evaluated value
 ```html
-<div gui-text="data.full_name"></div>
+<div gui-html="data.full_name"></div>
 ```
+
+### gui-list  (gui-item)
+creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by 'gui-item'
+```html
+<div gui-list="data.siblings" gui-item="sibling">
+    <div gui-text="sibling.name"></div>
+</div>
+```
+
 
 Turtlegui uses "gui-" element fields
 

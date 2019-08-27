@@ -62,24 +62,22 @@ The syntax supports:
 Note: TurtleGUI does not use eval() in order to avoid shenanigans.
 
 
-# Full Reference:
+# Full Directive Reference:
 
-## Directives:
-
-### gui-text
+## gui-text
 populates element.textContent with the evaluated value
 ```html
 <div gui-text="data.full_name"></div>
 ```
 
-### gui-html
+## gui-html
 populates element.innerHTML with the evaluated value
 ```html
 <div gui-html="data.full_name"></div>
 ```
 
-### gui-list  + gui-item  + gui-key  + gui-ordering  + gui-reversed
-creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by 'gui-item'
+## gui-list
+creates copies of its subelement, one for each item in the list or object, stores item as local variable, specified by ***gui-item***
 ```html
 <div gui-list="data.siblings" gui-item="sibling">
     <div gui-text="sibling.name"></div>

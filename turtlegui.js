@@ -354,7 +354,7 @@ turtlegui.ajax = {
         turtlegui.ajax.http_call("PATCH", url, data, success, error);
     },
     delete: function(url, success, error) {
-        turtlegui.ajax.http_call("DELETE", url, data, success, error);
+        turtlegui.ajax.http_call("DELETE", url, null, success, error);
     }
 }
 

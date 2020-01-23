@@ -476,7 +476,7 @@ turtlegui._hide_element = function(elem) {
 
 
 turtlegui._semicolon_separated = function(elem, attribute_name) {
-    var attrstr = elem.getAttribute('gui-attrs');
+    var attrstr = elem.getAttribute(attribute_name);
     var comma = {};
     if (attrstr != null) {
         var tokens = turtlegui._tokenize_comma(attrstr);

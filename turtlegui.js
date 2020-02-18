@@ -390,11 +390,19 @@ turtlegui.load_snippet = function(elem, url, rel_data) {
                         turtlegui._reload(elem.children[c], rel_data);
                     }
                 }
-            } else {
+            } else if (this.readyState == 4) {
                 turtlegui.log("Could not load html snippet: " + url + " - " + this.status + " " + this.statusText);
             }
         };
-        xmlhttp.open("GET", url, true);
+        var load_url = url;
+        if (nocache) {
+            if (url.indexOf('?') != -1) {
+                load_url = url + '&prevent_cache=' + new Date();
+            } else {
+                load_url = url + '?prevent_cache=' + new Date();
+            }
+        }
+        xmlhttp.open("GET", load_url, true);
         xmlhttp.send();
     }
 }

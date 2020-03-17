@@ -408,7 +408,7 @@ turtlegui.load_snippet = function(elem, url, rel_data) {
 }
 
 
-turtlegui.reload = function(elem) {
+turtlegui.reload = function(elem, context) {
 
     if (!elem) {
         elem = turtlegui.root_element || document.body;
@@ -428,7 +428,7 @@ turtlegui.reload = function(elem) {
     for (var i=0; i<path.length; i++) {
         path_indices[i] = index(path[i]);
     }
-    turtlegui._reload(elem, null);
+    turtlegui._reload(elem, context);
     var current_elem = document.body;
     for (var i=0; i<path_indices.length; i++) {
         current_elem = current_elem.children[path_indices[i]];

@@ -1033,6 +1033,9 @@ turtlegui._reload = function(elem, rel_data) {
             turtlegui._reload(elem.children[c], rel_data);
         }
     }
+    else if (elem.getAttribute('gui-reload')) {
+        turtlegui._eval_attribute(elem, 'gui-reload')
+    }
     else {
         for (var c=0; c<elem.children.length; c++) {
             turtlegui._reload(elem.children[c], rel_data);

@@ -108,8 +108,11 @@ turtlegui.resolve_field = function(gres, rel_data) {
     }
 }
 
+
 turtlegui._tokenize = function(token_str) {
     function is_number(token) { return !isNaN(token) && !isNaN(parseFloat(token)); }
+    var operators = ['(', ')', ',', '[', ']', '.', '=', '|', '&', '!', '+', '-', '*', '/'];
+    var double_operators = ['=', '&', '|'];
 
     if (!(token_str in turtlegui.cached_tokens)) {
         var tokens = [];
@@ -130,10 +133,17 @@ turtlegui._tokenize = function(token_str) {
         }
         var processing_string = null;
         var processing_number = false;
+        var processing_operator = null;
         for (var i=0; i<token_str.length; i++) {
-            if (processing_string) {
-                token = token + token_str[i];
-                if (token_str[i] == processing_string) {
+            var token_char = token_str[i];
+            if (processing_operator && token_char == processing_operator) {
+                tokens[tokens.length] = token_char + token_char;
+                processing_operator = null;
+            } else if (processing_operator && token_char != processing_operator) {
+                throw "Unexpected character " + token_char;
+            } else if (processing_string) {
+                token = token + token_char;
+                if (token_char == processing_string) {
                     processing_string = null;
                     var new_token = interpret_type(token.trim())
                     if (new_token) {
@@ -141,11 +151,11 @@ turtlegui._tokenize = function(token_str) {
                     }
                     token = '';
                 } 
-            } else if (processing_number && (token_str[i] == '.' || is_number(token_str[i]))) {
-                token = token + token_str[i];
-                // if token_str[i] == '.' and '.' already in token, throw SyntaxError "Unexpected number"
+            } else if (processing_number && (token_char == '.' || is_number(token_char))) {
+                token = token + token_char;
+                // if token_char == '.' and '.' already in token, throw SyntaxError "Unexpected number"
             } else {
-                if (processing_number && token_str[i] != '.' && is_number(token_str[i])) {
+                if (processing_number && token_char != '.') {
                     if (token == '.') {
                         tokens[tokens.length] = token;
                     } else {
@@ -153,27 +163,31 @@ turtlegui._tokenize = function(token_str) {
                     }
                     processing_number = false;
                     token = '';
-                }
-                if (token_str[i] == '"' || token_str[i] == "'") {
-                    processing_string = token_str[i];
-                    token = token + token_str[i];
-                } else if (token.length == 0 && !processing_number && (token_str[i] == '.' || is_number(token_str[i]))) {
+                } 
+                if (token_char == '"' || token_char == "'") {
+                    processing_string = token_char;
+                    token = token + token_char;
+                } else if (token.length == 0 && !processing_number && (token_char == '.' || is_number(token_char))) {
                     processing_number = true;
-                    token = token_str[i];
-                } else if ('(),[].=|&!+-*/'.indexOf(token_str[i]) != -1) {
-                    if (token) {
-                        var new_token = interpret_type(token.trim())
+                    token = token_char;
+                } else if (operators.indexOf(token_char) != -1) {
+                    if (!processing_operator && double_operators.indexOf(token_char) != -1){
+                        processing_operator = token_char;
+                    } else {
+                        if (token) {
+                            var new_token = interpret_type(token.trim())
+                            if (new_token) {
+                                tokens[tokens.length] = new_token;
+                            }
+                        }
+                        var new_token = interpret_type(token_char)
                         if (new_token) {
                             tokens[tokens.length] = new_token;
                         }
+                        token = '';
                     }
-                    var new_token = interpret_type(token_str[i])
-                    if (new_token) {
-                        tokens[tokens.length] = new_token;
-                    }
-                    token = '';
                 } else {
-                    token = token + token_str[i];
+                    token = token + token_char;
                 }
             }
         }
@@ -313,6 +327,102 @@ turtlegui._resolve_calc = function(lhs, operator, rhs) {
 }
 
 
+turtlegui._reduce = function(gres, elem) {
+//    var rel_data = turtlegui.retrieve(elem, 'data-rel') || {};
+    var rel_data = {};
+
+    var tokens = turtlegui._shunt(gres);
+    var queue = [];
+
+    var special = ['!', '||', '&&', '==', '-', '+', '*', '/', ')', ']'];
+
+    var operators = {
+        '!': () => { return !interpret_type(queue.shift()); }, 
+        '||': () => { return interpret_type(queue.shift()) || interpret_type(queue.shift()); },
+        '&&': () => { return interpret_type(queue.shift()) && interpret_type(queue.shift()); },
+        '==': () => { return interpret_type(queue.shift()) == interpret_type(queue.shift()); },
+        '-': () => { var rhs = queue.shift(); var lhs = queue.shift(); return interpret_type(lhs) - interpret_type(rhs); },
+        '+': () => { var rhs = queue.shift(); var lhs = queue.shift(); return interpret_type(lhs) + interpret_type(rhs); },
+        '*': () => { var rhs = queue.shift(); var lhs = queue.shift(); return interpret_type(lhs) * interpret_type(rhs); },
+        '/': () => { var rhs = queue.shift(); var lhs = queue.shift(); return interpret_type(lhs) / interpret_type(rhs); }
+    };
+
+    function is_number(token) { return !isNaN(token) && !isNaN(parseFloat(token)); }
+
+    function interpret_type(token) {
+        // Interpret strings / numbers
+        if (turtlegui._is_string(token)) {
+            return token.substring(1, token.length-1);
+        } else if (token === 'true') {
+            return true;
+        } else if (token === 'false') {
+            return false;
+        } else if(is_number(token)) {
+            return parseFloat(token);
+        } else {
+            return token;
+        }
+    }
+
+    for (var i=0; i<tokens.length; i++) {
+        var token = tokens[i];
+        if (operators[token]) {
+            queue.unshift(operators[token]());
+        } else if (token == ')') {
+            var params = [];
+            while(queue.length && queue[0] != '(') {
+                params.unshift(queue.shift());
+                if (queue.length && queue[0] == ',') {
+                    queue.shift();
+                }
+            }
+            queue.shift(); // pop the open bracket
+            if (queue.length && !turtlegui._is_simple(queue[0]) && !operators[queue[0]]) {
+                // call function
+                var func;
+                if (turtlegui._is_ref(queue[0])) {
+                    func = turtlegui.resolve_field(queue.shift(), rel_data);
+                } else {
+                    func = queue.shift();
+                }
+                queue.unshift(func.apply(elem, params));
+            } else {
+                if (params.length > 1) { throw "Unexpected parameter list"; };
+                queue.unshift(params[0]);
+            }
+        } else if (token == ']') {
+            // assume one value
+            var key_name = queue.shift();
+            // pop opening '['
+            var opening_bracket = queue.shift();
+            if (opening_bracket != '[') throw "Unexpected character: " + opening_bracket;
+            // pop object
+            var object = queue.shift();
+            if (turtlegui._is_ref(object)) {
+                object = turtlegui.resolve_field(object, rel_data);
+            };
+            queue.unshift(object[interpret_type(key_name)]);
+        } else if (token == '.') {
+            var field_name = queue.shift();
+            var object = queue.shift();
+            if (turtlegui._is_ref(object)) {
+                object = turtlegui.resolve_field(object, rel_data);
+            };
+            queue.unshift(object[interpret_type(field_name)]);
+        } else {
+            queue.unshift(token);
+        }
+    }
+
+    if (queue.length == 1) {
+        return queue[0];
+    } else {
+        throw "Unexpected " + queue[1];
+    }
+}
+
+
+
 turtlegui._functionify = function(gres, elem) {
     var rel_data = turtlegui.retrieve(elem, 'data-rel') || {};
  
@@ -328,46 +438,38 @@ turtlegui._functionify = function(gres, elem) {
 }
 
 turtlegui._is_simple = function(value) {
-    var special = '!|&=-+*/()[]';
     return turtlegui._is_string(value) || typeof(value) == 'number';
 }
 
 turtlegui._is_ref = function(value) {
-    var special = '!|&=-+*/()[]';
+    var special = ['!', '||', '&&', '==', '-', '+', '*', '/', '(', ')', '[', ']', '.'];
     return typeof(value) == 'string' && special.indexOf(value) == -1 && !turtlegui._is_string(value);
 }
 
-turtlegui._shunt = function(gres, elem) {
-    var rel_data = turtlegui.retrieve(elem, 'data-rel') || {};
- 
-    var operators = ',!|&=-+*/';
+turtlegui._shunt = function(gres) {
+    var operators = [',', '!', '||', '&&', '==', '-', '+', '*', '/', '.'];
+    var precedence = [',', '!', '||', '&&', '==', '-', '+', '*', '/', '.', '(', '['];
 
     var tokens = turtlegui._tokenize(gres);
     var operator_stack = [];
     var output_stack = [];
 
     // Shunting yard tokens into output stack
-    var length = tokens.length
-
     // while there are tokens to be read:
-    for (var i=0; i<length; i++) {
+    for (var i=0; i<tokens.length; i++) {
         // read a token.
         var token = tokens[i];
         // if the token is a number, then:
         if (turtlegui._is_simple(token) || turtlegui._is_ref(token)) {
             // push it to the output queue.
             output_stack.push(token);
-        // else if the token is a function then:
-//        } else if (turtlegui._is_ref(token)) {
-//            // push it onto the operator stack 
-//            operator_stack.push(token);
         // else if the token is an operator then:
         } else if (operators.indexOf(token) != -1) {
             // while ((there is an operator at the top of the operator stack)
                 // and ((the operator at the top of the operator stack has greater precedence)
                     // or (the operator at the top of the operator stack has equal precedence and the token is left associative))
                 // and (the operator at the top of the operator stack is not a left parenthesis)):
-            while (operator_stack.length && operator_stack[0] != '(' && operator_stack[0] != '[' && operators.indexOf(operator_stack[0]) > operators.indexOf(token)) {
+            while (operator_stack.length && operator_stack[0] != '(' && operator_stack[0] != '[' && precedence.indexOf(operator_stack[0]) > precedence.indexOf(token)) {
                 // pop operators from the operator stack onto the output queue.
                 output_stack.push(operator_stack.shift())
             }
@@ -375,6 +477,10 @@ turtlegui._shunt = function(gres, elem) {
             operator_stack.unshift(token);
         // else if the token is a left parenthesis (i.e. "("), then:
         } else if (token == '(') {
+            while (operator_stack.length && operator_stack[0] == '.') {
+                // pop operators from the operator stack onto the output queue.
+                output_stack.push(operator_stack.shift())
+            }
             // push it onto the operator stack.
             operator_stack.unshift(token);
             output_stack.push(token)
@@ -392,13 +498,12 @@ turtlegui._shunt = function(gres, elem) {
                 // pop the operator from the operator stack and discard it
                 operator_stack.shift();
             }
-            // if there is a function token at the top of the operator stack, then:
-//            if (turtlegui._is_ref(operator_stack[0])) {
-//                // pop the function from the operator stack onto the output queue.
-//                output_stack.push(operator_stack.shift())
-//            }
         }
         else if (token == '[') {
+            while (operator_stack.length && operator_stack[0] == '.') {
+                // pop operators from the operator stack onto the output queue.
+                output_stack.push(operator_stack.shift())
+            }
             // push it onto the operator stack.
             operator_stack.unshift(token);
             output_stack.push(token)
@@ -416,13 +521,7 @@ turtlegui._shunt = function(gres, elem) {
                 // pop the operator from the operator stack and discard it
                 operator_stack.shift();
             }
-            // if there is a function token at the top of the operator stack, then:
-//            if (turtlegui._is_ref(operator_stack[0])) {
-//                // pop the function from the operator stack onto the output queue.
-//                output_stack.push(operator_stack.shift())
-//            }
         }
-
     }
     // /* After while loop, if operator stack not null, pop everything to output queue */
     // if there are no more tokens to read then:
@@ -436,6 +535,10 @@ turtlegui._shunt = function(gres, elem) {
     return output_stack;
 }
 
+
+turtlegui._parse = function(gres, elem) {
+    var tokens = turtlegui._shunt(gres);
+}
 
 
 turtlegui._functionify_partial = function(gres, elem) {
@@ -451,8 +554,6 @@ turtlegui._functionify_partial = function(gres, elem) {
 
     return tokens;
 }
-
-
 
 
 turtlegui._relative_eval = function(elem, gres, error_str) {

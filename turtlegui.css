@@ -27,7 +27,6 @@ div {
 
 /* Anchors along the top of the screen - used for menus etc along the top */
 .anchortop{
-    height : 0px;
     top : 0px;
     left : 0px;
     right : 0px;

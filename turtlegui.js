@@ -199,6 +199,100 @@ turtlegui._tokenize = function(token_str) {
     return turtlegui.cached_tokens[token_str].slice();
 }
 
+
+turtlegui._token = function(token_str) {
+    function is_number(token) { return !isNaN(token) && !isNaN(parseFloat(token)); }
+    var operator_chars = ['.', '=', '|', '&', '!', '+', '-', '*', '/', '<', '>'];
+    var double_op_chars = ['=', '&', '|', '>', '<', '!'];
+    var double_operators = ['==', '&&', '||', '>=', '<=', '!='];
+    var brackets = ["(", ")", "[", "]"];
+    var invalid_ref_chars = operator_chars + brackets + ["'", '"'];
+
+    var token_chars = token_str.split('');
+
+    var tokens = [];
+
+    while (token_chars.length) {
+        while (token_chars.length && token_chars[0] == ' ') {
+            token_chars.shift();
+        }
+        if (token_chars.length == 0) continue;
+        var token_char = token_chars[0];
+
+        if (token_char == '"' || token_char == "'") {
+            // Process strings
+            var str_token = '';
+            var processing_string = token_chars.shift();
+            while (token_chars.length && token_chars[0] != processing_string) {
+                str_token += token_chars.shift();
+            }
+            if (!token_chars.length) { throw "Unterminated string constant"; }
+            token_chars.shift();
+            tokens.push(['s', str_token]);
+
+        } else if (token_char == ',') {
+            tokens.push(['c', token_chars.shift()]);
+            continue;
+        } else if (token_char == '.' || is_number(token_char)) {
+            // Process numbers
+            var num_token = '';
+            while (token_chars.length && (token_chars[0] == '.' || is_number(token_chars[0]))) {
+                num_token += token_chars.shift();
+            }
+            if (num_token == '.') {
+                tokens.push(['.', num_token]);
+            } else {
+                tokens.push(['n', parseFloat(num_token)]);
+            }
+
+        } else if (operator_chars.indexOf(token_char) != -1) {
+            // Process operators
+            var operator = token_chars.shift();
+            if (double_op_chars.indexOf(token_char) != -1) {
+                if (token_chars.length && double_operators.indexOf(operator + token_chars[0]) != -1) {
+                    tokens.push(['o', operator + token_chars.shift()]);
+                    continue;
+                } else if (operator == '<' || operator == '>') {
+                    tokens.push(['o', operator]);
+                    continue;
+                } else {
+                    throw "Invalid operator: " + operator;
+                }
+            } else {
+                if (operator == ',') {
+                    tokens.push(['c', operator]);
+                } else {
+                    tokens.push(['o', operator]);
+                }
+                continue;
+            }
+
+        } else if (brackets.indexOf(token_char) != -1) {
+            // Process brackets
+            if (token_char == '(' || token_char == '[') {
+                tokens.push(['O', token_chars.shift()]);
+            } else {
+                tokens.push(['B', token_chars.shift()]);
+            }
+            continue;
+
+        } else {
+            // Process reference
+            var ref_token = '';
+            while (token_chars.length && invalid_ref_chars.indexOf(token_chars[0]) == -1) {
+                ref_token += token_chars.shift();
+            }
+            if (ref_token == 'true' || ref_token == 'false') {
+                tokens.push(['b', ref_token == 'true']);
+            } else {
+                tokens.push(['r', ref_token]);
+            }
+        }
+    }
+    return tokens;
+}
+
+
 turtlegui._tokenize_comma = function(token_str) {
     if (!(token_str in turtlegui.cached_tokens)) {
         var tokens = [];
@@ -327,45 +421,44 @@ turtlegui._resolve_calc = function(lhs, operator, rhs) {
 }
 
 
-turtlegui._reduce = function(gres, elem) {
-//    var rel_data = turtlegui.retrieve(elem, 'data-rel') || {};
+turtlegui.parse = function(calc_str, elem) {
+    var tokens = turtlegui._token(calc_str);
+    var shunted = turtlegui._shunt(tokens);
+
+    var result = turtlegui._reduce(shunted);
+
+    return result;
+}
+
+
+turtlegui._reduce = function(tokens, elem) {
     var rel_data = {};
-
-    var tokens = turtlegui._shunt(gres);
-    var queue = [];
-
-    var special = ['!', '||', '&&', '==', '-', '+', '*', '/', ')', ']'];
-
-    var operators = {
-        '!': () => { return !interpret_type(queue.shift()); }, 
-        '||': () => { return interpret_type(queue.shift()) || interpret_type(queue.shift()); },
-        '&&': () => { return interpret_type(queue.shift()) && interpret_type(queue.shift()); },
-        '==': () => { return interpret_type(queue.shift()) == interpret_type(queue.shift()); },
-        '-': () => { var rhs = queue.shift(); var lhs = queue.shift(); return interpret_type(lhs) - interpret_type(rhs); },
-        '+': () => { var rhs = queue.shift(); var lhs = queue.shift(); return interpret_type(lhs) + interpret_type(rhs); },
-        '*': () => { var rhs = queue.shift(); var lhs = queue.shift(); return interpret_type(lhs) * interpret_type(rhs); },
-        '/': () => { var rhs = queue.shift(); var lhs = queue.shift(); return interpret_type(lhs) / interpret_type(rhs); }
-    };
-
-    function is_number(token) { return !isNaN(token) && !isNaN(parseFloat(token)); }
-
-    function interpret_type(token) {
-        // Interpret strings / numbers
-        if (turtlegui._is_string(token)) {
-            return token.substring(1, token.length-1);
-        } else if (token === 'true') {
-            return true;
-        } else if (token === 'false') {
-            return false;
-        } else if(is_number(token)) {
-            return parseFloat(token);
-        } else {
-            return token;
-        }
+    if (elem) {
+        rel_data = turtlegui.retrieve(elem, 'data-rel') || {};
     }
 
+    var queue = [];
+
+    var operators = {
+        '!': () => { return !queue.shift(); }, 
+        '!=': () => { var rhs = queue.shift(); var lhs = queue.shift(); return lhs != rhs; },
+        '||': () => { var rhs = queue.shift(); var lhs = queue.shift(); return lhs || rhs; },
+        '&&': () => { var rhs = queue.shift(); var lhs = queue.shift(); return lhs && rhs; },
+        '==': () => { var rhs = queue.shift(); var lhs = queue.shift(); return lhs == rhs; },
+        '-': () => { var rhs = queue.shift(); var lhs = queue.shift(); return lhs - rhs; },
+        '+': () => { var rhs = queue.shift(); var lhs = queue.shift(); return lhs + rhs; },
+        '*': () => { var rhs = queue.shift(); var lhs = queue.shift(); return lhs * rhs; },
+        '/': () => { var rhs = queue.shift(); var lhs = queue.shift(); return lhs / rhs; },
+        '>': () => { var rhs = queue.shift(); var lhs = queue.shift(); return lhs > rhs; },
+        '<': () => { var rhs = queue.shift(); var lhs = queue.shift(); return lhs < rhs; },
+        '>=': () => { var rhs = queue.shift(); var lhs = queue.shift(); return lhs >= rhs; },
+        '<=': () => { var rhs = queue.shift(); var lhs = queue.shift(); return lhs <= rhs; }
+    };
+
     for (var i=0; i<tokens.length; i++) {
-        var token = tokens[i];
+        var token_type = tokens[i][0];
+        var token = tokens[i][1];
+
         if (operators[token]) {
             queue.unshift(operators[token]());
         } else if (token == ')') {
@@ -401,7 +494,7 @@ turtlegui._reduce = function(gres, elem) {
             if (turtlegui._is_ref(object)) {
                 object = turtlegui.resolve_field(object, rel_data);
             };
-            queue.unshift(object[interpret_type(key_name)]);
+            queue.unshift(object[key_name]);
         } else if (token == '.') {
             var field_name = queue.shift();
             var object = queue.shift();
@@ -420,7 +513,6 @@ turtlegui._reduce = function(gres, elem) {
         throw "Unexpected " + queue[1];
     }
 }
-
 
 
 turtlegui._functionify = function(gres, elem) {
@@ -446,11 +538,9 @@ turtlegui._is_ref = function(value) {
     return typeof(value) == 'string' && special.indexOf(value) == -1 && !turtlegui._is_string(value);
 }
 
-turtlegui._shunt = function(gres) {
-    var operators = [',', '!', '||', '&&', '==', '-', '+', '*', '/', '.'];
-    var precedence = [',', '!', '||', '&&', '==', '-', '+', '*', '/', '.', '(', '['];
+turtlegui._shunt = function(tokens) {
+    var precedence = ['!', '||', '&&', '<', '>', '<=', '>=', '==', '-', '+', '*', '/', '.', '(', '['];
 
-    var tokens = turtlegui._tokenize(gres);
     var operator_stack = [];
     var output_stack = [];
 
@@ -458,68 +548,47 @@ turtlegui._shunt = function(gres) {
     // while there are tokens to be read:
     for (var i=0; i<tokens.length; i++) {
         // read a token.
-        var token = tokens[i];
+        var token_type = tokens[i][0];
+        var token = tokens[i][1];
+
         // if the token is a number, then:
-        if (turtlegui._is_simple(token) || turtlegui._is_ref(token)) {
+        if ('brsnc.'.indexOf(token_type) != -1) {
             // push it to the output queue.
-            output_stack.push(token);
+            output_stack.push([token_type, token]);
         // else if the token is an operator then:
-        } else if (operators.indexOf(token) != -1) {
+        } else if (token_type == 'o' || token_type == 'c') {
             // while ((there is an operator at the top of the operator stack)
                 // and ((the operator at the top of the operator stack has greater precedence)
                     // or (the operator at the top of the operator stack has equal precedence and the token is left associative))
                 // and (the operator at the top of the operator stack is not a left parenthesis)):
-            while (operator_stack.length && operator_stack[0] != '(' && operator_stack[0] != '[' && precedence.indexOf(operator_stack[0]) > precedence.indexOf(token)) {
+            while (operator_stack.length && operator_stack[0][1] != '(' && operator_stack[0][1] != '[' && precedence.indexOf(operator_stack[0][1]) > precedence.indexOf(token)) {
                 // pop operators from the operator stack onto the output queue.
                 output_stack.push(operator_stack.shift())
             }
             // push it onto the operator stack.
-            operator_stack.unshift(token);
+            operator_stack.unshift([token_type, token]);
         // else if the token is a left parenthesis (i.e. "("), then:
-        } else if (token == '(') {
-            while (operator_stack.length && operator_stack[0] == '.') {
+        } else if (token_type == 'O') {
+            while (operator_stack.length && operator_stack[0][0] == '.') {
                 // pop operators from the operator stack onto the output queue.
                 output_stack.push(operator_stack.shift())
             }
             // push it onto the operator stack.
-            operator_stack.unshift(token);
-            output_stack.push(token)
+            operator_stack.unshift([token_type, token]);
+            output_stack.push([token_type, token])
         // else if the token is a right parenthesis (i.e. ")"), then:
-        } else if (token == ')') {
+        } else if (token_type == 'B') {
             // while the operator at the top of the operator stack is not a left parenthesis:
-            while (operator_stack.length && operator_stack[0] != '(') {
+            while (operator_stack.length && operator_stack[0][0] != 'O') {
                 // pop the operator from the operator stack onto the output queue.
                 output_stack.push(operator_stack.shift())
                 // /* If the stack runs out without finding a left parenthesis, then there are mismatched parentheses. */
             }
-            output_stack.push(')')
+            output_stack.push([token_type, token])
             // if there is a left parenthesis at the top of the operator stack, then:
-            if (operator_stack.length && operator_stack[0] == '(') {
+            if (operator_stack.length && operator_stack[0][0] == 'O') {
                 // pop the operator from the operator stack and discard it
-                operator_stack.shift();
-            }
-        }
-        else if (token == '[') {
-            while (operator_stack.length && operator_stack[0] == '.') {
-                // pop operators from the operator stack onto the output queue.
-                output_stack.push(operator_stack.shift())
-            }
-            // push it onto the operator stack.
-            operator_stack.unshift(token);
-            output_stack.push(token)
-        // else if the token is a right parenthesis (i.e. "]"), then:
-        } else if (token == ']') {
-            // while the operator at the top of the operator stack is not a left parenthesis:
-            while (operator_stack.length && operator_stack[0] != '[') {
-                // pop the operator from the operator stack onto the output queue.
-                output_stack.push(operator_stack.shift())
-                // /* If the stack runs out without finding a left parenthesis, then there are mismatched parentheses. */
-            }
-            output_stack.push(']')
-            // if there is a left parenthesis at the top of the operator stack, then:
-            if (operator_stack.length && operator_stack[0] == '[') {
-                // pop the operator from the operator stack and discard it
-                operator_stack.shift();
+                operator_stack.shift()
             }
         }
     }
@@ -533,11 +602,6 @@ turtlegui._shunt = function(gres) {
     }
 
     return output_stack;
-}
-
-
-turtlegui._parse = function(gres, elem) {
-    var tokens = turtlegui._shunt(gres);
 }
 
 

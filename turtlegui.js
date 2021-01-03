@@ -111,6 +111,7 @@ turtlegui.resolve_field = function(gres, rel_data) {
 }
 
 turtlegui._tokenize = function(token_str) {
+    token_str = token_str.trim();
     if (!(token_str in turtlegui.cached_tokens)) {
         var tokens = [];
         var token = '';

@@ -1272,8 +1272,8 @@ turtlegui._val_change = function(e) {
         if (shunted[shunted.length-2][1] == '(') {
             shunted.splice(shunted.length-1, 0, ['v', elem_val]);
         } else {
-            shunted.splice(shunted.length-1, 0, elem_val);
             shunted.splice(shunted.length-1, 0, [',', ',']);
+            shunted.splice(shunted.length-1, 0, ['v', elem_val]);
         }
         // apply function
         turtlegui._reduce(shunted, elem);

@@ -202,6 +202,7 @@ turtlegui._tokenize = function(token_str) {
 
 turtlegui._token = function(token_str) {
     function is_number(token) { return !isNaN(token) && !isNaN(parseFloat(token)); }
+    function is_alpha(token) { return token >= 'a' && token <= 'z' || token >= 'A' && token <= 'Z'; }
     var operator_chars = ['.', '=', '|', '&', '!', '+', '-', '*', '/', '<', '>'];
     var double_op_chars = ['=', '&', '|', '>', '<', '!'];
     var double_operators = ['==', '&&', '||', '>=', '<=', '!='];
@@ -233,6 +234,13 @@ turtlegui._token = function(token_str) {
         } else if (token_char == ',') {
             tokens.push(['c', token_chars.shift()]);
             continue;
+        } else if (token_char == '.' && is_alpha(token_chars[1])) {
+            token_chars.shift();
+            var field_ref_token = '';
+            while (token_chars.length && (is_alpha(token_chars[0]) || is_number(token_chars[0]))) {
+                field_ref_token += token_chars.shift();
+            }
+            tokens.push(['f', field_ref_token]);
         } else if (token_char == '.' || is_number(token_char)) {
             // Process numbers
             var num_token = '';
@@ -504,16 +512,17 @@ turtlegui._reduce = function(tokens, elem) {
                 object_ref = turtlegui.resolve_field(object_val, rel_data);
             };
             queue.unshift(['v', object_ref[key_name]]);
-        } else if (token == '.') {
-            var field_name = queue.shift()[1];
+        } else if (token_type == 'f') {
 
             var object = queue.shift();
             var object_type = object[0];
             var object_val = object[1];
 
-            if (object_type == 'r' || object_type == 'v') {
+            if (object_type == 'r') {
                 var object_ref = turtlegui.resolve_field(object_val, rel_data);
-                queue.unshift(['v', object_ref[field_name]]);
+                queue.unshift(['v', object_ref[token]]);
+            } else if (object_type == 'v') {
+                queue.unshift(['v', object_val[token]]);
             } else {
                 throw "Token is not object: " + object_val; 
             }
@@ -564,7 +573,7 @@ turtlegui._shunt = function(tokens) {
         var token = tokens[i][1];
 
         // if the token is a number, then:
-        if ('brsnc'.indexOf(token_type) != -1) {
+        if ('brsncf'.indexOf(token_type) != -1) {
             // push it to the output queue.
             output_stack.push([token_type, token]);
         // else if the token is an operator then:
@@ -1255,12 +1264,12 @@ turtlegui._val_change = function(e) {
         // search for opening bracket
         var key_tokens = [];
         var i = shunted.length - 2;
-        for (; i > 0 && shunted[i] != '['; shunted--) { key_tokens.unshift(shunted[i]); }
+        for (; i > 0 && shunted[i][1] != '['; i--) { key_tokens.unshift(shunted[i]); }
         // reduce key_name
         var key_name = turtlegui._reduce(key_tokens, elem);
         // reduce ref before opening bracket
         var object_tokens = [];
-        for (; i >= 0; shunted--) { object_tokens.unshift(shunted[i]); }
+        for (i -= 1; i >= 0; i--) { object_tokens.unshift(shunted[i]); }
         var object_ref = turtlegui._reduce(object_tokens, elem);
         // set value
         object_ref[key_name] = elem_val;

@@ -202,7 +202,7 @@ turtlegui._tokenize = function(token_str) {
 
 turtlegui._token = function(token_str) {
     function is_number(token) { return !isNaN(token) && !isNaN(parseFloat(token)); }
-    function is_alpha(token) { return token >= 'a' && token <= 'z' || token >= 'A' && token <= 'Z'; }
+    function is_alpha(token) { return token >= 'a' && token <= 'z' || token >= 'A' && token <= 'Z' || token == '_'; }
     var operator_chars = ['.', '=', '|', '&', '!', '+', '-', '*', '/', '<', '>'];
     var double_op_chars = ['=', '&', '|', '>', '<', '!'];
     var double_operators = ['==', '&&', '||', '>=', '<=', '!='];
@@ -260,7 +260,7 @@ turtlegui._token = function(token_str) {
                 if (token_chars.length && double_operators.indexOf(operator + token_chars[0]) != -1) {
                     tokens.push(['o', operator + token_chars.shift()]);
                     continue;
-                } else if (operator == '<' || operator == '>' || operator == '!') {
+                } else if (operator == '<' || operator == '>' || operator == '!' || operator == '=') {
                     tokens.push(['o', operator]);
                     continue;
                 } else {
@@ -351,94 +351,6 @@ turtlegui._tokenize_comma = function(token_str) {
 }
 
 
-turtlegui._process_token = function(tokens, t, gres, rel_data, elem) {
-    var token = tokens[t];
-    if (token == ')') {
-        var u = t-1;
-        var params = [];
-        while (tokens[u] != '(') {
-            if (tokens[u] == ']' || tokens[u] == '[') {
-                turtlegui.log_error("Unexpected "+tokens[u]+" character in '"+gres+"'", elem)
-            }
-            params.unshift(tokens[u]);
-            u--;
-        }
-        var func = tokens[u-1];
-        var result;
-        if (func != undefined && '=|&!+-*/'.indexOf(func) == -1) {
-            result = func.apply(elem, params);
-            tokens = tokens.slice(0, u-1).concat([result]).concat(tokens.slice(t+1));
-            t = u-1;
-        } else if (func != undefined && func == '!' && params.length == 1) {
-            result = turtlegui._not(params[0]);
-            tokens = tokens.slice(0, u-1).concat([result]).concat(tokens.slice(t+1));
-            t = u-1;
-        } else if (params.length == 1) {
-            result = params[0];
-            tokens = tokens.slice(0, u).concat([result]).concat(tokens.slice(t+1));
-            t = u+1;
-        } else {
-            throw "Unexpected token: " + token;
-        }
-    }
-    else if (token == ']') {
-        if (tokens[t-2] != '[') {
-            turtlegui.log_error("No corresponding [ for ] in '"+gres+"'", elem)
-        }
-        var field = tokens[t-1];
-        var obj = tokens[t-3];
-        var result = obj[field];
-        tokens = tokens.slice(0, t-3).concat([result]).concat(tokens.slice(t+1));
-        t = t-3;
-    }
-    else if (tokens[t-1] == '.') {
-        var field = token;
-        var obj = tokens[t-2];
-        var result = obj[field];
-        tokens = tokens.slice(0, t-2).concat([result]).concat(tokens.slice(t+1));
-        t = t-2;
-    }
-    else if ('=|&!+-*/'.indexOf(tokens[t]) == -1 && typeof(tokens[t]) == 'string' && '(),[].'.indexOf(tokens[t]) == -1) {
-        tokens[t] = turtlegui.resolve_field(tokens[t], rel_data);
-    }
-    while ('=|&+-*/'.indexOf(tokens[t-1]) != -1) {
-        var lhs = tokens[t-2];
-        var operator = tokens[t-1];
-//        if (operator == '!') {
-//            var result = turtlegui._not(rhs);
-//            tokens = tokens.slice(0, t-1).concat([result]).concat(tokens.slice(t+1));
-//            t = t-1;
-//        } else {
-            var rhs = tokens[t];
-            var result = turtlegui._resolve_calc(lhs, operator, rhs);
-            tokens = tokens.slice(0, t-2).concat([result]).concat(tokens.slice(t+1));
-            t = t-2;
-//        }
-    }
-    return [tokens, t];
-}
-
-
-turtlegui._resolve_calc = function(lhs, operator, rhs) {
-    if (operator == '=') { return lhs == rhs; }
-    if (operator == '|') { return lhs || rhs; }
-    if (operator == '&') { return lhs && rhs; }
-    if (operator == '+') { return lhs + rhs; }
-    if (operator == '*') { return lhs * rhs; }
-    if (operator == '/') { return lhs / rhs; }
-}
-
-
-turtlegui.parse = function(calc_str, elem) {
-    var tokens = turtlegui._token(calc_str);
-    var shunted = turtlegui._shunt(tokens);
-
-    var result = turtlegui._reduce(shunted, elem);
-
-    return result;
-}
-
-
 turtlegui._reduce = function(tokens, elem) {
     var rel_data = (elem ? (turtlegui.retrieve(elem, 'data-rel') || {}) : {});
 
@@ -460,6 +372,9 @@ turtlegui._reduce = function(tokens, elem) {
         '<=': () => { var rhs = queue.shift()[1]; var lhs = queue.shift()[1]; return lhs <= rhs; }
     };
 
+    // Keeping reference to last object reference for 'this' keyword
+    var object_ref = null;
+
     for (var i=0; i<tokens.length; i++) {
         var token_type = tokens[i][0];
         var token = tokens[i][1];
@@ -467,6 +382,8 @@ turtlegui._reduce = function(tokens, elem) {
         if (operators[token]) {
             // 'v' is for 'value' but it's not really important
             queue.unshift(['v', operators[token]()]);
+        } else if (token == '=') {
+            throw "Assignment (=) reduction is not supported";
         } else if (token == ')') {
             var params = [];
             var param_vals = [];
@@ -492,7 +409,7 @@ turtlegui._reduce = function(tokens, elem) {
                 if (typeof(func) == 'string') {
                     func = turtlegui.resolve_field(func, rel_data);
                 }
-                queue.unshift(['v', func.apply(elem, param_vals)]);
+                queue.unshift(['v', func.apply(object_ref || window, param_vals)]);
             } else {
                 // Unwind when only brackets
                 if (params.length > 1) { throw "Unexpected parameter list"; };
@@ -519,7 +436,7 @@ turtlegui._reduce = function(tokens, elem) {
             var object_val = object[1];
 
             if (object_type == 'r') {
-                var object_ref = turtlegui.resolve_field(object_val, rel_data);
+                object_ref = turtlegui.resolve_field(object_val, rel_data);
                 queue.unshift(['v', object_ref[token]]);
             } else if (object_type == 'v') {
                 queue.unshift(['v', object_val[token]]);
@@ -623,22 +540,6 @@ turtlegui._shunt = function(tokens) {
     }
 
     return output_stack;
-}
-
-
-turtlegui._functionify_partial = function(gres, elem) {
-    var rel_data = turtlegui.retrieve(elem, 'data-rel') || {};
-
-    var tokens = turtlegui._token(gres);
-    var shunted = turtlegui._shunt(tokens);
-
-    for (var t=0; t<tokens.length - 1; t++) {
-        var tl = turtlegui._process_token(tokens, t, gres, rel_data, elem);
-        tokens = tl[0];
-        t = tl[1];
-    }
-
-    return tokens;
 }
 
 
@@ -852,19 +753,18 @@ turtlegui._hide_element = function(elem) {
 turtlegui._semicolon_separated = function(elem, attribute_name) {
     var attrstr = elem.getAttribute(attribute_name);
     var comma = {};
-    if (attrstr != null) {
-        var tokens = turtlegui._tokenize_comma(attrstr);
 
-        if (tokens.length % 3) {
-            turtlegui.log_error("Cannot evaluate " + attrstr + " - must be a semicolon-separated string of name=value pairs");
-        } else {
-            for (var t=0; t < tokens.length - 2; t += 3) {
-                var key = tokens[t];
-                var error_str = "Error evaluating string pair " + key + "=" + tokens[t + 2] + " for attribute " + attribute_name;
-                var value = turtlegui._relative_eval(elem, tokens[t + 2], error_str);
-                comma[key] = value;
-            }
-        }
+    var tokens = turtlegui._token(attrstr);
+
+    while(tokens.length) {
+        if (tokens[0][0] != 'r') { throw "Reference expected, found " + tokens[0][1]; }
+        if (tokens[1][1] != '=') { throw "Expected assignment (=), found " + tokens[1][1]; }
+        var field_name = tokens.shift()[1];
+        // Pop equals
+        tokens.shift();
+        var expression = [];
+        while (tokens.length && tokens[0][1] != ';') { expression.unshift(tokens.shift()); }
+        comma[field_name] = turtlegui._reduce(turtlegui._shunt(expression), elem);
     }
     return comma;
 }
@@ -1286,11 +1186,11 @@ turtlegui._val_change = function(e) {
         }
         // apply function
         turtlegui._reduce(shunted, elem);
-    } else if (shunted[shunted.length-2][0] == 'r' && shunted[shunted.length-1][1] == '.') {
+    } else if (shunted[shunted.length-1][0] == 'f') {
         // dot notation syntax
 
-        var field_name = shunted[shunted.length-2][1];
-        shunted = shunted.slice(0, shunted.length-2);
+        var field_name = shunted[shunted.length-1][1];
+        shunted = shunted.slice(0, shunted.length-1);
         var object_ref = turtlegui._reduce(shunted, elem);
         // Apply value
         object_ref[field_name] = elem_val;

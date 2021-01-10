@@ -887,7 +887,7 @@ turtlegui._reload = function(elem, rel_data) {
         var value = turtlegui._eval_attribute(elem, 'gui-switch');
         for (var i=0; i<elem.children.length; i++) {
             var child = elem.children[i];
-            if (child.getAttribute('gui-case') && child.getAttribute('gui-case') == value) {
+            if (child.getAttribute('gui-case') && turtlegui._eval_attribute(child, 'gui-case') == value) {
                 turtlegui._show_element(child);
                 turtlegui._reload(child, rel_data);
             } else if (child.getAttribute('gui-case') == null) {

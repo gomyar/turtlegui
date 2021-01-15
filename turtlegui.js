@@ -92,118 +92,23 @@ turtlegui._not = function(val) {
     return !val;
 }
 
-turtlegui.resolve_field = function(gres, rel_data) {
-    if (turtlegui._is_string(gres)) {
-        return gres.substring(1, gres.length-1);
-    } else if (gres in rel_data) {
+turtlegui.resolve_field = function(gres, rel_data, elem) {
+    if (gres in rel_data) {
         return rel_data[gres];
     } else if (gres in window) {
         return window[gres];
-    } else if (gres == '!') {
-        return turtlegui._not;
-    } else if (isNaN(gres)) {
-        throw "Cannot resolve variable: " + gres;
+    } else if (gres == 'this') {
+        return elem;
     } else {
-        return parseFloat(gres);
+        return undefined;
     }
-}
-
-
-turtlegui._tokenize = function(token_str) {
-    function is_number(token) { return !isNaN(token) && !isNaN(parseFloat(token)); }
-    var operators = ['(', ')', ',', '[', ']', '.', '=', '|', '&', '!', '+', '-', '*', '/'];
-    var double_operators = ['=', '&', '|'];
-
-    if (!(token_str in turtlegui.cached_tokens)) {
-        var tokens = [];
-        var token = '';
-        function interpret_type(token) {
-            // Interpret strings / numbers
-            if (turtlegui._is_string(token)) {
-                return token; // token.substring(1, token.length-1);
-            } else if (token === 'true') {
-                return true;
-            } else if (token === 'false') {
-                return false;
-            } else if(is_number(token)) {
-                return parseFloat(token);
-            } else {
-                return token.trim();
-            }
-        }
-        var processing_string = null;
-        var processing_number = false;
-        var processing_operator = null;
-        for (var i=0; i<token_str.length; i++) {
-            var token_char = token_str[i];
-            if (processing_operator && token_char == processing_operator) {
-                tokens[tokens.length] = token_char + token_char;
-                processing_operator = null;
-            } else if (processing_operator && token_char != processing_operator) {
-                throw "Unexpected character " + token_char;
-            } else if (processing_string) {
-                token = token + token_char;
-                if (token_char == processing_string) {
-                    processing_string = null;
-                    var new_token = interpret_type(token.trim())
-                    if (new_token) {
-                        tokens[tokens.length] = new_token;
-                    }
-                    token = '';
-                } 
-            } else if (processing_number && (token_char == '.' || is_number(token_char))) {
-                token = token + token_char;
-                // if token_char == '.' and '.' already in token, throw SyntaxError "Unexpected number"
-            } else {
-                if (processing_number && token_char != '.') {
-                    if (token == '.') {
-                        tokens[tokens.length] = token;
-                    } else {
-                        tokens[tokens.length] = parseFloat(token);
-                    }
-                    processing_number = false;
-                    token = '';
-                } 
-                if (token_char == '"' || token_char == "'") {
-                    processing_string = token_char;
-                    token = token + token_char;
-                } else if (token.length == 0 && !processing_number && (token_char == '.' || is_number(token_char))) {
-                    processing_number = true;
-                    token = token_char;
-                } else if (operators.indexOf(token_char) != -1) {
-                    if (!processing_operator && double_operators.indexOf(token_char) != -1){
-                        processing_operator = token_char;
-                    } else {
-                        if (token) {
-                            var new_token = interpret_type(token.trim())
-                            if (new_token) {
-                                tokens[tokens.length] = new_token;
-                            }
-                        }
-                        var new_token = interpret_type(token_char)
-                        if (new_token) {
-                            tokens[tokens.length] = new_token;
-                        }
-                        token = '';
-                    }
-                } else {
-                    token = token + token_char;
-                }
-            }
-        }
-        if (token) {
-            tokens[tokens.length] = interpret_type(token);
-        }
-        turtlegui.cached_tokens[token_str] = tokens;
-    }
-    return turtlegui.cached_tokens[token_str].slice();
 }
 
 
 turtlegui._token = function(token_str) {
     function is_number(token) { return !isNaN(token) && !isNaN(parseFloat(token)); }
     function is_alpha(token) { return token >= 'a' && token <= 'z' || token >= 'A' && token <= 'Z' || token == '_'; }
-    var operator_chars = ['.', '=', '|', '&', '!', '+', '-', '*', '/', '<', '>'];
+    var operator_chars = ['.', '=', '|', '&', '!', '+', '-', '*', '/', '<', '>', ';'];
     var double_op_chars = ['=', '&', '|', '>', '<', '!'];
     var double_operators = ['==', '&&', '||', '>=', '<=', '!='];
     var brackets = ["(", ")", "[", "]"];
@@ -384,6 +289,8 @@ turtlegui._reduce = function(tokens, elem) {
             queue.unshift(['v', operators[token]()]);
         } else if (token == '=') {
             throw "Assignment (=) reduction is not supported";
+        } else if (token == ';') {
+            throw "Separator (;) reduction is not supported";
         } else if (token == ')') {
             var params = [];
             var param_vals = [];
@@ -392,7 +299,7 @@ turtlegui._reduce = function(tokens, elem) {
                 var queue_item_type = queue_item[0];
                 var queue_item_val = queue_item[1];
                 if (queue_item_type == 'r') {
-                    queue_item_val = turtlegui.resolve_field(queue_item_val, rel_data);
+                    queue_item_val = turtlegui.resolve_field(queue_item_val, rel_data, elem);
                 }
 
                 params.unshift(queue_item);
@@ -407,7 +314,7 @@ turtlegui._reduce = function(tokens, elem) {
                 // call function
                 var func = queue.shift()[1];
                 if (typeof(func) == 'string') {
-                    func = turtlegui.resolve_field(func, rel_data);
+                    func = turtlegui.resolve_field(func, rel_data, elem);
                 }
                 queue.unshift(['v', func.apply(object_ref || window, param_vals)]);
             } else {
@@ -426,7 +333,7 @@ turtlegui._reduce = function(tokens, elem) {
             var object_type = object[0];
             var object_val = object[1];
             if (object_type == 'r') {
-                object_ref = turtlegui.resolve_field(object_val, rel_data);
+                object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
             };
             queue.unshift(['v', object_ref[key_name]]);
         } else if (token_type == 'f') {
@@ -436,7 +343,7 @@ turtlegui._reduce = function(tokens, elem) {
             var object_val = object[1];
 
             if (object_type == 'r') {
-                object_ref = turtlegui.resolve_field(object_val, rel_data);
+                object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
                 queue.unshift(['v', object_ref[token]]);
             } else if (object_type == 'v') {
                 queue.unshift(['v', object_val[token]]);
@@ -450,7 +357,7 @@ turtlegui._reduce = function(tokens, elem) {
 
     if (queue.length == 1) {
         if (queue[0][0] == 'r') {
-            return turtlegui.resolve_field(queue[0][1], rel_data);
+            return turtlegui.resolve_field(queue[0][1], rel_data, elem);
         } else {
             return queue[0][1];
         }
@@ -460,20 +367,11 @@ turtlegui._reduce = function(tokens, elem) {
 }
 
 
-turtlegui._functionify = function(gres, elem) {
+turtlegui._evaluate_expression = function(gres, elem) {
     var tokens = turtlegui._token(gres);
     var shunted = turtlegui._shunt(tokens);
 
     return turtlegui._reduce(shunted, elem);
-}
-
-turtlegui._is_simple = function(value) {
-    return turtlegui._is_string(value) || typeof(value) == 'number';
-}
-
-turtlegui._is_ref = function(value) {
-    var special = ['!', '||', '&&', '==', '-', '+', '*', '/', '(', ')', '[', ']', '.'];
-    return typeof(value) == 'string' && special.indexOf(value) == -1 && !turtlegui._is_string(value);
 }
 
 turtlegui._shunt = function(tokens) {
@@ -544,6 +442,8 @@ turtlegui._shunt = function(tokens) {
 
 
 turtlegui._relative_eval = function(elem, gres, error_str) {
+    // Evaluates an expression using values stored directly in the DOM tree (i.e. 'item' from a list)
+    // Will set any stored data as a global variable for the duration of the reload, then swap it back
     var rel = turtlegui.retrieve(elem, 'data-rel') || {};
     var switcharoo = {};
     for (var key=0; key<rel.length; key++) {
@@ -553,7 +453,7 @@ turtlegui._relative_eval = function(elem, gres, error_str) {
         window[key] = rel[key];
     }
     try {
-        return turtlegui._functionify(gres, elem);
+        return turtlegui._evaluate_expression(gres, elem);
     } catch(e) {
         try {
             turtlegui.log_error(error_str + '" on element ' + elem.nodeName + " : " + e, elem)
@@ -750,12 +650,12 @@ turtlegui._hide_element = function(elem) {
 }
 
 
-turtlegui._semicolon_separated = function(elem, attribute_name) {
-    var attrstr = elem.getAttribute(attribute_name);
-    var comma = {};
+turtlegui._parse_evaluate_semicolon_separated = function(expression) {
+    var expression_map = {};
 
-    var tokens = turtlegui._token(attrstr);
+    var tokens = turtlegui._token(expression);
 
+    while(tokens.length && tokens[0][1] == ';') { tokens.shift(); }
     while(tokens.length) {
         if (tokens[0][0] != 'r') { throw "Reference expected, found " + tokens[0][1]; }
         if (tokens[1][1] != '=') { throw "Expected assignment (=), found " + tokens[1][1]; }
@@ -763,18 +663,28 @@ turtlegui._semicolon_separated = function(elem, attribute_name) {
         // Pop equals
         tokens.shift();
         var expression = [];
-        while (tokens.length && tokens[0][1] != ';') { expression.unshift(tokens.shift()); }
-        comma[field_name] = turtlegui._reduce(turtlegui._shunt(expression), elem);
+        while (tokens.length && tokens[0][1] != ';') { expression.push(tokens.shift()); }
+        expression_map[field_name] = turtlegui._shunt(expression);
+        while(tokens.length && tokens[0][1] == ';') { tokens.shift(); }
     }
-    return comma;
+    return expression_map;
 }
 
+
+turtlegui._evaluate_semicolon_separated = function(elem, attribute_name) {
+    var expression = elem.getAttribute(attribute_name);
+    var expression_map = turtlegui._parse_evaluate_semicolon_separated(expression);
+    var evaluated = {};
+    for (var field_name in expression_map) {
+        evaluated[field_name] = turtlegui._reduce(expression_map[field_name], elem);
+    }
+    return evaluated;
+}
 
 turtlegui._rebind = function(elem, event_id, func) {
     elem.removeEventListener(event_id, func);
     elem.addEventListener(event_id, func);
 }
-
 
 turtlegui._click_event_listener = function(e) {
     var elem = e.currentTarget;
@@ -784,6 +694,12 @@ turtlegui._bind_listener = function(e) {
     var elem = e.currentTarget;
     return turtlegui._eval_attribute(elem, 'gui-event');
 }
+turtlegui._bind_events_listener = function(e) {
+    var elem = e.currentTarget;
+    var event_map = turtlegui.retrieve(elem, '_event_map');
+    return turtlegui._reduce(event_map[e.type], elem);
+}
+
 turtlegui._mouseover_listener = function(e) {
     var elem = e.currentTarget;
     return turtlegui._eval_attribute(elem, 'gui-mouseover');
@@ -822,13 +738,13 @@ turtlegui._reload = function(elem, rel_data) {
         }
     }
     if (elem.getAttribute('gui-attrs')) {
-        var attrs = turtlegui._semicolon_separated(elem, 'gui-attrs');
+        var attrs = turtlegui._evaluate_semicolon_separated(elem, 'gui-attrs');
         for (var key in attrs) {
             elem.setAttribute(key, attrs[key]);
         }
     }
     if (elem.getAttribute('gui-data')) {
-        var datas = turtlegui._semicolon_separated(elem, 'gui-data');
+        var datas = turtlegui._evaluate_semicolon_separated(elem, 'gui-data');
         for (var key in datas) {
             turtlegui.store(elem, key, datas[key]);
         }
@@ -870,6 +786,17 @@ turtlegui._reload = function(elem, rel_data) {
     }
     if (elem.getAttribute('gui-bind') && elem.getAttribute('gui-event')) {
         turtlegui._rebind(elem, elem.getAttribute('gui-bind'), turtlegui._bind_listener);
+    }
+
+    if (elem.getAttribute('gui-bind-events')) {
+        var expression = elem.getAttribute('gui-bind-events');
+        var event_map = turtlegui._parse_evaluate_semicolon_separated(expression);
+
+        turtlegui.store(elem, '_event_map', event_map);
+
+        for (var event_id in event_map) {
+            turtlegui._rebind(elem, event_id, turtlegui._bind_events_listener);
+        }
     }
     if (elem.getAttribute('gui-mouseover')) {
         turtlegui._rebind(elem, 'mouseover', turtlegui._mouseover_listener);
@@ -1089,14 +1016,14 @@ turtlegui._reload = function(elem, rel_data) {
         elem.setAttribute('gui-included', true);
         var url = elem.getAttribute('gui-include');
         if (url != null) {
-            var params = turtlegui._semicolon_separated(elem, 'gui-include-params');
+            var params = turtlegui._evaluate_semicolon_separated(elem, 'gui-include-params');
 
             var rel_data = Object.assign(params, rel_data);
             turtlegui.load_snippet(elem, url, rel_data);
         }
     }
     else if (elem.getAttribute('gui-include') && elem.getAttribute('gui-included')) {
-        var params = turtlegui._semicolon_separated(elem, 'gui-include-params');
+        var params = turtlegui._evaluate_semicolon_separated(elem, 'gui-include-params');
 
         var rel_data = Object.assign(params, rel_data);
         for (var c=0; c<elem.children.length; c++) {

@@ -50,7 +50,29 @@ Call turtlegui.reload() when the data changes to update the page.
 
 # Model syntax:
 
-TurtleGUI uses a simplified model syntax to refer to any in-scope javascript data or functions. Most gui- fields use this model syntax unless otherwise stated.
+Most of the directives TurtleGUI uses are simple javascript-like expressions which evaluate to a result. 
+
+Example:
+
+```javascript
+    address_book[0].name
+```
+
+Will find the first object in the "address_book" array and return it's "name" field.
+
+Basic calculation evalautions are supported:
+
+```javascript
+    address_book[0].first_name + " " + address_book[0].last_name
+```
+
+Will concatenate the "first_name" and "last_name" fields of the first object in the "address_book" array.
+
+Calling Functions is also supported:
+
+```javascript
+    address_book[0].full_name()
+```
 
 The syntax supports:
 * simple field names: i.e. 'myvar' evaluates to the myvar variable.
@@ -58,8 +80,11 @@ The syntax supports:
 * dicttionary-like syntax: i.e. 'myobj[key]' evaluates 'key' first (if key is a variable) and uses that as the lookup in myobj
 * function calls: i.e. 'callme(myvar)' will evaluate the 'myvar' variable and pass that into the callme function, returning the value
 * simple string and number types are supported: i.e. 'callme("Ghostbusters")' will call the function callme with the string "Ghostbusters"
+* Basic calculations like "a + 1 * (b - 2)"
+* Boolean operators like "a < 10" or "b == 4"
 
 Note: TurtleGUI does not use eval() in order to avoid shenanigans.
+Also Note: for reasons of performance, code sustainability, and developer sanity, TurtleGUI recommends that expressions remain as simple as possible. If a complex calculation is required for something, then put it in a function, and call the function from the expression. Makes debugging a whole lot easier.
 
 # Code Reference:
 
@@ -93,10 +118,10 @@ Iterate over each item in the given Array or Object, and clone the subelements f
     <div gui-text="sibling.name"></div>
 </div>
 ```
-### *gui-item*
+### &nbsp;*gui-item*
 _Required by **gui-list**._ The local variable which represents the item in the list, for each item
 
-### *gui-ordering*
+### &nbsp;*gui-ordering*
 _Optionally used with **gui-list**._ Specify the field name used to order the list
 ```html
 <div gui-list="data.siblings" gui-item="sibling" gui-ordering="name">
@@ -104,10 +129,10 @@ _Optionally used with **gui-list**._ Specify the field name used to order the li
 </div>
 ```
 
-### *gui-reversed*
+### &nbsp;*gui-reversed*
 _Optionally used with **gui-list**._ Reversed the order of the list
 
-### *gui-key*
+### &nbsp;*gui-key*
 _Optionally used with **gui-list**._ Populates the given variable with the current key in the list, or the field name of the Object being iterated.
 ```html
 <div gui-list="data.siblings" gui-item="sibling" gui-key="index">
@@ -124,7 +149,7 @@ Shows or hides element based on evaluated value (true/false). Uses the _display_
 </div>
 ```
 
-### *gui-onshow*
+### &nbsp;*gui-onshow*
 _Optionally used with **gui-show**._ Function evaluated in place of the default _display_ style behaviour. Intended to allow fades and transitions and the like.
 ```html
 <div gui-show="gui.show_popup" gui-onshow="gui.fadein()">
@@ -132,7 +157,7 @@ _Optionally used with **gui-show**._ Function evaluated in place of the default 
 </div>
 ```
 
-### *gui-onhide*
+### &nbsp;*gui-onhide*
 _Optionally used with **gui-show**._ Function evaluated in place of the default _display_ style behaviour. Opposite of _**gui-onshow**_ above.
 
 ## *gui-switch*
@@ -145,7 +170,7 @@ Shows or hides child elements based on values of the _**gui-case**_ attribute of
 </div>
 ```
 
-### *gui-case*
+### &nbsp;*gui-case*
 _Required by **gui-switch**._ Show/hide element if value is equal to parent _**gui-switch**_.
 
 ## *gui-click*
@@ -160,13 +185,17 @@ You're probably wondering why this is useful, when there's an `onclick` field on
 </div>
 ```
 
+## *gui-bind-events*
+
+Semicolon separated event binding function
+
 ## *gui-bind*
 Binds to arbitrary event name, for use with _**gui-event**_.
 ```html
 <div gui-bind="mousemove" gui-event="gui.mouse_moved()"></div>
 ```
 
-### *gui-event*
+### &nbsp;*gui-event*
 
 _Required by **gui-bind**._ Evaluates when the event specified by gui-bind fires
 
@@ -188,13 +217,13 @@ Specifies a url path to an html template. Loads and evaluates the html snippet f
 <div gui-include="/template.html"></div>
 ```
 
-### *gui-include-params*
+### &nbsp;*gui-include-params*
 Semicolon-separated string of values to send to the template as local variables.
 ```html
 <div gui-include="/template.html" gui-include-params="first_name='Roger';surname='Dunne'"></div>
 ```
 
-### *gui-include-nocache*
+### &nbsp;*gui-include-nocache*
 By default, TurtleGUI will cache any templates loaded. If, say, the template is being loaded dynamically from a server, set _**gui-include-nocache**_ and the template will not be cached, but requested on every reload.
 
 ## *gui-class*
@@ -258,13 +287,13 @@ var stooges = [
 </select>
 ```
 
-### *gui-parse-func*
+### &nbsp;*gui-parse-func*
 _Optionally used with **gui-val**._ Reference to a function expected to parse the string on a write (i.e. parseFloat). Different to normal resolve - don't specify the brackets, just reference the function itself.
 ```html
 <input gui-val="data.year" data-format-func="parseInt"></input>
 ```
 
-### *gui-format-func*
+### &nbsp;*gui-format-func*
 _Optionally used with **gui-val**._ Reference to a function expected to format the string on a read. Different to normal resolve - don't specify the brackets, just reference the function itself.
 ```html
 <input gui-val="data.year" data-format-func="formatISOYear"></input>
@@ -311,8 +340,8 @@ In the event that you need to display a tree structure, process a tree structure
 </div>
 ```
 
-### *gui-nodeitem*
+### &nbsp;*gui-nodeitem*
 Specify the local variable used to iterate the tree
 
-### *gui-node*
+### &nbsp;*gui-node*
 Repeat last gui-tree template snippet at this point with the specified item as the root

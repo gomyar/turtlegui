@@ -23,6 +23,7 @@ var data = {
         turtlegui.reload();
     },
     set_highlight: function(highlight) {
+        console.log("setting");
         data.highlight = highlight
         turtlegui.reload();
     }
@@ -40,9 +41,11 @@ document.addEventListener("DOMContentLoaded", function(){
 <input type=text style="width: 200px; height: 200px; background-color=blue;"
  gui-val="data.saying"
  gui-change="turtlegui.reload()"
- gui-mousemove="data.set_coords()"
- gui-mouseover="data.set_highlight(true)"
- gui-mouseout="data.set_highlight(false)"
+
+ gui-bind-events="mousemove=data.set_coords(); mouseover=data.set_highlight(true); mouseout=data.set_highlight(false)"
+ -gui-mousemove="data.set_coords()"
+ -gui-mouseover="data.set_highlight(true)"
+ -gui-mouseout="data.set_highlight(false)"
  >
 
 </input>

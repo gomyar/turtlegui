@@ -88,12 +88,6 @@ turtlegui._is_string = function(token) {
                 (token[0] == "'" && token[token.length-1] == "'") || (token[0] == '"' && token[token.length-1] == '"'))
 }
 
-
-turtlegui._not = function(val) {
-    return !val;
-}
-
-
 turtlegui.resolve_field = function(gres, rel_data) {
     if (turtlegui._is_string(gres)) {
         return gres.substring(1, gres.length-1);
@@ -101,8 +95,6 @@ turtlegui.resolve_field = function(gres, rel_data) {
         return rel_data[gres];
     } else if (gres in window) {
         return window[gres];
-    } else if (gres == '!') {
-        return turtlegui._not;
     } else if (isNaN(gres)) {
         throw "Cannot resolve variable: " + gres;
     } else {

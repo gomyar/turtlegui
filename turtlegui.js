@@ -279,6 +279,7 @@ turtlegui._reduce = function(tokens, elem) {
 
     // Keeping reference to last object reference for 'this' keyword
     var object_ref = null;
+    var object_ref_stack = [];
 
     for (var i=0; i<tokens.length; i++) {
         var token_type = tokens[i][0];
@@ -317,6 +318,7 @@ turtlegui._reduce = function(tokens, elem) {
                     func = turtlegui.resolve_field(func, rel_data, elem);
                 }
                 queue.unshift(['v', func.apply(object_ref || window, param_vals)]);
+                object_ref = object_ref_stack.shift();
             } else {
                 // Unwind when only brackets
                 if (params.length > 1) { throw "Unexpected parameter list"; };
@@ -333,16 +335,17 @@ turtlegui._reduce = function(tokens, elem) {
             var object_type = object[0];
             var object_val = object[1];
             if (object_type == 'r') {
+                if (object_ref) { object_ref_stack.unshift(object_ref); }
                 object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
             };
             queue.unshift(['v', object_ref[key_name]]);
         } else if (token_type == 'f') {
-
             var object = queue.shift();
             var object_type = object[0];
             var object_val = object[1];
 
             if (object_type == 'r') {
+                if (object_ref) { object_ref_stack.unshift(object_ref); }
                 object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
                 queue.unshift(['v', object_ref[token]]);
             } else if (object_type == 'v') {

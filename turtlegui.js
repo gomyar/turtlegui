@@ -656,7 +656,7 @@ turtlegui._hide_element = function(elem) {
 turtlegui._parse_evaluate_semicolon_separated = function(expression) {
     var expression_map = {};
 
-    var tokens = turtlegui._token(expression);
+    var tokens = turtlegui._token(expression || '');
 
     while(tokens.length && tokens[0][1] == ';') { tokens.shift(); }
     while(tokens.length) {

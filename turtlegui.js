@@ -8,7 +8,7 @@ turtlegui.root_element = null;
 turtlegui.cached_snippets = {};
 turtlegui.loading_snippets = {};
 
-turtlegui.cached_tokens = {};
+turtlegui.cached_evaluations = {};
 
 turtlegui.stored_objects = {};
 turtlegui.store_key = 0;
@@ -206,56 +206,6 @@ turtlegui._token = function(token_str) {
 }
 
 
-turtlegui._tokenize_comma = function(token_str) {
-    if (!(token_str in turtlegui.cached_tokens)) {
-        var tokens = [];
-        var token = '';
-        function interpret_type(token) {
-            // Interpret strings / numbers
-            if (turtlegui._is_string(token)) {
-                return token; // token.substring(1, token.length-1);
-            } else if (token === 'true') {
-                return true;
-            } else if (token === 'false') {
-                return false;
-            } else {
-                return token;
-            }
-        }
-        var processing_string = null;
-        for (var i=0; i<token_str.length; i++) {
-            if (processing_string) {
-                token = token + token_str[i];
-                if (token_str[i] == processing_string) {
-                    processing_string = null;
-                } 
-            } else {
-                if (token_str[i] == '"' || token_str[i] == "'") {
-                    processing_string = token_str[i];
-                    token = token + token_str[i];
-                }
-                else if (';='.indexOf(token_str[i]) != -1) {
-                    if (token) {
-                        tokens[tokens.length] = interpret_type(token.trim());
-                    }
-                    if (token_str[i] != ';') {
-                        tokens[tokens.length] = interpret_type(token_str[i]);
-                    }
-                    token = '';
-                } else {
-                    token = token + token_str[i];
-                }
-            }
-        }
-        if (token) {
-            tokens[tokens.length] = interpret_type(token);
-        }
-        turtlegui.cached_tokens[token_str] = tokens;
-    }
-    return turtlegui.cached_tokens[token_str].slice();
-}
-
-
 turtlegui._reduce = function(tokens, elem) {
     var rel_data = (elem ? (turtlegui.retrieve(elem, 'data-rel') || {}) : {});
 
@@ -370,12 +320,20 @@ turtlegui._reduce = function(tokens, elem) {
 }
 
 
-turtlegui._evaluate_expression = function(gres, elem) {
-    var tokens = turtlegui._token(gres);
-    var shunted = turtlegui._shunt(tokens);
-
-    return turtlegui._reduce(shunted, elem);
+turtlegui._lazy_tokenize = function(gres) {
+    if (!turtlegui.cached_evaluations[gres]) {
+        var tokens = turtlegui._token(gres);
+        var shunted = turtlegui._shunt(tokens);
+        turtlegui.cached_evaluations[gres] = shunted;
+    }
+    return turtlegui.cached_evaluations[gres];
 }
+
+
+turtlegui._evaluate_expression = function(gres, elem) {
+    return turtlegui._reduce(turtlegui._lazy_tokenize(gres), elem);
+}
+
 
 turtlegui._shunt = function(tokens) {
     var precedence = ['||', '&&', '<', '>', '<=', '>=', '==', '-', '+', '*', '/', '!', '.', '(', '['];
@@ -446,7 +404,7 @@ turtlegui._shunt = function(tokens) {
 
 turtlegui._relative_eval = function(elem, gres, error_str) {
     // Evaluates an expression using values stored directly in the DOM tree (i.e. 'item' from a list)
-    // Will set any stored data as a global variable for the duration of the reload, then swap it back
+    // Will set any stored data as a global variable for the duration of the reload of the current element, then swap it back
     var rel = turtlegui.retrieve(elem, 'data-rel') || {};
     var switcharoo = {};
     for (var key=0; key<rel.length; key++) {
@@ -620,57 +578,60 @@ turtlegui.deferred_reload = function(elem, callback) {
 
 
 turtlegui._show_element = function(elem) {
-    if (!elem.hasAttribute('data-elem-orig-display')) {
-        elem.setAttribute('data-elem-orig-display', getComputedStyle(elem, null).display);
+    if (!turtlegui.retrieve(elem, 'data-elem-orig-display')) {
+        turtlegui.store(elem, 'data-elem-orig-display', getComputedStyle(elem, null).display);
     }
-    if (elem.getAttribute('data-elem-shown') == 'false' || elem.getAttribute('data-elem-shown') == null) {
+    if (turtlegui.retrieve(elem, 'data-elem-shown') == 'false' || turtlegui.retrieve(elem, 'data-elem-shown') == null) {
         if (elem.getAttribute('gui-onshow')) {
             turtlegui._eval_attribute(elem, 'gui-onshow')
         } else {
-            if (elem.getAttribute('data-elem-orig-display') == 'none') {
+            if (turtlegui.retrieve(elem, 'data-elem-orig-display') == 'none') {
                 elem.style.display = 'block';
             } else {
-                elem.style.display = elem.getAttribute('data-elem-orig-display');
+                elem.style.display = turtlegui.retrieve(elem, 'data-elem-orig-display');
             }
         }
-        elem.setAttribute('data-elem-shown', 'true');
+        turtlegui.store(elem, 'data-elem-shown', 'true');
     }
 }
 
 
 turtlegui._hide_element = function(elem) {
-    if (!elem.hasAttribute('data-elem-orig-display')) {
-        elem.setAttribute('data-elem-orig-display', getComputedStyle(elem, null).display);
+    if (!turtlegui.retrieve(elem, 'data-elem-orig-display')) {
+        turtlegui.store(elem, 'data-elem-orig-display', getComputedStyle(elem, null).display);
     }
-    if (elem.getAttribute('data-elem-shown') == 'true' || elem.getAttribute('data-elem-shown') == null) {
+    if (turtlegui.retrieve(elem, 'data-elem-shown') == 'true' || turtlegui.retrieve(elem, 'data-elem-shown') == null) {
         if (elem.getAttribute('gui-onhide')) {
             turtlegui._eval_attribute(elem, 'gui-onhide')
         } else {
             elem.style.display = "none";
         }
-        elem.setAttribute('data-elem-shown', 'false');
+        turtlegui.store(elem, 'data-elem-shown', 'false');
     }
 }
 
 
 turtlegui._parse_evaluate_semicolon_separated = function(expression) {
-    var expression_map = {};
+    if (!turtlegui.cached_evaluations[expression]) {
+        var expression_map = {};
 
-    var tokens = turtlegui._token(expression || '');
+        var tokens = turtlegui._token(expression || '');
 
-    while(tokens.length && tokens[0][1] == ';') { tokens.shift(); }
-    while(tokens.length) {
-        if (tokens[0][0] != 'r') { throw "Reference expected, found " + tokens[0][1]; }
-        if (tokens[1][1] != '=') { throw "Expected assignment (=), found " + tokens[1][1]; }
-        var field_name = tokens.shift()[1];
-        // Pop equals
-        tokens.shift();
-        var expression = [];
-        while (tokens.length && tokens[0][1] != ';') { expression.push(tokens.shift()); }
-        expression_map[field_name] = turtlegui._shunt(expression);
         while(tokens.length && tokens[0][1] == ';') { tokens.shift(); }
+        while(tokens.length) {
+            if (tokens[0][0] != 'r') { throw "Reference expected, found " + tokens[0][1]; }
+            if (tokens[1][1] != '=') { throw "Expected assignment (=), found " + tokens[1][1]; }
+            var field_name = tokens.shift()[1];
+            // Pop equals
+            tokens.shift();
+            var expression = [];
+            while (tokens.length && tokens[0][1] != ';') { expression.push(tokens.shift()); }
+            expression_map[field_name] = turtlegui._shunt(expression);
+            while(tokens.length && tokens[0][1] == ';') { tokens.shift(); }
+        }
+        turtlegui.cached_evaluations[expression] = expression_map;
     }
-    return expression_map;
+    return turtlegui.cached_evaluations[expression];
 }
 
 
@@ -753,9 +714,9 @@ turtlegui._reload = function(elem, rel_data) {
         }
     }
     if (elem.getAttribute('gui-class')) {
-        var orig_class = elem.getAttribute('data-orig-class');
+        var orig_class = turtlegui.retrieve(elem, 'data-orig-class');
         if (!orig_class && elem.getAttribute('class')) {
-            elem.setAttribute('data-orig-class', elem.getAttribute('class'));
+            turtlegui.store(elem, 'data-orig-class', elem.getAttribute('class'));
             orig_class = elem.getAttribute('class');
         }
         var value = turtlegui._eval_attribute(elem, 'gui-class');
@@ -768,9 +729,9 @@ turtlegui._reload = function(elem, rel_data) {
         }
     }
     if (elem.getAttribute('gui-id')) {
-        var orig_id = elem.getAttribute('data-orig-id');
+        var orig_id = turtlegui.retrieve(elem, 'data-orig-id');
         if (!orig_id && elem.getAttribute('id')) {
-            elem.setAttribute('data-orig-id', elem.getAttribute('id'));
+            turtlegui.store(elem, 'data-orig-id', elem.getAttribute('id'));
             orig_id = elem.getAttribute('id');
         }
         var value = turtlegui._eval_attribute(elem, 'gui-id');
@@ -1015,8 +976,8 @@ turtlegui._reload = function(elem, rel_data) {
 
         turtlegui.remove_elements(orig_elems);
     }
-    else if (elem.getAttribute('gui-include') && !elem.getAttribute('gui-included')) {
-        elem.setAttribute('gui-included', true);
+    else if (elem.getAttribute('gui-include') && !turtlegui.retrieve(elem, 'gui-included')) {
+        turtlegui.store(elem, 'gui-included', true);
         var url = elem.getAttribute('gui-include');
         if (url != null) {
             var params = turtlegui._evaluate_semicolon_separated(elem, 'gui-include-params');
@@ -1025,7 +986,7 @@ turtlegui._reload = function(elem, rel_data) {
             turtlegui.load_snippet(elem, url, rel_data);
         }
     }
-    else if (elem.getAttribute('gui-include') && elem.getAttribute('gui-included')) {
+    else if (elem.getAttribute('gui-include') && turtlegui.retrieve(elem, 'gui-included')) {
         var params = turtlegui._evaluate_semicolon_separated(elem, 'gui-include-params');
 
         var rel_data = Object.assign(params, rel_data);
@@ -1089,8 +1050,7 @@ turtlegui._val_change = function(e) {
         elem_val = turtlegui._eval_attribute(elem, 'gui-parse-func')(elem_val);
     }
 
-    var tokens = turtlegui._token(gres);
-    var shunted = turtlegui._shunt(tokens);
+    var shunted = turtlegui._lazy_tokenize(gres);
 
     if (shunted[shunted.length-1][1] == ']') {
         // Object syntax

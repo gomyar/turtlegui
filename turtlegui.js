@@ -112,7 +112,7 @@ turtlegui._token = function(token_str) {
     var double_op_chars = ['=', '&', '|', '>', '<', '!'];
     var double_operators = ['==', '&&', '||', '>=', '<=', '!='];
     var brackets = ["(", ")", "[", "]"];
-    var invalid_ref_chars = operator_chars + brackets + ["'", '"'];
+    var invalid_ref_chars = operator_chars + brackets + ["'", '"', ' '];
 
     var token_chars = token_str.split('');
 
@@ -211,20 +211,25 @@ turtlegui._reduce = function(tokens, elem) {
 
     var queue = [];
 
+    function shift_resolve() {
+        var shifted = queue.shift();
+        return shifted[0] == 'r' ? turtlegui.resolve_field(shifted[1], rel_data, elem) : shifted[1];
+    }
+
     var operators = {
-        '!': () => { return !queue.shift()[1]; }, 
-        '!=': () => { var rhs = queue.shift()[1]; var lhs = queue.shift()[1]; return lhs != rhs; },
-        '||': () => { var rhs = queue.shift()[1]; var lhs = queue.shift()[1]; return lhs || rhs; },
-        '&&': () => { var rhs = queue.shift()[1]; var lhs = queue.shift()[1]; return lhs && rhs; },
-        '==': () => { var rhs = queue.shift()[1]; var lhs = queue.shift()[1]; return lhs == rhs; },
-        '-': () => { var rhs = queue.shift()[1]; var lhs = queue.shift()[1]; return lhs - rhs; },
-        '+': () => { var rhs = queue.shift()[1]; var lhs = queue.shift()[1]; return lhs + rhs; },
-        '*': () => { var rhs = queue.shift()[1]; var lhs = queue.shift()[1]; return lhs * rhs; },
-        '/': () => { var rhs = queue.shift()[1]; var lhs = queue.shift()[1]; return lhs / rhs; },
-        '>': () => { var rhs = queue.shift()[1]; var lhs = queue.shift()[1]; return lhs > rhs; },
-        '<': () => { var rhs = queue.shift()[1]; var lhs = queue.shift()[1]; return lhs < rhs; },
-        '>=': () => { var rhs = queue.shift()[1]; var lhs = queue.shift()[1]; return lhs >= rhs; },
-        '<=': () => { var rhs = queue.shift()[1]; var lhs = queue.shift()[1]; return lhs <= rhs; }
+        '!': () => { return !shift_resolve(); }, 
+        '!=': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs != rhs; },
+        '||': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs || rhs; },
+        '&&': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs && rhs; },
+        '==': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs == rhs; },
+        '-': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs - rhs; },
+        '+': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs + rhs; },
+        '*': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs * rhs; },
+        '/': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs / rhs; },
+        '>': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs > rhs; },
+        '<': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs < rhs; },
+        '>=': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs >= rhs; },
+        '<=': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs <= rhs; }
     };
 
     // Keeping reference to last object reference for 'this' keyword
@@ -276,7 +281,12 @@ turtlegui._reduce = function(tokens, elem) {
             }
         } else if (token == ']') {
             // assume one value
-            var key_name = queue.shift()[1];
+            var key = queue.shift();
+            var key_type = key[0];
+            var key_name = key[1];
+            if (key_type == 'r') {
+                key_name = turtlegui.resolve_field(key_name, rel_data, elem);
+            }
             // pop opening '['
             var opening_bracket = queue.shift()[1];
             if (opening_bracket != '[') throw "Unexpected character: " + opening_bracket;

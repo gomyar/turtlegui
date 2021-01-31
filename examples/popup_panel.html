@@ -4,15 +4,39 @@
 
 <script>
 
+var details = {
+    name: "Bob",
+    address: "14 the brooks",
+    phone: 123456
+}
+
 var gui = {
     show_popup: false,
+    form_details: {},
     open: function() {
+        Object.assign(gui.form_details, details);  // pre-fill form
+
         gui.show_popup = true;
         turtlegui.reload();
     },
     close: function() {
         gui.show_popup = false;
         turtlegui.reload();
+    },
+    save: function() {
+        Object.assign(details, gui.form_details);
+        gui.close();
+    },
+    check_esc: function() {
+        if (event.keyCode == 27) {  // "Esc" key
+            gui.close();
+        }
+    },
+    check_return: function() {
+        if (event.keyCode == 13) { // "Return" key
+            event.stopPropagation();
+            gui.save();
+        }
     }
 }
 
@@ -31,11 +55,8 @@ document.addEventListener("DOMContentLoaded", function(){
     background-color: rgba(255, 255, 255, 0.5);
 }
 
-.button {
-    width : 50px;
-    height: 50px;
-    border: 1px solid black;
-    cursor: pointer;
+div.details span {
+    display: block;
 }
 
 .popup {
@@ -50,14 +71,14 @@ document.addEventListener("DOMContentLoaded", function(){
 }
 
 .popup .close {
-    width : 100%;
+    min-width : 100%;
     display : inline-block;
     text-align : right;
 }
 
 .popup .close div {
     text-align : center;
-    width : 16px;
+    min-width : 16px;
     display : inline-block;
     cursor : pointer;
     font-size : 15px;
@@ -68,21 +89,33 @@ document.addEventListener("DOMContentLoaded", function(){
 
 </style>
 
-<body>
+<body gui-keydown="gui.check_esc()">      <!-- attaching ESC event to body as form focus can be easily lost and returned to body -->
 
-<div class="layer anchorleft">
-    <div class="button" gui-click="gui.open()">Show popup</div>
-</div>
+    <div class="layer anchortop details">
+        <span class="detail" gui-text="details.name"></span>
+        <span class="detail" gui-text="details.address"></span>
+        <span class="detail" gui-text="details.phone"></span>
 
-<div class="layer fullscreen popupfill"
-     gui-show="gui.show_popup">
-    <div class="popup">
-        <div class="close"
-             gui-click="gui.close()">
-            <div>&times;</div>
-        </div>
-        Popups are really just a clever application of CSS. I've found that no two popups are as alike as you might think, so I usually make multiple hidden popup elements for each popup I need.
+        <button gui-click="gui.open()" gui-focus="true">Show popup</button>
     </div>
-</div>
+
+    <div class="layer fullscreen popupfill"
+        gui-show="gui.show_popup">
+
+        <div class="popup" gui-keyup="gui.check_return()">           <!-- attaching Return key event to keyup because buttons, when clicked, issue two events (keydown / keyup) -->
+            <input gui-val="gui.form_details.name" gui-focus="true" ></input>
+            <input gui-val="gui.form_details.address"></input>
+            <input gui-val="gui.form_details.phone" gui-parse-func="parseInt"></input>
+            <div class="close"
+                gui-click="gui.save()">
+                <div>Save</div>
+            </div>
+            <div class="close"
+                gui-click="gui.close()">
+                <div>&times;</div>
+            </div>
+            Popups are really just a clever application of CSS. I've found that no two popups are as alike as you might think, so I usually make multiple hidden popup elements for each popup I need.
+        </div>
+    </div>
 
 </body>

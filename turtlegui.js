@@ -552,6 +552,8 @@ turtlegui.reload = function(elem, context) {
         elem = turtlegui.root_element || document.body;
     }
 
+    turtlegui._focused_element = null;
+
     function index(e) {
         var i = 0;
         while( (e = e.previousElementSibling) != null ) 
@@ -571,8 +573,10 @@ turtlegui.reload = function(elem, context) {
     for (var i=0; i<path_indices.length; i++) {
         current_elem = current_elem.children[path_indices[i]];
     }
-    if (current_elem && document.activeElement != current_elem) {
+    if (turtlegui._focused_element == null && current_elem && document.activeElement != current_elem) {
         current_elem.focus();
+    } else if (turtlegui._focused_element != null && document.activeElement != turtlegui._focused_element) {
+        turtlegui._focused_element.focus();
     }
 }
 
@@ -690,6 +694,10 @@ turtlegui._keydown_listener = function(e) {
     var elem = e.currentTarget;
     return turtlegui._eval_attribute(elem, 'gui-keydown');
 }
+turtlegui._keyup_listener = function(e) {
+    var elem = e.currentTarget;
+    return turtlegui._eval_attribute(elem, 'gui-keyup');
+}
 
 
 turtlegui._reload = function(elem, rel_data) {
@@ -783,6 +791,14 @@ turtlegui._reload = function(elem, rel_data) {
     }
     if (elem.getAttribute('gui-keydown')) {
         turtlegui._rebind(elem, 'keydown', turtlegui._keydown_listener);
+    }
+    if (elem.getAttribute('gui-keyup')) {
+        turtlegui._rebind(elem, 'keyup', turtlegui._keyup_listener);
+    }
+    if (elem.getAttribute('gui-focus')) {
+        if (turtlegui._eval_attribute(elem, 'gui-focus')) {
+            turtlegui._focused_element = elem;
+        }
     }
     if (elem.getAttribute('gui-switch')) {
         var value = turtlegui._eval_attribute(elem, 'gui-switch');

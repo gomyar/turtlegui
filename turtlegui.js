@@ -748,12 +748,12 @@ turtlegui._reload = function(elem, rel_data) {
     }
     if (elem.getAttribute('gui-id')) {
         var orig_id = turtlegui.retrieve(elem, 'data-orig-id');
-        if (!orig_id && elem.getAttribute('id')) {
-            turtlegui.store(elem, 'data-orig-id', elem.getAttribute('id'));
-            orig_id = elem.getAttribute('id');
+        if (orig_id === null) {
+            orig_id = elem.getAttribute('id') || '';
+            turtlegui.store(elem, 'data-orig-id', orig_id);
         }
         var value = turtlegui._eval_attribute(elem, 'gui-id');
-        elem.setAttribute('id', (orig_id == null ? '' : orig_id) + (value == null ? '' : value));
+        elem.setAttribute('id', (orig_id || '') + (value || ''));
     }
     if (elem.getAttribute('gui-text')) {
         value = turtlegui._eval_attribute(elem, 'gui-text');

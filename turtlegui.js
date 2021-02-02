@@ -105,6 +105,11 @@ turtlegui.resolve_field = function(gres, rel_data, elem) {
 }
 
 
+turtlegui.evaluate = function(expression) {
+    return turtlegui._reduce(turtlegui._shunt(turtlegui._token(expression)))
+}
+
+
 turtlegui._token = function(token_str) {
     function is_number(token) { return !isNaN(token) && !isNaN(parseFloat(token)); }
     function is_alpha(token) { return token >= 'a' && token <= 'z' || token >= 'A' && token <= 'Z' || token == '_'; }
@@ -297,8 +302,10 @@ turtlegui._reduce = function(tokens, elem) {
             if (object_type == 'r') {
                 if (object_ref) { object_ref_stack.unshift(object_ref); }
                 object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
-            };
-            queue.unshift(['v', object_ref[key_name]]);
+                queue.unshift(['v', object_ref[key_name]]);
+            } else {
+                queue.unshift(['v', object_val[key_name]]);
+            }
         } else if (token_type == 'f') {
             var object = queue.shift();
             var object_type = object[0];

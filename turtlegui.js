@@ -755,12 +755,12 @@ turtlegui._reload = function(elem, rel_data) {
     }
     if (elem.getAttribute('gui-id')) {
         var orig_id = turtlegui.retrieve(elem, 'data-orig-id');
-        if (orig_id === null) {
+        if (!orig_id) {
             orig_id = elem.getAttribute('id') || '';
             turtlegui.store(elem, 'data-orig-id', orig_id);
         }
         var value = turtlegui._eval_attribute(elem, 'gui-id');
-        elem.setAttribute('id', (orig_id || '') + (value || ''));
+        elem.setAttribute('id', (orig_id == null ? '' : orig_id) + (value == null ? '' : value));
     }
     if (elem.getAttribute('gui-text')) {
         value = turtlegui._eval_attribute(elem, 'gui-text');

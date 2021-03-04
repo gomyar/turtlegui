@@ -218,14 +218,30 @@ turtlegui._reduce = function(tokens, elem) {
 
     function shift_resolve() {
         var shifted = queue.shift();
+        return resolve(shifted);
+    }
+
+    function resolve(shifted) {
         return shifted[0] == 'r' ? turtlegui.resolve_field(shifted[1], rel_data, elem) : shifted[1];
+    }
+
+    function resolve_or() {
+        var rhs_shifted = queue.shift();
+        var lhs = shift_resolve();
+        return lhs || resolve(rhs_shifted);
+    }
+
+    function resolve_and() {
+        var rhs_shifted = queue.shift();
+        var lhs = shift_resolve();
+        return lhs ? lhs && resolve(rhs_shifted) : resolve(rhs_shifted);
     }
 
     var operators = {
         '!': () => { return !shift_resolve(); }, 
         '!=': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs != rhs; },
-        '||': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs || rhs; },
-        '&&': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs && rhs; },
+        '||': resolve_or,
+        '&&': resolve_and,
         '==': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs == rhs; },
         '-': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs - rhs; },
         '+': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs + rhs; },
@@ -353,7 +369,7 @@ turtlegui._evaluate_expression = function(gres, elem) {
 
 
 turtlegui._shunt = function(tokens) {
-    var precedence = ['||', '&&', '<', '>', '<=', '>=', '==', '-', '+', '*', '/', '!', '.', '(', '['];
+    var precedence = ['<', '>', '<=', '>=', '==', '||', '&&', '-', '+', '*', '/', '!', '.', '(', '['];
 
     var operator_stack = [];
     var output_stack = [];

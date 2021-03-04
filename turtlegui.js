@@ -225,23 +225,11 @@ turtlegui._reduce = function(tokens, elem) {
         return shifted[0] == 'r' ? turtlegui.resolve_field(shifted[1], rel_data, elem) : shifted[1];
     }
 
-    function resolve_or() {
-        var rhs_shifted = queue.shift();
-        var lhs = shift_resolve();
-        return lhs || resolve(rhs_shifted);
-    }
-
-    function resolve_and() {
-        var rhs_shifted = queue.shift();
-        var lhs = shift_resolve();
-        return lhs ? lhs && resolve(rhs_shifted) : resolve(rhs_shifted);
-    }
-
     var operators = {
         '!': () => { return !shift_resolve(); }, 
         '!=': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs != rhs; },
-        '||': resolve_or,
-        '&&': resolve_and,
+        '||': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs || rhs; },
+        '&&': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs && rhs; },
         '==': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs == rhs; },
         '-': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs - rhs; },
         '+': () => { var rhs = shift_resolve(); var lhs = shift_resolve(); return lhs + rhs; },
@@ -287,7 +275,7 @@ turtlegui._reduce = function(tokens, elem) {
                 }
             }
             queue.shift(); // pop the open bracket
-            if (queue.length && (queue[0][0] == 'r' || queue[0][0] == 'v')) {
+            if (queue.length && typeof(queue[0][1]) == 'function') {
                 // call function
                 var func = queue.shift()[1];
                 if (typeof(func) == 'string') {
@@ -320,6 +308,7 @@ turtlegui._reduce = function(tokens, elem) {
                 object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
                 queue.unshift(['v', object_ref[key_name]]);
             } else {
+                object_ref = object_val;
                 queue.unshift(['v', object_val[key_name]]);
             }
         } else if (token_type == 'f') {
@@ -332,6 +321,7 @@ turtlegui._reduce = function(tokens, elem) {
                 object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
                 queue.unshift(['v', object_ref[token]]);
             } else if (object_type == 'v') {
+                object_ref = object_val;
                 queue.unshift(['v', object_val[token]]);
             } else {
                 throw "Token is not object: " + object_val; 
@@ -369,7 +359,7 @@ turtlegui._evaluate_expression = function(gres, elem) {
 
 
 turtlegui._shunt = function(tokens) {
-    var precedence = ['<', '>', '<=', '>=', '==', '||', '&&', '-', '+', '*', '/', '!', '.', '(', '['];
+    var precedence = ['||', '&&', '<', '>', '<=', '>=', '==', '-', '+', '*', '/', '!', '.', '(', '['];
 
     var operator_stack = [];
     var output_stack = [];

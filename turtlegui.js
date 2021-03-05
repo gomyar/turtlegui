@@ -275,7 +275,7 @@ turtlegui._reduce = function(tokens, elem) {
                 }
             }
             queue.shift(); // pop the open bracket
-            if (queue.length && typeof(queue[0][1]) == 'function') {
+            if (queue.length && (queue[0][0] == 'r' || queue[0][0] == 'v')) {
                 // call function
                 var func = queue.shift()[1];
                 if (typeof(func) == 'string') {

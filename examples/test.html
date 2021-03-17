@@ -1,0 +1,234 @@
+<html>
+
+<script src="../turtlegui.js"></script>
+<script>
+
+function compare(expected, actual) {
+    var actual_copy = actual.cloneNode();
+    return expected.innerHTML == actual_copy.innerHTML;
+}
+
+function compare(expected, actual) {
+    for (var a=0; a < expected.attributes.length; a++) {
+        var attr_name = expected.attributes[a].name;
+
+        if (!attr_name.startsWith('gui-') && (expected.getAttribute(attr_name) != actual.getAttribute(attr_name))) {
+            console.log("Expected " + expected.getAttribute(attr_name) + " but got " + actual.getAttribute(attr_name));
+            return false;
+        }
+    }
+
+    if (expected.innerText != actual.innerText) { console.log("Expected text: '" + expected.innerText + "' actual: '" + actual.innerText + "'"); return false; }
+
+    for (var c=0; c < expected.children.length; c++) {
+        if (c >= actual.children.length) { console.log("Expected children length greater than actual"); return false; }
+        if (!compare(expected.children[c], actual.children[c])) { return false; }
+    }
+
+    if (actual.children.length > expected.children.length) { console.log("Actual children length greater than expected"); return false; }
+
+    return true;
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+    // call turtlegui.reload() when the page loads 
+    turtlegui.reload();
+
+    var all_tests = document.getElementsByTagName('tr');
+    for (var i=1; i<all_tests.length; i++) {
+        console.log(" =================================== ");
+        var expected = all_tests[i].getElementsByTagName('td')[0];
+        var actual = all_tests[i].getElementsByTagName('td')[1];
+
+        if (!compare(expected, actual)) {
+            all_tests[i].style.backgroundColor = 'lightpink';
+        } else {
+            all_tests[i].style.backgroundColor = 'lightgreen';
+        }
+    }
+});
+
+</script>
+
+<body>
+
+<table>
+    <tr>
+        <th>Expected</th><th>Actual</th>
+    </tr>
+
+
+    <!-- simple test -->
+    <tr>
+        <script>
+            var aa = 11;
+        </script>
+        <td>
+            <div>11</div>
+        </td>
+        <td>
+            <div gui-text="aa"></div>
+        </td>
+    </tr>
+
+    <!-- brackets test -->
+    <tr>
+        <script>
+            var s_a = 1;
+            var s_b = 2;
+            var s_c = 3;
+        </script>
+        <td>
+            <div>true</div>
+        </td>
+        <td>
+            <div gui-text="s_a == 1 && (s_b != null && s_c == 3)"></div>
+        </td>
+    </tr>
+
+    <!-- bomdas test -->
+    <tr>
+        <script>
+            var b_s_a = 2;
+            var b_s_b = 3;
+            var b_s_c = 4;
+        </script>
+        <td>
+            <div>2</div>
+        </td>
+        <td>
+            <div gui-text="b_s_a * (b_s_b + b_s_c) / 7"></div>
+        </td>
+    </tr>
+
+    <!-- bomdas test -->
+    <tr>
+        <script>
+            var c_s_a = 2;
+            var c_s_b = 3;
+            var c_s_c = 4;
+        </script>
+        <td>
+            <div>8</div>
+        </td>
+        <td>
+            <div gui-text="c_s_a * c_s_b + (c_s_c / 2)"></div>
+        </td>
+    </tr>
+
+    <!-- unnecessary brackets test -->
+    <tr>
+        <script>
+            var c_s_a = 2;
+            var c_s_b = 3;
+            var c_s_c = 4;
+        </script>
+        <td>
+            <div>8</div>
+        </td>
+        <td>
+            <div gui-text="((c_s_a * c_s_b)) + ((c_s_c) / 2)"></div>
+        </td>
+    </tr>
+
+    <!-- calc test -->
+    <tr>
+        <script>
+            function calc_func_1(msg) {
+                return "Hello " + msg;
+            }
+        </script>
+        <td>
+            <div>Hello there</div>
+        </td>
+        <td>
+            <div gui-text="calc_func_1('there')"></div>
+        </td>
+    </tr>
+
+
+    <!-- this test -->
+    <tr>
+        <script>
+            var param = {
+                age: 12
+            }
+
+            var scope1 = {
+                field : 11,
+                callme: function(age) {
+                    return this.field + age;
+                }
+            }
+        </script>
+        <td>
+            <div>23</div>
+        </td>
+        <td>
+            <div gui-text="scope1.callme(param.age)"></div>
+        </td>
+    </tr>
+
+    <!-- this test -->
+    <tr>
+        <script>
+            var param1 = {
+                age: 12
+            }
+
+            var param2 = {
+                salary: 60
+            }
+
+            var scope2 = {
+                field : 11,
+                callme: function(age, salary) {
+                    return this.field + age + salary;
+                }
+            }
+        </script>
+        <td>
+            <div>83</div>
+        </td>
+        <td>
+            <div gui-text="scope2.callme(param1.age, param2.salary)"></div>
+        </td>
+    </tr>
+
+
+    <!-- this test -->
+    <tr>
+        <script>
+            var param3 = {
+                age: 22
+            }
+
+            var param4 = {
+                salary: 40
+            }
+
+            var scope3 = {
+                field : 11,
+                callme: function(age, salary) {
+                    return this.field + age + salary;
+                },
+                inner: {
+                    tax: 10,
+                    add_tax: function(salary) {
+                        return this.tax + salary;
+                    }
+                }
+            }
+        </script>
+        <td>
+            <div>83</div>
+        </td>
+        <td>
+            <div gui-text="scope3.callme(param3.age, scope3.inner.add_tax(param4.salary))"></div>
+        </td>
+    </tr>
+
+
+</table>
+
+</body>

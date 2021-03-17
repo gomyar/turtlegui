@@ -25,6 +25,62 @@ var data = [
     }
 ]
 
+var popup = {
+    value: "hello",
+    callme: function() {
+        console.log("here", this);
+    },
+    readme: function() {
+        return this.value;
+    },
+
+    inner: {
+        touch: function() {
+            console.log("touched", this);
+        }
+    }
+}
+
+
+function DollClass() {
+    this.name = 'doll';
+}
+
+DollClass.prototype.callme = function() {
+    console.log("I am ", this.name);
+    return this.name;
+}
+
+function ChildClass() {
+    this.doll = new DollClass();
+    this.name = 'child';
+}
+
+ChildClass.prototype.callme = function() {
+    console.log("I am ", this.name);
+    return this.name;
+}
+
+
+function ParentClass() {
+    this.child = new ChildClass();
+    this.name = 'parent';
+}
+
+
+ParentClass.prototype.callme = function() {
+    console.log("I am ", this.name);
+    return this.name;
+}
+
+ParentClass.prototype.wrap = function(msg) {
+    return "Parent wrapped : " + msg;
+}
+
+
+var the_parent = new ParentClass();
+
+
 document.addEventListener("DOMContentLoaded", function(){
     // call turtlegui.reload() when the page loads 
     turtlegui.reload();
@@ -38,7 +94,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
 <hr/>
 
-<div gui-list="data" gui-item="ship">
+<!-- <div gui-list="data" gui-item="ship">
     <div gui-list="ship" gui-item="component" gui-key="component_type" gui-ordering="name">
         <span gui-text="component_type"></span>
         <span>: </span>
@@ -46,6 +102,18 @@ document.addEventListener("DOMContentLoaded", function(){
         <br/>
     </div>
     <br/>
-</div>
+</div>-->
+
+<!--<div gui-text="popup.readme()" gui-show="popup.listvalue && popup.listvalue.length > 0"></div>
+<button gui-click="popup.inner.touch()">Click</button>
+<button gui-click="the_parent.child.doll.callme()">Parent</button>-->
+<div gui-text="the_parent.callme()"></div>
+<div gui-text="the_parent.child.callme()"></div>
+<div gui-text="the_parent.child.doll.callme()"></div>
+<div gui-text="the_parent.wrap(the_parent.child.doll.callme())"></div>
+<div gui-text="the_parent['callme']()"></div>
+<div gui-text="the_parent['child'].callme()"></div>
+<div gui-text="the_parent['child']['doll'].callme()"></div>
+<div gui-text="the_parent.wrap(the_parent['child']['doll'].callme())"></div>
 
 </body>

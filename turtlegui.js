@@ -256,6 +256,11 @@ turtlegui._reduce = function(tokens, elem) {
             throw "Assignment (=) reduction is not supported";
         } else if (token == ';') {
             throw "Separator (;) reduction is not supported";
+        } else if (token == '(') {
+            if (queue.length > 0 && typeof(queue[0][1]) == 'function') {
+                object_ref_stack.unshift(object_ref);
+            }
+            queue.unshift([token_type, token]);
         } else if (token == ')') {
             var params = [];
             var param_vals = [];
@@ -276,13 +281,24 @@ turtlegui._reduce = function(tokens, elem) {
             }
             queue.shift(); // pop the open bracket
             if (queue.length && (queue[0][0] == 'r' || queue[0][0] == 'v')) {
+            //if (queue.length && typeof(queue[0][1]) == 'function') {
                 // call function
-                var func = queue.shift()[1];
-                if (typeof(func) == 'string') {
-                    func = turtlegui.resolve_field(func, rel_data, elem);
+                var queue_item = queue.shift();
+                var queue_item_type = queue_item[0];
+                var queue_item_val = queue_item[1];
+
+                if (queue_item_type == 'r') {
+                    queue_item_val = turtlegui.resolve_field(queue_item_val, rel_data, elem);
                 }
-                queue.unshift(['v', func.apply(object_ref || window, param_vals)]);
-                object_ref = object_ref_stack.shift();
+
+                if (typeof(queue_item_val) == 'function') {
+                    queue.unshift(['v', queue_item_val.apply(object_ref_stack.shift(), param_vals)]);
+                } else {
+                    queue.unshift(['v', queue_item_val]);
+                    for (var p=0; p<params.length; p++ ) {
+                        queue.unshift(params[p]);
+                    }
+                }
             } else {
                 // Unwind when only brackets
                 if (params.length > 1) { throw "Unexpected parameter list"; };
@@ -304,7 +320,6 @@ turtlegui._reduce = function(tokens, elem) {
             var object_type = object[0];
             var object_val = object[1];
             if (object_type == 'r') {
-                if (object_ref) { object_ref_stack.unshift(object_ref); }
                 object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
                 queue.unshift(['v', object_ref[key_name]]);
             } else {
@@ -317,7 +332,6 @@ turtlegui._reduce = function(tokens, elem) {
             var object_val = object[1];
 
             if (object_type == 'r') {
-                if (object_ref) { object_ref_stack.unshift(object_ref); }
                 object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
                 queue.unshift(['v', object_ref[token]]);
             } else if (object_type == 'v') {
@@ -1077,6 +1091,11 @@ turtlegui._reload = function(elem, rel_data) {
 
 turtlegui._val_change = function(e) {
     var elem = e.currentTarget;
+    turtlegui.val_changed(elem);
+}
+
+
+turtlegui.val_changed = function(elem) {
     var gres = elem.getAttribute('gui-val');
 
     if (elem.type == 'checkbox' || elem.type == 'radio') {

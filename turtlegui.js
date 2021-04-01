@@ -846,6 +846,8 @@ turtlegui._reload = function(elem, rel_data) {
         if (!Array.isArray(list) && typeof(list) != 'string') {
             var rel_item = elem.getAttribute('gui-item');
             var rel_key = elem.getAttribute('gui-key');
+            var rel_index = elem.getAttribute('gui-index');
+            var rel_index0 = elem.getAttribute('gui-index0');
             if (elem.getAttribute('gui-reversed')) {
                 var rel_reverse = turtlegui._eval_attribute(elem, 'gui-reversed');
             } else {
@@ -899,6 +901,12 @@ turtlegui._reload = function(elem, rel_data) {
                 if (rel_key != null) {
                     rel_data[rel_key] = obj_key;
                 }
+                if (rel_index != null) {
+                    rel_data[rel_index] = i + 1;
+                }
+                if (rel_index0 != null) {
+                    rel_data[rel_index0] = i;
+                }
 
                 for (var e=0; e<template_elems.length; e++) {
                     var new_elem = template_elems[e].cloneNode(true);
@@ -914,6 +922,8 @@ turtlegui._reload = function(elem, rel_data) {
         } else {
             var rel_item = elem.getAttribute('gui-item');
             var rel_key = elem.getAttribute('gui-key');
+            var rel_index = elem.getAttribute('gui-index');
+            var rel_index0 = elem.getAttribute('gui-index0');
             var rel_order = elem.getAttribute('gui-ordering');
             var orig_elems = [];
             for (var orig=0; orig<elem.children.length; orig ++) {
@@ -964,6 +974,12 @@ turtlegui._reload = function(elem, rel_data) {
                 rel_data[rel_item] = item;
                 if (rel_key != null) {
                     rel_data[rel_key] = i;
+                }
+                if (rel_index != null) {
+                    rel_data[rel_index] = i + 1;
+                }
+                if (rel_index0 != null) {
+                    rel_data[rel_index0] = i;
                 }
 
                 for (var e=0; e<template_elems.length; e++) {

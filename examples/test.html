@@ -228,6 +228,78 @@ document.addEventListener("DOMContentLoaded", function(){
         </td>
     </tr>
 
+    <!-- list index -->
+    <tr>
+        <script>
+            var index_list = ['a', 'b', 'c'];
+        </script>
+        <td>
+            <div>
+                <div>
+                    <span>0</span>
+                    <span>1</span>
+                    <span>a</span>
+                </div>
+                <div>
+                    <span>1</span>
+                    <span>2</span>
+                    <span>b</span>
+                </div>
+                <div>
+                    <span>2</span>
+                    <span>3</span>
+                    <span>c</span>
+                </div>
+            </div>
+        </td>
+        <td>
+            <div gui-list="index_list" gui-item="item" gui-index="index" gui-index0="index0">
+                <div>
+                    <span gui-text="index0"></span>
+                    <span gui-text="index"></span>
+                    <span gui-text="item"></span>
+                </div>
+            </div>
+        </td>
+    </tr>
+
+
+    <!-- object index -->
+    <tr>
+        <script>
+            var index_object = {'A': 'a', 'B': 'b', 'C': 'c'};
+        </script>
+        <td>
+            <div>
+                <div>
+                    <span>0</span>
+                    <span>1</span>
+                    <span>a</span>
+                </div>
+                <div>
+                    <span>1</span>
+                    <span>2</span>
+                    <span>b</span>
+                </div>
+                <div>
+                    <span>2</span>
+                    <span>3</span>
+                    <span>c</span>
+                </div>
+            </div>
+        </td>
+        <td>
+            <div gui-list="index_list" gui-item="item" gui-index="index" gui-index0="index0">
+                <div>
+                    <span gui-text="index0"></span>
+                    <span gui-text="index"></span>
+                    <span gui-text="item"></span>
+                </div>
+            </div>
+        </td>
+    </tr>
+
+
 
 </table>
 

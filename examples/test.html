@@ -25,7 +25,15 @@ function compare(expected, actual) {
         if (!compare(expected.children[c], actual.children[c])) { return false; }
     }
 
-    if (actual.children.length > expected.children.length) { console.log("Actual children length greater than expected"); return false; }
+    var actual_children = [];
+    for (var i=0; i< actual.children.length; i++) {
+        if (actual.children[i].offsetParent != null) {
+            actual_children.push(actual.children[0]);
+        }
+    }
+
+
+    if (actual_children.length > expected.children.length) { console.log("Actual children length greater than expected"); return false; }
 
     return true;
 }
@@ -295,6 +303,42 @@ document.addEventListener("DOMContentLoaded", function(){
                     <span gui-text="index"></span>
                     <span gui-text="item"></span>
                 </div>
+            </div>
+        </td>
+    </tr>
+
+
+    <!-- switch null -->
+    <tr>
+        <script>
+            var switch_value_1 = null;
+        </script>
+        <td>
+            <div>
+                <span>show me</span>
+            </div>
+        </td>
+        <td>
+            <div gui-switch="switch_value_1">
+                <span gui-case="null">show me</span>
+                <span gui-case="true">dont show me</span>
+                <span gui-case="false">or me</span>
+            </div>
+        </td>
+    </tr>
+
+    <!-- include eval -->
+    <tr>
+        <script>
+            var include_url = '/examples/templates_include_one.html';
+        </script>
+        <td>
+            <div>
+                <div>This is an included template</div>
+            </div>
+        </td>
+        <td>
+            <div gui-include="include_url">
             </div>
         </td>
     </tr>

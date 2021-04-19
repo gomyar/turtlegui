@@ -678,10 +678,12 @@ turtlegui._parse_evaluate_semicolon_separated = function(expression) {
 
 turtlegui._evaluate_semicolon_separated = function(elem, attribute_name) {
     var expression = elem.getAttribute(attribute_name);
-    var expression_map = turtlegui._parse_evaluate_semicolon_separated(expression);
     var evaluated = {};
-    for (var field_name in expression_map) {
-        evaluated[field_name] = turtlegui._reduce(expression_map[field_name], elem);
+    if (expression) {
+        var expression_map = turtlegui._parse_evaluate_semicolon_separated(expression);
+        for (var field_name in expression_map) {
+            evaluated[field_name] = turtlegui._reduce(expression_map[field_name], elem);
+        }
     }
     return evaluated;
 }
@@ -1047,7 +1049,7 @@ turtlegui._reload = function(elem, rel_data) {
     }
     else if (elem.getAttribute('gui-include') && !turtlegui.retrieve(elem, 'gui-included')) {
         turtlegui.store(elem, 'gui-included', true);
-        var url = elem.getAttribute('gui-include');
+        var url = turtlegui._eval_attribute(elem, 'gui-include');
         if (url != null) {
             var params = turtlegui._evaluate_semicolon_separated(elem, 'gui-include-params');
 

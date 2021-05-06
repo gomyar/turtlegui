@@ -482,7 +482,19 @@ turtlegui._eval_attribute = function(elem, attribute) {
 
 
 turtlegui.ajax = {
-    http_call: function(method, url, data, success, error) {
+    _set_headers: function(xmlhttp, headers) {
+        var found_contenttype = false;
+        if (headers != null) {
+            for (var name in headers) {
+                if (name.toLowerCase() == 'content-type') {
+                    found_contenttype = true;
+                }
+                xmlhttp.setRequestHeader(name, headers[name]);
+            }
+        }
+        return found_contenttype;
+    },
+    http_call: function(method, url, data, success, error, headers) {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4) {
@@ -499,27 +511,31 @@ turtlegui.ajax = {
             }
         };
         xmlhttp.open(method, url, true);
+
         if (data) {
-            xmlhttp.setRequestHeader("Content-Type", "application/json; utf-8");
+            if (!turtlegui.ajax._set_headers(xmlhttp, headers)) {
+                xmlhttp.setRequestHeader("Content-Type", "application/json; utf-8");
+            }
             xmlhttp.send(JSON.stringify(data));
         } else {
+            turtlegui.ajax._set_headers(xmlhttp, headers);
             xmlhttp.send();
         }
     },
-    get: function(url, success, error) {
-        turtlegui.ajax.http_call("GET", url, null, success, error);
+    get: function(url, success, error, headers) {
+        turtlegui.ajax.http_call("GET", url, null, success, error, headers);
     },
-    post: function(url, data, success, error) {
-        turtlegui.ajax.http_call("POST", url, data, success, error);
+    post: function(url, data, success, error, headers) {
+        turtlegui.ajax.http_call("POST", url, data, success, error, headers);
     },
-    put: function(url, data, success, error) {
-        turtlegui.ajax.http_call("PUT", url, data, success, error);
+    put: function(url, data, success, error, headers) {
+        turtlegui.ajax.http_call("PUT", url, data, success, error, headers);
     },
-    patch: function(url, data, success, error) {
-        turtlegui.ajax.http_call("PATCH", url, data, success, error);
+    patch: function(url, data, success, error, headers) {
+        turtlegui.ajax.http_call("PATCH", url, data, success, error, headers);
     },
-    delete: function(url, success, error) {
-        turtlegui.ajax.http_call("DELETE", url, null, success, error);
+    delete: function(url, success, error, headers) {
+        turtlegui.ajax.http_call("DELETE", url, null, success, error, headers);
     }
 }
 

@@ -494,7 +494,7 @@ turtlegui.ajax = {
         }
         return found_contenttype;
     },
-    http_call: function(method, url, data, success, error, headers) {
+    http_call: function(method, url, data, success, error, headers, is_form) {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4) {
@@ -513,10 +513,15 @@ turtlegui.ajax = {
         xmlhttp.open(method, url, true);
 
         if (data) {
-            if (!turtlegui.ajax._set_headers(xmlhttp, headers)) {
-                xmlhttp.setRequestHeader("Content-Type", "application/json; utf-8");
+            if (data instanceof FormData) {
+                turtlegui.ajax._set_headers(xmlhttp, headers);
+                xmlhttp.send(data);
+            } else {
+                if (!turtlegui.ajax._set_headers(xmlhttp, headers)) {
+                    xmlhttp.setRequestHeader("Content-Type", "application/json; utf-8");
+                }
+                xmlhttp.send(JSON.stringify(data));
             }
-            xmlhttp.send(JSON.stringify(data));
         } else {
             turtlegui.ajax._set_headers(xmlhttp, headers);
             xmlhttp.send();

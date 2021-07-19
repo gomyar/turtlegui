@@ -245,115 +245,128 @@ turtlegui._reduce = function(tokens, elem) {
     var object_ref = null;
     var object_ref_stack = [];
 
-    for (var i=0; i<tokens.length; i++) {
-        var token_type = tokens[i][0];
-        var token = tokens[i][1];
+    try {
+        for (var i=0; i<tokens.length; i++) {
+            var token_type = tokens[i][0];
+            var token = tokens[i][1];
 
-        if (operators[token]) {
-            // 'v' is for 'value' but it's not really important
-            queue.unshift(['v', operators[token]()]);
-        } else if (token == '=') {
-            throw "Assignment (=) reduction is not supported";
-        } else if (token == ';') {
-            throw "Separator (;) reduction is not supported";
-        } else if (token == '(') {
-            if (queue.length > 0 && typeof(queue[0][1]) == 'function') {
-                object_ref_stack.unshift(object_ref);
-            }
-            queue.unshift([token_type, token]);
-        } else if (token == ')') {
-            var params = [];
-            var param_vals = [];
-            while(queue.length && queue[0][1] != '(') {
-                var queue_item = queue.shift();
-                var queue_item_type = queue_item[0];
-                var queue_item_val = queue_item[1];
-                if (queue_item_type == 'r') {
-                    queue_item_val = turtlegui.resolve_field(queue_item_val, rel_data, elem);
+            if (operators[token]) {
+                // 'v' is for 'value' but it's not really important
+                queue.unshift(['v', operators[token]()]);
+            } else if (token == '=') {
+                throw "Assignment (=) reduction is not supported";
+            } else if (token == ';') {
+                throw "Separator (;) reduction is not supported";
+            } else if (token == '(') {
+                if (queue.length > 0 && typeof(queue[0][1]) == 'function') {
+                    object_ref_stack.unshift(object_ref);
                 }
+                queue.unshift([token_type, token]);
+            } else if (token == ')') {
+                var params = [];
+                var param_vals = [];
+                while(queue.length && queue[0][1] != '(') {
+                    var queue_item = queue.shift();
+                    var queue_item_type = queue_item[0];
+                    var queue_item_val = queue_item[1];
+                    if (queue_item_type == 'r') {
+                        queue_item_val = turtlegui.resolve_field(queue_item_val, rel_data, elem);
+                    }
 
-                params.unshift(queue_item);
-                param_vals.unshift(queue_item_val);
+                    params.unshift(queue_item);
+                    param_vals.unshift(queue_item_val);
 
-                if (queue.length && queue[0][1] == ',') {
-                    queue.shift();
-                }
-            }
-            queue.shift(); // pop the open bracket
-            if (queue.length && (queue[0][0] == 'r' || queue[0][0] == 'v')) {
-            //if (queue.length && typeof(queue[0][1]) == 'function') {
-                // call function
-                var queue_item = queue.shift();
-                var queue_item_type = queue_item[0];
-                var queue_item_val = queue_item[1];
-
-                if (queue_item_type == 'r') {
-                    queue_item_val = turtlegui.resolve_field(queue_item_val, rel_data, elem);
-                }
-
-                if (typeof(queue_item_val) == 'function') {
-                    queue.unshift(['v', queue_item_val.apply(object_ref_stack.shift(), param_vals)]);
-                } else {
-                    queue.unshift(['v', queue_item_val]);
-                    for (var p=0; p<params.length; p++ ) {
-                        queue.unshift(params[p]);
+                    if (queue.length && queue[0][1] == ',') {
+                        queue.shift();
                     }
                 }
-            } else {
-                // Unwind when only brackets
-                if (params.length > 1) { throw "Unexpected parameter list"; };
-                queue.unshift(params[0]);
-            }
-        } else if (token == ']') {
-            // assume one value
-            var key = queue.shift();
-            var key_type = key[0];
-            var key_name = key[1];
-            if (key_type == 'r') {
-                key_name = turtlegui.resolve_field(key_name, rel_data, elem);
-            }
-            // pop opening '['
-            var opening_bracket = queue.shift()[1];
-            if (opening_bracket != '[') throw "Unexpected character: " + opening_bracket;
-            // pop object
-            var object = queue.shift();
-            var object_type = object[0];
-            var object_val = object[1];
-            if (object_type == 'r') {
-                object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
-                queue.unshift(['v', object_ref[key_name]]);
-            } else {
-                object_ref = object_val;
-                queue.unshift(['v', object_val[key_name]]);
-            }
-        } else if (token_type == 'f') {
-            var object = queue.shift();
-            var object_type = object[0];
-            var object_val = object[1];
+                queue.shift(); // pop the open bracket
+                if (queue.length && (queue[0][0] == 'r' || queue[0][0] == 'v')) {
+                //if (queue.length && typeof(queue[0][1]) == 'function') {
+                    // call function
+                    var queue_item = queue.shift();
+                    var queue_item_type = queue_item[0];
+                    var queue_item_val = queue_item[1];
 
-            if (object_type == 'r') {
-                object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
-                queue.unshift(['v', object_ref[token]]);
-            } else if (object_type == 'v') {
-                object_ref = object_val;
-                queue.unshift(['v', object_val[token]]);
+                    if (queue_item_type == 'r') {
+                        queue_item_val = turtlegui.resolve_field(queue_item_val, rel_data, elem);
+                    }
+
+                    if (typeof(queue_item_val) == 'function') {
+                        queue.unshift(['v', queue_item_val.apply(object_ref_stack.shift(), param_vals)]);
+                    } else {
+                        queue.unshift(['v', queue_item_val]);
+                        for (var p=0; p<params.length; p++ ) {
+                            queue.unshift(params[p]);
+                        }
+                    }
+                } else {
+                    // Unwind when only brackets
+                    if (params.length > 1) { throw "Unexpected parameter list"; };
+                    queue.unshift(params[0]);
+                }
+            } else if (token == ']') {
+                // assume one value
+                var key = queue.shift();
+                var key_type = key[0];
+                var key_name = key[1];
+                if (key_type == 'r') {
+                    key_name = turtlegui.resolve_field(key_name, rel_data, elem);
+                }
+                // pop opening '['
+                var opening_bracket = queue.shift()[1];
+                if (opening_bracket != '[') throw "Unexpected character: " + opening_bracket;
+                // pop object
+                var object = queue.shift();
+                var object_type = object[0];
+                var object_val = object[1];
+                if (object_type == 'r') {
+                    object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
+                    queue.unshift(['v', object_ref[key_name]]);
+                } else {
+                    object_ref = object_val;
+                    queue.unshift(['v', object_val[key_name]]);
+                }
+            } else if (token_type == 'f') {
+                var object = queue.shift();
+                var object_type = object[0];
+                var object_val = object[1];
+
+                if (object_type == 'r') {
+                    object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
+                    queue.unshift(['v', object_ref[token]]);
+                } else if (object_type == 'v') {
+                    object_ref = object_val;
+                    queue.unshift(['v', object_val[token]]);
+                } else {
+                    throw "Token is not object: " + object_val; 
+                }
             } else {
-                throw "Token is not object: " + object_val; 
+                queue.unshift([token_type, token]);
+            }
+        }
+
+        if (queue.length == 1) {
+            if (queue[0][0] == 'r') {
+                return turtlegui.resolve_field(queue[0][1], rel_data, elem);
+            } else {
+                return queue[0][1];
             }
         } else {
-            queue.unshift([token_type, token]);
+            throw "Unexpected " + queue[1][1];
         }
-    }
-
-    if (queue.length == 1) {
-        if (queue[0][0] == 'r') {
-            return turtlegui.resolve_field(queue[0][1], rel_data, elem);
-        } else {
-            return queue[0][1];
+    } catch(e) {
+        try {
+            turtlegui.log_error('"Error parsing '+tokens.join()+' on element ' + elem.nodeName + " : " + e, elem)
+            if (e.stack) {
+                turtlegui.log("Stacktrace: ", e.stack);
+            } else {
+                console.trace();
+            }
+        } catch (noconsole) {
+            throw e;
         }
-    } else {
-        throw "Unexpected " + queue[1][1];
-    }
+    } 
 }
 
 

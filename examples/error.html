@@ -1,0 +1,34 @@
+<html>
+
+<link rel="stylesheet" type="text/css" href="../turtlegui.css"/>
+
+<script src="../turtlegui.js"></script>
+
+<script>
+
+// Controller code / state
+var gui = {
+    text: "show text",
+    the_list: [
+        {'item': {'meta': {'name': '1'}}},
+        {'item': null},
+        {'item': {'meta': {'name': '2'}}},
+        {'item': null},
+        {'item': {'meta': {'name': '3'}}},
+    ]
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+    // call turtlegui.reload() when the page loads 
+    turtlegui.reload();
+});
+
+</script>
+
+<body>
+    <img gui-attrs="src=gui.nonexistant.subclass.text"></img>
+    <div gui-text="gui.text"></div>
+    <div gui-list="gui.the_list" gui-item="item">
+        <img gui-attrs="src=item.item.meta.name"></img>
+    </div>
+</body>

@@ -785,7 +785,9 @@ turtlegui._reload = function(elem, rel_data) {
     if (elem.getAttribute('gui-attrs')) {
         var attrs = turtlegui._evaluate_semicolon_separated(elem, 'gui-attrs');
         for (var key in attrs) {
-            elem.setAttribute(key, attrs[key]);
+            if (elem.getAttribute(key) != attrs[key]) {
+                elem.setAttribute(key, attrs[key]);
+            }
         }
     }
     if (elem.getAttribute('gui-data')) {

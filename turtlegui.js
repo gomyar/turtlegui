@@ -1073,6 +1073,11 @@ turtlegui._reload = function(elem, rel_data) {
 
         var first_elem = rel_data['_last_tree_elem'];
         var rel_data = Object.assign({}, rel_data);
+        if (elem.getAttribute('gui-node-params')) {
+            var params = turtlegui._evaluate_semicolon_separated(elem, 'gui-node-params');
+            rel_data = Object.assign(rel_data, params);
+        }
+
         rel_data[rel_item] = node;
         rel_data[rel_data['_last_tree_item']] = node;
  

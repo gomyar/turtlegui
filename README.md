@@ -345,3 +345,9 @@ Specify the local variable used to iterate the tree
 
 ### &nbsp;*gui-node*
 Repeat last gui-tree template snippet at this point with the specified item as the root
+
+### &nbsp;*gui-node-params*
+Semicolon-separated string of values to send with the node
+```html
+<div gui-node="item" gui-node-params="parent_item=parent;name='Bob'"></div>
+```

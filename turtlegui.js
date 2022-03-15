@@ -1142,9 +1142,14 @@ turtlegui._reload = function(elem, rel_data) {
         turtlegui._rebind(elem, 'change', turtlegui._change_listener);
     }
 
+    if (elem.getAttribute('gui-callback')) {
+        turtlegui._eval_attribute(elem, 'gui-callback')
+    }
+
     if (elem.getAttribute('gui-reload')) {
         turtlegui._eval_attribute(elem, 'gui-reload')
     }
+
 }
 
 

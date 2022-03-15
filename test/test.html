@@ -1,6 +1,6 @@
 <html>
 
-    <script src="turtlegui.js"></script>
+    <script src="../turtlegui.js"></script>
     <script>
     var example = {
         data: {
@@ -138,6 +138,10 @@
                     <!-- all subelements are duplicated for each item in the list -->
                     <div id="address_line_" gui-id="key" gui-text="line"></div>
                     <div gui-text="contextual_function_call(line)"></div>
+                    <div gui-list="example.data.address" gui-item="inner" gui-key="inner_index">
+                        <span>Here:</span>
+                        <span gui-text="key + ' ' + inner_index"></span>
+                    </div>
                 </div>
             </div>
         </div>

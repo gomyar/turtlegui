@@ -351,3 +351,13 @@ Semicolon-separated string of values to send with the node
 ```html
 <div gui-node="item" gui-node-params="parent_item=parent;name='Bob'"></div>
 ```
+
+
+## *gui-reload*
+Evaluates and stops descending the DOM tree - for use integrating 3rd party libraries
+
+
+## *gui-callback*
+Evaluates and continues descending the DOM tree - for use integrating 3rd party libraries
+
+

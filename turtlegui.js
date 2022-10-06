@@ -62,25 +62,67 @@ turtlegui.log = function(msg, extra) {
 }
 
 
-turtlegui.log_error = function(msg, elem) {
-    turtlegui.log("Error at:", elem);
-    var stack = turtlegui.getstack(elem);
-    for (var i=0; i<stack.length; i++) {
-        var elm = stack[i];
-        var desc = elm.nodeName + (elm.getAttribute('id')?'#'+elm.getAttribute('id'):"") + "\"" + elm.getAttribute('class') + "\"";
-        try {
-            var attributes = stack[i].getAttributeNames();
-            var desc = '<' + elm.nodeName;
-            for (var key=0; key<attributes.length; key++) {
-                desc = desc + ' ' + attributes[key] + '="' + stack[i].getAttribute(attributes[key]) + '"';
-            }
-            desc = desc + '>';
-        } catch (e) {
-            turtlegui.log('getAttributeName unsupported');
+turtlegui.error = function(msg, extra) {
+    if (window.console) {
+        if (extra != null) {
+            console.error(msg, extra);
+        } else {
+            console.error(msg);
         }
-        turtlegui.log("  ".repeat(i) + desc);
     }
-    turtlegui.log(msg);
+}
+
+
+turtlegui.warn = function(msg, extra) {
+    if (window.console) {
+        if (extra != null) {
+            console.warn(msg, extra);
+        } else {
+            console.warn(msg);
+        }
+    }
+}
+
+
+turtlegui.log_error = function(msg, elem) {
+    turtlegui.error("Error at:", elem);
+    var stacktrace = turtlegui.build_stacktrace(elem);
+    for (var i=0; i<stacktrace.length; i++) {
+        turtlegui.log(stacktrace[i]);
+    }
+    turtlegui.error(msg);
+}
+
+
+turtlegui.log_warn = function(msg, elem) {
+    turtlegui.warn("Warning for:", elem);
+    var stacktrace = turtlegui.build_stacktrace(elem);
+    for (var i=0; i<stacktrace.length; i++) {
+        turtlegui.log(stacktrace[i]);
+    }
+    turtlegui.warn(msg);
+}
+
+
+turtlegui.build_stacktrace = function(elem) {
+    var stack = turtlegui.getstack(elem);
+    var stacktrace = [];
+    try {
+        for (var i=0; i<stack.length; i++) {
+            var elm = stack[i];
+            var desc = elm.nodeName + (elm.getAttribute('id')?'#'+elm.getAttribute('id'):"") + "\"" + elm.getAttribute('class') + "\"";
+                var attributes = stack[i].getAttributeNames();
+                var desc = '<' + elm.nodeName;
+                for (var key=0; key<attributes.length; key++) {
+                    desc = desc + ' ' + attributes[key] + '="' + stack[i].getAttribute(attributes[key]) + '"';
+                }
+                desc = desc + '>';
+            stacktrace.push("  ".repeat(i) + desc);
+        }
+    } catch (e) {
+        turtlegui.log('getAttributeName unsupported');
+    }
+    return stacktrace;
 }
 
 turtlegui._is_string = function(token) {
@@ -322,10 +364,19 @@ turtlegui._reduce = function(tokens, elem) {
                 var object_val = object[1];
                 if (object_type == 'r') {
                     object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
-                    queue.unshift(['v', object_ref[key_name]]);
+                    if (object_ref === undefined) {
+                        queue.unshift(['E', new TypeError("Cannot read properties of undefined (reading '"+key_name+"')")]);
+                    } else {
+                        queue.unshift(['v', object_ref[key_name]]);
+                    }
                 } else {
                     object_ref = object_val;
-                    queue.unshift(['v', object_val[key_name]]);
+
+                    if (object_val === undefined) {
+                        queue.unshift(['E', new TypeError("Cannot read properties of undefined (reading '"+key_name+"')")]);
+                    } else {
+                        queue.unshift(['v', object_val[key_name]]);
+                    }
                 }
             } else if (token_type == 'f') {
                 var object = queue.shift();
@@ -334,10 +385,22 @@ turtlegui._reduce = function(tokens, elem) {
 
                 if (object_type == 'r') {
                     object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
-                    queue.unshift(['v', object_ref[token]]);
+
+                    if (object_ref === undefined) {
+                        queue.unshift(['E', new TypeError("Cannot read properties of undefined (reading '"+token+"')")]);
+                    } else {
+                        queue.unshift(['v', object_ref[token]]);
+                    }
+
                 } else if (object_type == 'v') {
                     object_ref = object_val;
-                    queue.unshift(['v', object_val[token]]);
+
+
+                    if (object_val === undefined) {
+                        queue.unshift(['E', new TypeError("Cannot read properties of undefined (reading '"+token+"')")]);
+                    } else {
+                        queue.unshift(['v', object_val[token]]);
+                    }
                 } else {
                     throw "Token is not object: " + object_val; 
                 }
@@ -349,6 +412,9 @@ turtlegui._reduce = function(tokens, elem) {
         if (queue.length == 1) {
             if (queue[0][0] == 'r') {
                 return turtlegui.resolve_field(queue[0][1], rel_data, elem);
+            }
+            else if (queue[0][0] == 'E') {
+                throw queue[0][1];
             } else {
                 return queue[0][1];
             }
@@ -357,7 +423,11 @@ turtlegui._reduce = function(tokens, elem) {
         }
     } catch(e) {
         try {
-            turtlegui.log_error('"Error parsing '+tokens.join()+' on element ' + elem.nodeName + " : " + e, elem)
+            var token_values = [];
+            for (var i=0; i<tokens.length; i++) {
+                token_values.push(tokens[i][1]);
+            }
+            turtlegui.log_error('"Error parsing '+token_values.join()+' on element ' + elem.nodeName + " : " + e, elem)
             if (e.stack) {
                 turtlegui.log("Stacktrace: ", e.stack);
             } else {
@@ -1089,9 +1159,9 @@ turtlegui._reload = function(elem, rel_data) {
         turtlegui.remove_elements(orig_elems);
     }
     else if (elem.getAttribute('gui-include') && !turtlegui.retrieve(elem, 'gui-included')) {
-        turtlegui.store(elem, 'gui-included', true);
         var url = turtlegui._eval_attribute(elem, 'gui-include');
         if (url != null) {
+            turtlegui.store(elem, 'gui-included', url);
             var params = turtlegui._evaluate_semicolon_separated(elem, 'gui-include-params');
 
             var rel_data = Object.assign(params, rel_data);
@@ -1099,11 +1169,20 @@ turtlegui._reload = function(elem, rel_data) {
         }
     }
     else if (elem.getAttribute('gui-include') && turtlegui.retrieve(elem, 'gui-included')) {
+        var url = turtlegui._eval_attribute(elem, 'gui-include');
         var params = turtlegui._evaluate_semicolon_separated(elem, 'gui-include-params');
 
         var rel_data = Object.assign(params, rel_data);
-        for (var c=0; c<elem.children.length; c++) {
-            turtlegui._reload(elem.children[c], rel_data);
+
+        if (url != turtlegui.retrieve(elem, 'gui-included')) {
+            // url has changed, reload template
+            turtlegui.store(elem, 'gui-included', url);
+            turtlegui.load_snippet(elem, url, rel_data);
+        } else {
+            // url is the same
+            for (var c=0; c<elem.children.length; c++) {
+                turtlegui._reload(elem.children[c], rel_data);
+            }
         }
     }
     else if (!elem.getAttribute('gui-reload')) {
@@ -1114,6 +1193,11 @@ turtlegui._reload = function(elem, rel_data) {
 
     if (elem.getAttribute('gui-val')) {
         var obj_ref = turtlegui._eval_attribute(elem, 'gui-val');
+
+        if (obj_ref === undefined) {
+            turtlegui.log_warn("gui-val target is undefined", elem);
+        }
+
         var value = obj_ref;
         if (typeof(obj_ref) == 'function') {
             value = obj_ref();
@@ -1188,7 +1272,11 @@ turtlegui.val_changed = function(elem) {
         for (i -= 1; i >= 0; i--) { object_tokens.unshift(shunted[i]); }
         var object_ref = turtlegui._reduce(object_tokens, elem);
         // set value
-        object_ref[key_name] = elem_val;
+        if (object_ref === undefined) {
+            turtlegui.log_error("gui-val target is undefined", elem);
+        } else {
+            object_ref[key_name] = elem_val;
+        }
 
     } else if (shunted[shunted.length-1][1] == ')') {
         // Function syntax
@@ -1209,7 +1297,11 @@ turtlegui.val_changed = function(elem) {
         shunted = shunted.slice(0, shunted.length-1);
         var object_ref = turtlegui._reduce(shunted, elem);
         // Apply value
-        object_ref[field_name] = elem_val;
+        if (object_ref === undefined) {
+            turtlegui.log_error("gui-val target is undefined", elem);
+        } else {
+            object_ref[field_name] = elem_val;
+        }
     }
 }
 

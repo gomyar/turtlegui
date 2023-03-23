@@ -33,6 +33,9 @@ turtlegui.detach_reload_events = function(elem) {
         var event_list = turtlegui.reload_events.get(event_obj);
         if (event_list != null && event_list.indexOf(elem) != -1) {
             event_list.splice(event_list.indexOf(elem), 1);
+            if (event_list.length == 0) {
+                turtlegui.reload_events.delete(event_obj);
+            }
         }
     }
 }
@@ -868,6 +871,13 @@ turtlegui._reload = function(elem, rel_data) {
     rel_data = Object.assign(old_rel_data, rel_data);
     turtlegui.store(elem, 'data-rel', rel_data);
 
+    if (elem.getAttribute('gui-reload-event')) {
+        var event_obj = turtlegui._eval_attribute(elem, 'gui-reload-event');
+        if (event_obj != null ) {
+            turtlegui.attach_reload_event(event_obj, elem);
+        }
+    }
+
     if (elem.getAttribute('gui-show')) {
         var value = turtlegui._eval_attribute(elem, 'gui-show');
         if (value) {
@@ -1260,13 +1270,6 @@ turtlegui._reload = function(elem, rel_data) {
 
     if (elem.getAttribute('gui-reload')) {
         turtlegui._eval_attribute(elem, 'gui-reload')
-    }
-
-    if (elem.getAttribute('gui-reload-event')) {
-        var event_obj = turtlegui._eval_attribute(elem, 'gui-reload-event');
-        if (event_obj != null ) {
-            turtlegui.attach_reload_event(event_obj, elem);
-        }
     }
 
 }

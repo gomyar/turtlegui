@@ -10,40 +10,68 @@ turtlegui.loading_snippets = {};
 
 turtlegui.cached_evaluations = {};
 
-turtlegui.stored_objects = {};
+turtlegui.stored_objects = new Map();
 turtlegui.store_key = 0;
+
+turtlegui.reload_events = new Map();
+turtlegui.reload_elems = new Map();
+
+
+turtlegui.attach_reload_event = function(event_obj, elem) {
+    var events = turtlegui.reload_events.get(event_obj) || [];
+    if (events.indexOf(elem) == -1) {
+        events.push(elem);
+    }
+    turtlegui.reload_events.set(event_obj, events);
+    turtlegui.reload_elems.set(elem, event_obj);
+}
+
+turtlegui.detach_reload_events = function(elem) {
+    var event_obj = turtlegui.reload_elems.get(elem);
+    if (event_obj != null) {
+        turtlegui.reload_elems.delete(elem);
+        var event_list = turtlegui.reload_events.get(event_obj);
+        if (event_list != null && event_list.indexOf(elem) != -1) {
+            event_list.splice(event_list.indexOf(elem), 1);
+        }
+    }
+}
+
+turtlegui.fire_reload = function(event_obj) {
+    var elems = turtlegui.reload_events.get(event_obj);
+    if (elems != null) {
+        for (var i=0; i<elems.length; i++) {
+            turtlegui.reload(elems[i]);
+        }
+    }
+}
 
 
 turtlegui.store = function(elem, key, value) {
-    var elem_key;
-    if (elem.turtlegui_store_key) {
-        elem_key = elem.turtlegui_store_key;
-    } else {
-        elem_key = ++turtlegui.store_key;
-        Object.defineProperty(elem, 'turtlegui_store_key', {value: elem_key, configurable: true}); 
-    }
-    if (!(elem_key in turtlegui.stored_objects)) {
-        turtlegui.stored_objects[elem_key] = {}
-    }
-    turtlegui.stored_objects[elem_key][key] = value;
+    var map = turtlegui.stored_objects.get(elem) || {};
+    map[key] = value;
+    turtlegui.stored_objects.set(elem, map);
 }
 
 turtlegui.retrieve = function(elem, key) {
-    if (elem.turtlegui_store_key) {
-        return turtlegui.stored_objects[elem.turtlegui_store_key][key];
-    } else {
-        return null;
-    }
+    var map = turtlegui.stored_objects.get(elem) || {};
+    return map[key];
 }
 
 turtlegui.remove_elements = function(elements) {
     for (var e=0; e<elements.length; e++) {
         var elem = elements[e];
-        if (elem.turtlegui_store_key) {
-            delete turtlegui.stored_objects[elem.turtlegui_store_key];
-        }
+        turtlegui._remove_stored(elem);
+        turtlegui.detach_reload_events(elem);
         elem.remove()
     }
+}
+
+turtlegui._remove_stored = function(elem) {
+    for (var i=0; i<elem.children.length; i++) {
+        turtlegui._remove_stored(elem.children[i]);
+    }
+    turtlegui.stored_objects.delete(elem);
 }
 
 
@@ -1232,6 +1260,13 @@ turtlegui._reload = function(elem, rel_data) {
 
     if (elem.getAttribute('gui-reload')) {
         turtlegui._eval_attribute(elem, 'gui-reload')
+    }
+
+    if (elem.getAttribute('gui-reload-event')) {
+        var event_obj = turtlegui._eval_attribute(elem, 'gui-reload-event');
+        if (event_obj != null ) {
+            turtlegui.attach_reload_event(event_obj, elem);
+        }
     }
 
 }

@@ -988,7 +988,12 @@ turtlegui._reload = function(elem, rel_data) {
         }
     }
     else if (elem.getAttribute('gui-list')) {
-        var list = turtlegui._eval_attribute(elem, 'gui-list');
+        var list = null;
+        try {
+            list = turtlegui._eval_attribute(elem, 'gui-list');
+        } catch (te) {
+            // To warn would be spurious and slow. Lists may be undefined
+        }
         if (!Array.isArray(list) && typeof(list) != 'string') {
             var rel_item = elem.getAttribute('gui-item');
             var rel_key = elem.getAttribute('gui-key');

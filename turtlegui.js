@@ -577,7 +577,7 @@ turtlegui.ajax = {
         }
         return found_contenttype;
     },
-    http_call: function(method, url, data, success, error, headers, is_form) {
+    http_call: function(method, url, data, success, error, headers, with_credentials) {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4) {
@@ -593,6 +593,7 @@ turtlegui.ajax = {
                 }
             }
         };
+        xmlhttp.withCredentials = with_credentials||false;
         xmlhttp.open(method, url, true);
 
         if (data) {

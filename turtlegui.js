@@ -611,20 +611,20 @@ turtlegui.ajax = {
             xmlhttp.send();
         }
     },
-    get: function(url, success, error, headers) {
-        turtlegui.ajax.http_call("GET", url, null, success, error, headers);
+    get: function(url, success, error, headers, with_credentials) {
+        turtlegui.ajax.http_call("GET", url, null, success, error, headers, with_credentials);
     },
-    post: function(url, data, success, error, headers) {
-        turtlegui.ajax.http_call("POST", url, data, success, error, headers);
+    post: function(url, data, success, error, headers, with_credentials) {
+        turtlegui.ajax.http_call("POST", url, data, success, error, headers, with_credentials);
     },
-    put: function(url, data, success, error, headers) {
-        turtlegui.ajax.http_call("PUT", url, data, success, error, headers);
+    put: function(url, data, success, error, headers, with_credentials) {
+        turtlegui.ajax.http_call("PUT", url, data, success, error, headers, with_credentials);
     },
-    patch: function(url, data, success, error, headers) {
-        turtlegui.ajax.http_call("PATCH", url, data, success, error, headers);
+    patch: function(url, data, success, error, headers, with_credentials) {
+        turtlegui.ajax.http_call("PATCH", url, data, success, error, headers, with_credentials);
     },
-    delete: function(url, success, error, headers) {
-        turtlegui.ajax.http_call("DELETE", url, null, success, error, headers);
+    delete: function(url, success, error, headers, with_credentials) {
+        turtlegui.ajax.http_call("DELETE", url, null, success, error, headers, with_credentials);
     }
 }
 

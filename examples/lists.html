@@ -47,30 +47,9 @@ document.addEventListener("DOMContentLoaded", function(){
 </script>
 
 <body>
-
-<label>Our main list - alter amounts in text boxes:</label>
-<div gui-list="data.ingredients" gui-item="ingredient">
-    <label gui-text="ingredient.name"></label>
-    <input type="text" gui-val="ingredient.amount" gui-change="turtlegui.reload()"></input>
-    <input type="button" gui-click="recipe.remove_ingredient(ingredient)" value="Remove"></input>
-    <br/>
-</div>
-
-<hr/>
-
-<label>Add Ingredient to the list, and update</label>
-<br/>
-<input type="text" gui-val="recipe.new_ingredient.name"></input>
-<input type="button" gui-click="recipe.add_ingredient()" value="Add"></input>
-
-<hr/>
-
-<label>Echoing list one more time in slightly different format:</label>
-<div gui-list="data.ingredients" gui-item="ingredient">
-    <span gui-text="ingredient.amount"></span>
-    <span> spoons of </span>
-    <span gui-text="ingredient.name"></span>
-    <br/>
+<label>Null list:</label>
+<div gui-list="nonexistant.list" gui-item="item">
+    <div gui-text="item"></div>
 </div>
 
 

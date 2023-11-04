@@ -16,6 +16,19 @@ turtlegui.store_key = 0;
 turtlegui.reload_events = new Map();
 turtlegui.reload_elems = new Map();
 
+class UndefinedError extends TypeError {
+    constructor(msg) {
+        super(msg);
+    }
+}
+
+class ParseError extends Error {
+    constructor(msg, elem) {
+        super(msg);
+        this.elem = elem;
+    }
+}
+
 
 turtlegui.attach_reload_event = function(event_obj, elem) {
     var events = turtlegui.reload_events.get(event_obj) || [];
@@ -285,6 +298,24 @@ turtlegui._token = function(token_str) {
 
 
 turtlegui._reduce = function(tokens, elem) {
+    try {
+        return turtlegui.__reduce(tokens, elem);
+    }
+    catch (e) {
+        if (e instanceof ParseError) {
+            turtlegui.log_error(e.message, elem);
+            if (e.stack) {
+                turtlegui.log("Stacktrace: ", e.stack);
+            } else {
+                console.trace();
+            }
+        } else {
+            throw e;
+        }
+    }
+}
+
+turtlegui.__reduce = function(tokens, elem) {
     var rel_data = (elem ? (turtlegui.retrieve(elem, 'data-rel') || {}) : {});
 
     var queue = [];
@@ -396,7 +427,7 @@ turtlegui._reduce = function(tokens, elem) {
                 if (object_type == 'r') {
                     object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
                     if (object_ref === undefined) {
-                        queue.unshift(['E', new TypeError("Cannot read properties of undefined (reading '"+key_name+"')")]);
+                        queue.unshift(['E', new UndefinedError("Cannot read properties of undefined (reading '"+key_name+"')")]);
                     } else {
                         queue.unshift(['v', object_ref[key_name]]);
                     }
@@ -404,7 +435,7 @@ turtlegui._reduce = function(tokens, elem) {
                     object_ref = object_val;
 
                     if (object_val === undefined) {
-                        queue.unshift(['E', new TypeError("Cannot read properties of undefined (reading '"+key_name+"')")]);
+                        queue.unshift(['E', new UndefinedError("Cannot read properties of undefined (reading '"+key_name+"')")]);
                     } else {
                         queue.unshift(['v', object_val[key_name]]);
                     }
@@ -418,7 +449,7 @@ turtlegui._reduce = function(tokens, elem) {
                     object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
 
                     if (object_ref === undefined) {
-                        queue.unshift(['E', new TypeError("Cannot read properties of undefined (reading '"+token+"')")]);
+                        queue.unshift(['E', new UndefinedError("Cannot read properties of undefined (reading '"+token+"')")]);
                     } else {
                         queue.unshift(['v', object_ref[token]]);
                     }
@@ -428,7 +459,7 @@ turtlegui._reduce = function(tokens, elem) {
 
 
                     if (object_val === undefined) {
-                        queue.unshift(['E', new TypeError("Cannot read properties of undefined (reading '"+token+"')")]);
+                        queue.unshift(['E', new UndefinedError("Cannot read properties of undefined (reading '"+token+"')")]);
                     } else {
                         queue.unshift(['v', object_val[token]]);
                     }
@@ -453,20 +484,11 @@ turtlegui._reduce = function(tokens, elem) {
             throw "Unexpected " + queue[1][1];
         }
     } catch(e) {
-        try {
-            var token_values = [];
-            for (var i=0; i<tokens.length; i++) {
-                token_values.push(tokens[i][1]);
-            }
-            turtlegui.log_error('"Error parsing '+token_values.join()+' on element ' + elem.nodeName + " : " + e, elem)
-            if (e.stack) {
-                turtlegui.log("Stacktrace: ", e.stack);
-            } else {
-                console.trace();
-            }
-        } catch (noconsole) {
-            throw e;
+        var token_values = [];
+        for (var i=0; i<tokens.length; i++) {
+            token_values.push(tokens[i][1]);
         }
+        throw new ParseError('"Error parsing '+token_values.join()+' on element ' + elem.nodeName + " : " + e, elem);
     } 
 }
 
@@ -566,7 +588,7 @@ turtlegui._relative_eval = function(elem, gres, error_str) {
     }
     try {
         return turtlegui._evaluate_expression(gres, elem);
-    } catch(e) {
+/*    } catch(e) {
         try {
             turtlegui.log_error(error_str + '" on element ' + elem.nodeName + " : " + e, elem)
             if (e.stack) {
@@ -576,7 +598,7 @@ turtlegui._relative_eval = function(elem, gres, error_str) {
             }
         } catch (noconsole) {
             throw e;
-        }
+        }*/
     } finally {
         for (var key=0; key<switcharoo.length; key++) {
             window[key] = switcharoo[key];
@@ -992,9 +1014,11 @@ turtlegui._reload = function(elem, rel_data) {
         try {
             list = turtlegui._eval_attribute(elem, 'gui-list');
         } catch (te) {
-            // To warn would be spurious and slow. Lists may be undefined
+            if (!(te instanceof UndefinedError)) {
+                throw te;
+            }
         }
-        if (!Array.isArray(list) && typeof(list) != 'string') {
+        if (list != null && !Array.isArray(list) && typeof(list) != 'string') {
             var rel_item = elem.getAttribute('gui-item');
             var rel_key = elem.getAttribute('gui-key');
             var rel_index = elem.getAttribute('gui-index');
@@ -1070,7 +1094,7 @@ turtlegui._reload = function(elem, rel_data) {
             }
 
             turtlegui.remove_elements(orig_elems);
-        } else {
+        } else if (list != null) {
             var rel_item = elem.getAttribute('gui-item');
             var rel_key = elem.getAttribute('gui-key');
             var rel_index = elem.getAttribute('gui-index');
@@ -1141,6 +1165,13 @@ turtlegui._reload = function(elem, rel_data) {
                     turtlegui._show_element(new_elem);
                     turtlegui._reload(new_elem, rel_data);
                 }
+            }
+
+            turtlegui.remove_elements(orig_elems);
+        } else if (list == null) {
+            var orig_elems = [];
+            for (var orig=0; orig<elem.children.length; orig ++) {
+                orig_elems[orig_elems.length] = elem.children[orig];
             }
 
             turtlegui.remove_elements(orig_elems);
@@ -1263,7 +1294,7 @@ turtlegui._reload = function(elem, rel_data) {
                 elem.value = value;
             }
         }
-        turtlegui._rebind(elem, 'change', turtlegui._val_change);
+        turtlegui._rebind(elem, 'change', turtlegui._val_changed);
     }
     if (elem.getAttribute('gui-change')) {
         turtlegui._rebind(elem, 'change', turtlegui._change_listener);
@@ -1280,13 +1311,8 @@ turtlegui._reload = function(elem, rel_data) {
 }
 
 
-turtlegui._val_change = function(e) {
+turtlegui._val_changed = function(e) {
     var elem = e.currentTarget;
-    turtlegui.val_changed(elem);
-}
-
-
-turtlegui.val_changed = function(elem) {
     var gres = elem.getAttribute('gui-val');
 
     if (elem.type == 'checkbox' || elem.type == 'radio') {

@@ -1211,7 +1211,12 @@ turtlegui._reload = function(elem, rel_data) {
         } else {
             if (elem.getAttribute('gui-format-func')) {
                 if (value != null) {
-                    value = turtlegui._eval_attribute(elem, 'gui-format-func')(value);
+                    var formatted = elem.getAttribute('gui-format-func');
+                    var error_str = 'Error evaluating gui-format-func="' + formatted;
+
+                    turtlegui.store(elem, 'data-rel', {__formatval: value});
+                    formatted = formatted + "(__formatval)";
+                    value = turtlegui._relative_eval(elem, formatted, error_str);
                 }
             }
             if (value == null) {
@@ -1253,7 +1258,11 @@ turtlegui.val_changed = function(elem) {
     }
 
     if (elem_val != null && elem.getAttribute('gui-parse-func')) {
-        elem_val = turtlegui._eval_attribute(elem, 'gui-parse-func')(elem_val);
+        var parsed = elem.getAttribute('gui-parse-func');
+        var error_str = 'Error evaluating gui-parse-func="' + parsed;
+        turtlegui.store(elem, 'data-rel', {__inputval: elem_val});
+        parsed = parsed + "(__inputval)";
+        elem_val = turtlegui._relative_eval(elem, parsed, error_str);
     }
 
     var shunted = turtlegui._lazy_tokenize(gres);

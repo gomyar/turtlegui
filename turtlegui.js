@@ -304,10 +304,10 @@ turtlegui._reduce = function(tokens, elem) {
                     object_ref_stack.unshift(object_ref);
                 }
                 queue.unshift([token_type, token]);
-            } else if (token == ')') {
+            } else if (token_type == 'B' && token == ')') {
                 var params = [];
                 var param_vals = [];
-                while(queue.length && queue[0][1] != '(') {
+                while(queue.length && queue[0][0] != 'O') {
                     var queue_item = queue.shift();
                     var queue_item_type = queue_item[0];
                     var queue_item_val = queue_item[1];

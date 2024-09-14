@@ -1175,6 +1175,14 @@ turtlegui._reload = function(elem, rel_data) {
                 orig_elems[orig_elems.length] = elem.children[orig];
             }
 
+            if (typeof(turtlegui.retrieve(elem, '_first_child')) == 'undefined') {
+                template_elems = [];
+                for (var orig=0; orig<orig_elems.length; orig++) {
+                    template_elems[template_elems.length] = orig_elems[orig];
+                }
+                turtlegui.store(elem, '_first_child', template_elems);
+            }
+
             turtlegui.remove_elements(orig_elems);
         }
     }

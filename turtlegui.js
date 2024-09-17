@@ -1296,8 +1296,7 @@ turtlegui._reload = function(elem, rel_data) {
                 if (value != null) {
                     var formatted = elem.getAttribute('gui-format-func');
                     var error_str = 'Error evaluating gui-format-func="' + formatted;
-
-                    turtlegui.store(elem, 'data-rel', {__formatval: value});
+                    window.__formatval = value;
                     formatted = formatted + "(__formatval)";
                     value = turtlegui._relative_eval(elem, formatted, error_str);
                 }
@@ -1338,7 +1337,7 @@ turtlegui._val_changed = function(e) {
     if (elem_val != null && elem.getAttribute('gui-parse-func')) {
         var parsed = elem.getAttribute('gui-parse-func');
         var error_str = 'Error evaluating gui-parse-func="' + parsed;
-        turtlegui.store(elem, 'data-rel', {__inputval: elem_val});
+        window.__inputval = elem_val;
         parsed = parsed + "(__inputval)";
         elem_val = turtlegui._relative_eval(elem, parsed, error_str);
     }

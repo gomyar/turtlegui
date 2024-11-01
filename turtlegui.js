@@ -174,9 +174,6 @@ turtlegui._is_string = function(token) {
                 (token[0] == "'" && token[token.length-1] == "'") || (token[0] == '"' && token[token.length-1] == '"'))
 }
 
-turtlegui._not = function(val) {
-    return !val;
-}
 
 turtlegui.resolve_field = function(gres, rel_data, elem) {
     if (gres in rel_data) {
@@ -199,7 +196,7 @@ turtlegui.evaluate = function(expression) {
 turtlegui._token = function(token_str) {
     function is_number(token) { return !isNaN(token) && !isNaN(parseFloat(token)); }
     function is_alpha(token) { return token >= 'a' && token <= 'z' || token >= 'A' && token <= 'Z' || token == '_'; }
-    var operator_chars = ['.', '=', '|', '&', '!', '+', '-', '*', '/', '<', '>', ';'];
+    var operator_chars = ['?.', '.', '=', '|', '&', '!', '+', '-', '*', '/', '<', '>', ';'];
     var double_op_chars = ['=', '&', '|', '>', '<', '!'];
     var double_operators = ['==', '&&', '||', '>=', '<=', '!='];
     var brackets = ["(", ")", "[", "]"];
@@ -230,6 +227,15 @@ turtlegui._token = function(token_str) {
         } else if (token_char == ',') {
             tokens.push(['c', token_chars.shift()]);
             continue;
+        } else if (token_char == '?') {
+            token_chars.shift();
+            var dot = token_chars.shift();
+            if (dot != '.') { throw "Expected '.' after '?'"; }
+            var field_ref_token = '';
+            while (token_chars.length && (is_alpha(token_chars[0]) || is_number(token_chars[0]))) {
+                field_ref_token += token_chars.shift();
+            }
+            tokens.push(['F', field_ref_token]);
         } else if (token_char == '.' && is_alpha(token_chars[1])) {
             token_chars.shift();
             var field_ref_token = '';
@@ -426,16 +432,16 @@ turtlegui.__reduce = function(tokens, elem) {
                 var object_val = object[1];
                 if (object_type == 'r') {
                     object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
-                    if (object_ref === undefined) {
-                        queue.unshift(['E', new UndefinedError("Cannot read properties of undefined (reading '"+key_name+"')")]);
+                    if (object_ref == null) {
+                        throw new UndefinedError("Cannot read properties of "+object_ref+" (reading '"+key_name+"')");
                     } else {
                         queue.unshift(['v', object_ref[key_name]]);
                     }
                 } else {
                     object_ref = object_val;
 
-                    if (object_val === undefined) {
-                        queue.unshift(['E', new UndefinedError("Cannot read properties of undefined (reading '"+key_name+"')")]);
+                    if (object_val == null) {
+                        throw new UndefinedError("Cannot read properties of "+object_val+" (reading '"+key_name+"')");
                     } else {
                         queue.unshift(['v', object_val[key_name]]);
                     }
@@ -448,8 +454,8 @@ turtlegui.__reduce = function(tokens, elem) {
                 if (object_type == 'r') {
                     object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
 
-                    if (object_ref === undefined) {
-                        queue.unshift(['E', new UndefinedError("Cannot read properties of undefined (reading '"+token+"')")]);
+                    if (object_ref == null) {
+                        throw new UndefinedError("Cannot read properties of "+object_ref+" (reading '"+token+"')");
                     } else {
                         queue.unshift(['v', object_ref[token]]);
                     }
@@ -457,11 +463,38 @@ turtlegui.__reduce = function(tokens, elem) {
                 } else if (object_type == 'v') {
                     object_ref = object_val;
 
-
-                    if (object_val === undefined) {
-                        queue.unshift(['E', new UndefinedError("Cannot read properties of undefined (reading '"+token+"')")]);
+                    if (object_val == null) {
+                        throw new UndefinedError("Cannot read properties of "+object_val+" (reading '"+token+"')");
                     } else {
                         queue.unshift(['v', object_val[token]]);
+                    }
+                } else {
+                    throw "Token is not object: " + object_val; 
+                }
+            } else if (token_type == 'F') {
+                var object = queue.shift();
+                var object_type = object[0];
+                var object_val = object[1];
+
+                if (object_type == 'r') {
+                    object_ref = turtlegui.resolve_field(object_val, rel_data, elem);
+
+                    if (object_ref != null && object_ref[token] != null) {
+                        queue.unshift(['v', object_ref[token]]);
+                    } else {
+                        if (object_ref != null) {
+                            queue.unshift(['v', object_ref[token]]);
+                        } else {
+                            queue.unshift(['v', object_ref]);
+                        }
+                    }
+                } else if (object_type == 'v') {
+                    object_ref = object_val;
+
+                    if (object_val !== undefined) {
+                        queue.unshift(['v', object_val[token]]);
+                    } else {
+                        queue.unshift(['v', null]);
                     }
                 } else {
                     throw "Token is not object: " + object_val; 
@@ -474,9 +507,6 @@ turtlegui.__reduce = function(tokens, elem) {
         if (queue.length == 1) {
             if (queue[0][0] == 'r') {
                 return turtlegui.resolve_field(queue[0][1], rel_data, elem);
-            }
-            else if (queue[0][0] == 'E') {
-                throw queue[0][1];
             } else {
                 return queue[0][1];
             }
@@ -509,7 +539,7 @@ turtlegui._evaluate_expression = function(gres, elem) {
 
 
 turtlegui._shunt = function(tokens) {
-    var precedence = ['||', '&&', '<', '>', '<=', '>=', '==', '-', '+', '*', '/', '!', '.', '(', '['];
+    var precedence = ['||', '&&', '<', '>', '<=', '>=', '==', '-', '+', '*', '/', '!', '?.', '.', '(', '['];
 
     var operator_stack = [];
     var output_stack = [];
@@ -522,13 +552,14 @@ turtlegui._shunt = function(tokens) {
         var token = tokens[i][1];
 
         // if the token is a number, then:
-        if ('brsncf'.indexOf(token_type) != -1) {
+        if ('brsncfF'.indexOf(token_type) != -1) {
             // push it to the output queue.
             output_stack.push([token_type, token]);
         // else if the token is an operator then:
         } else if (token_type == 'o' || token_type == 'c' || token_type == '.') {
             // while ((there is an operator at the top of the operator stack)
                 // and ((the operator at the top of the operator stack has greater precedence)
+                // do this
                     // or (the operator at the top of the operator stack has equal precedence and the token is left associative))
                 // and (the operator at the top of the operator stack is not a left parenthesis)):
             while (operator_stack.length && operator_stack[0][1] != '(' && operator_stack[0][1] != '[' && precedence.indexOf(operator_stack[0][1]) > precedence.indexOf(token)) {
@@ -1245,6 +1276,7 @@ turtlegui._reload = function(elem, rel_data) {
         var url = turtlegui._eval_attribute(elem, 'gui-include');
         if (url != null) {
             turtlegui.store(elem, 'gui-included', url);
+            // fix this
             var params = turtlegui._evaluate_semicolon_separated(elem, 'gui-include-params');
 
             var rel_data = Object.assign(params, rel_data);
@@ -1376,7 +1408,7 @@ turtlegui._val_changed = function(e) {
         }
         // apply function
         turtlegui._reduce(shunted, elem);
-    } else if (shunted[shunted.length-1][0] == 'f') {
+    } else if (shunted[shunted.length-1][0] == 'f' || shunted[shunted.length-1][0] == 'F') {
         // dot notation syntax
 
         var field_name = shunted[shunted.length-1][1];

@@ -1,0 +1,176 @@
+<html>
+<head>
+    <script src="../turtlegui.js"></script>
+
+    <script>
+        var a = 1;
+        var b = 2;
+        var c = 3;
+        var obj = {
+            val: 12,
+            inner: {
+                val: 14
+            }
+        }
+
+        function func() {
+            return 10;
+        }
+
+        function get_obj() {
+            return obj;
+        }
+
+        document.addEventListener("DOMContentLoaded", function(){
+            turtlegui.reload();
+        });
+    </script>
+</head>
+<body>
+
+    <table>
+        <tr>
+            <th>Actual</th>
+            <th>Expected</th>
+        </tr>
+
+        <!-- basic calc result -->
+        <tr>
+            <td gui-text="a*b+c"></td>
+            <td>5</td>
+        </tr>
+
+        <!-- precedence calc result -->
+        <tr>
+            <td gui-text="c - a * b + c*4"></td>
+            <td>-11</td>
+        </tr>
+
+        <!-- brackets calc result -->
+        <tr>
+            <td gui-text="c - (a*b) + ( c * 4 )"></td>
+            <td>-11</td>
+        </tr>
+
+
+        <!-- brackets calc result -->
+        <tr>
+            <td gui-text="c - a * (b + c) * 4"></td>
+            <td>-17</td>
+        </tr>
+
+
+        <!-- function calc result -->
+        <tr>
+            <td gui-text="c + func() - b"></td>
+            <td>11</td>
+        </tr>
+
+
+        <!-- function calc result -->
+        <tr>
+            <td gui-text="c * (func() + b)"></td>
+            <td>36</td>
+        </tr>
+
+        <!-- associative result -->
+        <tr>
+            <td gui-text="c==1||c==3"></td>
+            <td>true</td>
+        </tr>
+
+        <!-- associative result -->
+        <tr>
+            <td gui-text="c==1||c*1==3"></td>
+            <td>true</td>
+        </tr>
+
+        <!-- associative result -->
+        <tr>
+            <td gui-text="c==1||c+1==4"></td>
+            <td>true</td>
+        </tr>
+
+        <!-- associative result -->
+        <tr>
+            <td gui-text="c==1||c+1==3"></td>
+            <td>false</td>
+        </tr>
+
+        <!-- associative result -->
+        <tr>
+            <td gui-text="c>1 && c+1 < 4 || c == 3"></td>
+            <td>true</td>
+        </tr>
+
+        <!-- associative result -->
+        <tr>
+            <td gui-text="c>1 && c+1 < 5 || c == 2"></td>
+            <td>true</td>
+        </tr>
+
+        <!-- dot result -->
+        <tr>
+            <td gui-text="obj.val * 2 + obj.inner.val * 3"></td>
+            <td>66</td>
+        </tr>
+
+        <!-- dot result -->
+        <tr>
+            <td gui-text="obj.val == 2 || obj.inner.val == 3"></td>
+            <td>false</td>
+        </tr>
+
+        <!-- dot result -->
+        <tr>
+            <td gui-text="obj.val == 2 || obj.inner.val == 14"></td>
+            <td>true</td>
+        </tr>
+
+        <!-- dot function result -->
+        <tr>
+            <td gui-text="get_obj().val == 2 || get_obj().inner.val == 14"></td>
+            <td>true</td>
+        </tr>
+
+        <!-- dot function result -->
+        <tr>
+            <td gui-text="get_obj().val + 2 == 14 && get_obj().inner.val / 7 == 2"></td>
+            <td>true</td>
+        </tr>
+
+        <!-- dot function result -->
+        <tr>
+            <td gui-text="get_obj(1+2).val + 2 == 14 && get_obj(get_obj().val).inner.val / 7 == 2"></td>
+            <td>true</td>
+        </tr>
+
+        <!-- optional dot result -->
+        <tr>
+            <td gui-text="obj?.nope?.val"></td>
+            <td>&nbsp;</td>
+        </tr>
+
+        <!-- optional dot result -->
+        <tr>
+            <td gui-text="obj?.nope.val"></td>
+            <td>&nbsp;</td>
+        </tr>
+
+        <!-- optional dot result -->
+        <tr>
+            <td gui-text="get_obj(obj?.nope?.val).val"></td>
+            <td>12</td>
+        </tr>
+
+        <!-- optional dot result -->
+        <tr>
+            <td gui-text="get_obj(obj?.nope.val).val"></td>
+            <td>&nbsp;</td>
+        </tr>
+
+
+    </table>
+
+</body>
+</html>

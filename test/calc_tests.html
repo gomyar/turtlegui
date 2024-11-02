@@ -147,28 +147,28 @@
 
         <!-- optional dot result -->
         <tr>
+            <td gui-text="obj.nope?.val"></td>
+            <td>&nbsp;</td>
+        </tr>
+
+        <!-- optional dot result -->
+        <tr>
             <td gui-text="obj?.nope?.val"></td>
             <td>&nbsp;</td>
         </tr>
 
         <!-- optional dot result -->
         <tr>
-            <td gui-text="obj?.nope.val"></td>
-            <td>&nbsp;</td>
+            <td gui-text="obj?.inner?.val"></td>
+            <td>14</td>
         </tr>
+
 
         <!-- optional dot result -->
         <tr>
-            <td gui-text="get_obj(obj?.nope?.val).val"></td>
+            <td gui-text="get_obj(obj.nope?.val).val"></td>
             <td>12</td>
         </tr>
-
-        <!-- optional dot result -->
-        <tr>
-            <td gui-text="get_obj(obj?.nope.val).val"></td>
-            <td>&nbsp;</td>
-        </tr>
-
 
     </table>
 

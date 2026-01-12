@@ -83,7 +83,48 @@ The syntax supports:
 * Basic calculations like "a + 1 * (b - 2)"
 * Boolean operators like "a < 10" or "b == 4"
 
+The syntax does NOT support:
+* Control flow statements: `if`, `while`, `for`, `switch`, `case`
+* Ternary operators: `condition ? true : false`
+* Multi-line statements or code blocks
+* Complex logic
+
+**Function and method calls ARE supported** - use them for any conditional logic:
+
+```html
+<!-- ✓ Correct - simple expressions and function calls -->
+<div gui-text="user.name"></div>
+<div gui-show="isLoggedIn && hasPermission"></div>
+<div gui-text="getStatus()"></div>
+<div gui-text="user.getName()"></div>
+<div gui-text="formatDate(timestamp)"></div>
+<div gui-text="items.length + ' items'"></div>
+
+<!-- ✗ Wrong - control statements and ternary operators not supported -->
+<div gui-text="count > 5 ? 'Many' : 'Few'"></div>
+<div gui-text="if (x > 5) { return 'big' }"></div>
+<div gui-text="for (let i = 0; i < 10; i++) { ... }"></div>
+```
+
+**For ANY conditional logic, write JavaScript functions:**
+```javascript
+function getStatus() {
+  if (count > 10) return "High";
+  if (count > 5) return "Medium";
+  return "Low";
+}
+
+function getCountLabel() {
+  return count > 5 ? 'Many' : 'Few';
+}
+```
+```html
+<div gui-text="getStatus()"></div>
+<div gui-text="getCountLabel()"></div>
+```
+
 Note: TurtleGUI does not use eval() in order to avoid shenanigans.
+Also Note: TurtleGUI can only access variables declared with `var`, not `const` or `let`. Use `var` declarations for data that needs to be accessed by TurtleGUI directives.
 Also Note: for reasons of performance, code sustainability, and developer sanity, TurtleGUI recommends that expressions remain as simple as possible. If a complex calculation is required for something, then put it in a function, and call the function from the expression. Makes debugging a whole lot easier.
 
 # Code Reference:
@@ -112,14 +153,24 @@ Populates element.innerHTML with the evaluated value.
 ```
 
 ## *gui-list*
-Iterate over each item in the given Array or Object, and clone the subelements for each item, specified by _**gui-item**_. Kind of like `for gui-item in gui-list` but for HTML.
+Takes a JavaScript expression that evaluates to an Array or Object. For each item in that list, TurtleGUI clones all the subelements (children) of the element with `gui-list`. The `gui-item` attribute defines the variable name that will hold each individual item during iteration.
+
+**How it works:**
+1. `gui-list="expression"` - evaluates to an array or object to iterate over
+2. `gui-item="variableName"` - defines the iterator variable name
+3. All child elements are cloned once for each item
+4. The iterator variable is available within each set of cloned children
+
 ```html
+<!-- Given: var data = {siblings: [{name: "Alice"}, {name: "Bob"}]} -->
 <div gui-list="data.siblings" gui-item="sibling">
     <div gui-text="sibling.name"></div>
 </div>
+<!-- Results in: the inner div is cloned twice, showing "Alice" and "Bob" -->
 ```
+
 ### &nbsp;*gui-item*
-_Required by **gui-list**._ The local variable which represents the item in the list, for each item
+_Required by **gui-list**._ Defines the variable name for the current item in the iteration. This variable can be used in any directive within the cloned child elements.
 
 ### &nbsp;*gui-ordering*
 _Optionally used with **gui-list**._ Specify the field name used to order the list
@@ -133,12 +184,14 @@ _Optionally used with **gui-list**._ Specify the field name used to order the li
 _Optionally used with **gui-list**._ Reversed the order of the list
 
 ### &nbsp;*gui-key*
-_Optionally used with **gui-list**._ Populates the given variable with the current key in the list, or the field name of the Object being iterated.
+_Optionally used with **gui-list**._ Defines a variable that will contain the current index (for arrays) or property name (for objects) during iteration.
 ```html
 <div gui-list="data.siblings" gui-item="sibling" gui-key="index">
     <div gui-text="index"></div>
     <div gui-text="sibling.name"></div>
 </div>
+<!-- For arrays: index will be 0, 1, 2... -->
+<!-- For objects: index will be the property name -->
 ```
 
 ## *gui-show*

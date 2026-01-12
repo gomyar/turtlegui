@@ -1,4 +1,7 @@
 <html>
+<head>
+    <title>TurtleGUI - Error Handling Example</title>
+</head>
 
 <link rel="stylesheet" type="text/css" href="../turtlegui.css"/>
 
@@ -19,16 +22,27 @@ var gui = {
 }
 
 document.addEventListener("DOMContentLoaded", function(){
-    // call turtlegui.reload() when the page loads 
+    // call turtlegui.reload() when the page loads
     turtlegui.reload();
 });
 
 </script>
 
 <body>
+    <h2>Error Handling Example</h2>
+    <p>This example demonstrates how TurtleGUI gracefully handles missing or null data without throwing errors.</p>
+
+    <h3>Accessing non-existent nested properties:</h3>
+    <p>The image below tries to access <code>gui.nonexistant.subclass.text</code> (which doesn't exist).
+    TurtleGUI handles this gracefully - no error is thrown, the attribute is simply left empty.</p>
     <img gui-attrs="src=gui.nonexistant.subclass.text"></img>
+
+    <h3>Displaying existing data:</h3>
     <div gui-text="gui.text"></div>
+
+    <h3>Iterating over a list with null values:</h3>
+    <p>The list below contains some items with null values. TurtleGUI skips over null values without errors.</p>
     <div gui-list="gui.the_list" gui-item="item">
-        <img gui-attrs="src=item.item.meta.name"></img>
+        <div>Item: <img gui-attrs="src=item.item.meta.name"></img></div>
     </div>
 </body>

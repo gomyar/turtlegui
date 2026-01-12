@@ -1,9 +1,29 @@
 <html>
+<head>
+    <title>TurtleGUI - JavaScript Objects Example</title>
+</head>
 
 <link rel="stylesheet" type="text/css" href="../turtlegui.css"/>
 <style>
+.ship {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #666;
+    background-color: #f0f0f0;
+}
 
+.component {
+    margin-left: 20px;
+}
 
+.method-calls {
+    margin-top: 30px;
+}
+
+.method-calls div {
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
 </style>
 
 <script src="../turtlegui.js"></script>
@@ -25,29 +45,11 @@ var data = [
     }
 ]
 
-var popup = {
-    value: "hello",
-    callme: function() {
-        console.log("here", this);
-    },
-    readme: function() {
-        return this.value;
-    },
-
-    inner: {
-        touch: function() {
-            console.log("touched", this);
-        }
-    }
-}
-
-
 function DollClass() {
     this.name = 'doll';
 }
 
 DollClass.prototype.callme = function() {
-    console.log("I am ", this.name);
     return this.name;
 }
 
@@ -57,32 +59,26 @@ function ChildClass() {
 }
 
 ChildClass.prototype.callme = function() {
-    console.log("I am ", this.name);
     return this.name;
 }
-
 
 function ParentClass() {
     this.child = new ChildClass();
     this.name = 'parent';
 }
 
-
 ParentClass.prototype.callme = function() {
-    console.log("I am ", this.name);
     return this.name;
 }
 
 ParentClass.prototype.wrap = function(msg) {
-    return "Parent wrapped : " + msg;
+    return "Parent wrapped: " + msg;
 }
-
 
 var the_parent = new ParentClass();
 
-
 document.addEventListener("DOMContentLoaded", function(){
-    // call turtlegui.reload() when the page loads 
+    // call turtlegui.reload() when the page loads
     turtlegui.reload();
 });
 
@@ -90,30 +86,35 @@ document.addEventListener("DOMContentLoaded", function(){
 
 <body>
 
-<label>Ships:</label>
+<h2>JavaScript Objects Example</h2>
+<p>This example demonstrates iterating over objects and calling methods on nested object hierarchies.</p>
 
-<hr/>
+<h3>Ships (iterating over objects):</h3>
 
-<!-- <div gui-list="data" gui-item="ship">
-    <div gui-list="ship" gui-item="component" gui-key="component_type" gui-ordering="name">
-        <span gui-text="component_type"></span>
-        <span>: </span>
-        <span gui-text="component.name"></span>
-        <br/>
+<div gui-list="data" gui-item="ship" gui-key="ship_index">
+    <div class="ship">
+        <strong>Ship <span gui-text="ship_index + 1"></span></strong>
+        <div gui-list="ship" gui-item="component" gui-key="component_type" gui-ordering="name">
+            <div class="component">
+                <span gui-text="component_type"></span>:
+                <span gui-text="component.name"></span>
+                (<span gui-text="component.type"></span>)
+            </div>
+        </div>
     </div>
-    <br/>
-</div>-->
+</div>
 
-<!--<div gui-text="popup.readme()" gui-show="popup.listvalue && popup.listvalue.length > 0"></div>
-<button gui-click="popup.inner.touch()">Click</button>
-<button gui-click="the_parent.child.doll.callme()">Parent</button>-->
-<div gui-text="the_parent.callme()"></div>
-<div gui-text="the_parent.child.callme()"></div>
-<div gui-text="the_parent.child.doll.callme()"></div>
-<div gui-text="the_parent.wrap(the_parent.child.doll.callme())"></div>
-<div gui-text="the_parent['callme']()"></div>
-<div gui-text="the_parent['child'].callme()"></div>
-<div gui-text="the_parent['child']['doll'].callme()"></div>
-<div gui-text="the_parent.wrap(the_parent['child']['doll'].callme())"></div>
+<h3>Nested Object Method Calls:</h3>
+<div class="method-calls">
+    <div><strong>the_parent.callme():</strong> <span gui-text="the_parent.callme()"></span></div>
+    <div><strong>the_parent.child.callme():</strong> <span gui-text="the_parent.child.callme()"></span></div>
+    <div><strong>the_parent.child.doll.callme():</strong> <span gui-text="the_parent.child.doll.callme()"></span></div>
+    <div><strong>the_parent.wrap(the_parent.child.doll.callme()):</strong> <span gui-text="the_parent.wrap(the_parent.child.doll.callme())"></span></div>
+    <div><strong>the_parent['callme']():</strong> <span gui-text="the_parent['callme']()"></span></div>
+    <div><strong>the_parent['child'].callme():</strong> <span gui-text="the_parent['child'].callme()"></span></div>
+    <div><strong>the_parent['child']['doll'].callme():</strong> <span gui-text="the_parent['child']['doll'].callme()"></span></div>
+    <div><strong>the_parent.wrap(the_parent['child']['doll'].callme()):</strong> <span gui-text="the_parent.wrap(the_parent['child']['doll'].callme())"></span></div>
+</div>
 
 </body>
+</html>

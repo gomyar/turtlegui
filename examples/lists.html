@@ -1,9 +1,28 @@
 <html>
+<head>
+    <title>TurtleGUI - Lists Example</title>
+</head>
 
 <link rel="stylesheet" type="text/css" href="../turtlegui.css"/>
 <style>
+.ingredient-row {
+    padding: 5px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+}
 
+.remove-button {
+    margin-left: 10px;
+    cursor: pointer;
+    color: red;
+    font-weight: bold;
+}
 
+.add-section {
+    margin-top: 20px;
+    padding: 10px;
+    border-top: 2px solid #333;
+}
 </style>
 
 <script src="../turtlegui.js"></script>
@@ -19,7 +38,7 @@ var data = {
         {name: "Vanilla", amount: 1},
         {name: "Apple", amount: 4}
     ]
-} 
+}
 
 var recipe = {
     new_ingredient: {
@@ -40,17 +59,29 @@ var recipe = {
 }
 
 document.addEventListener("DOMContentLoaded", function(){
-    // call turtlegui.reload() when the page loads 
+    // call turtlegui.reload() when the page loads
     turtlegui.reload();
 });
 
 </script>
 
 <body>
-<label>Null list:</label>
-<div gui-list="nonexistant.list" gui-item="item">
-    <div gui-text="item"></div>
+<h2>Recipe Ingredients</h2>
+<p>This example demonstrates using gui-list to display and modify a list of items.</p>
+
+<div gui-list="data.ingredients" gui-item="ingredient">
+    <div class="ingredient-row">
+        <span gui-text="ingredient.name"></span>
+        <span> - Amount: </span>
+        <span gui-text="ingredient.amount"></span>
+        <span class="remove-button" gui-click="recipe.remove_ingredient(ingredient)">&times;</span>
+    </div>
 </div>
 
+<div class="add-section">
+    <label>Add new ingredient:</label>
+    <input type="text" gui-val="recipe.new_ingredient.name" placeholder="Ingredient name">
+    <button gui-click="recipe.add_ingredient()">Add</button>
+</div>
 
 </body>

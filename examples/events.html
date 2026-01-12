@@ -1,9 +1,21 @@
 <html>
+<head>
+    <title>TurtleGUI - Events Example</title>
+</head>
 
 <link rel="stylesheet" type="text/css" href="../turtlegui.css"/>
 <style>
+.info-section {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
 
-
+.info-label {
+    font-weight: bold;
+    display: inline-block;
+    width: 120px;
+}
 </style>
 
 <script src="../turtlegui.js"></script>
@@ -23,14 +35,13 @@ var data = {
         turtlegui.reload();
     },
     set_highlight: function(highlight) {
-        console.log("setting");
-        data.highlight = highlight
+        data.highlight = highlight;
         turtlegui.reload();
     }
 }
 
 document.addEventListener("DOMContentLoaded", function(){
-    // call turtlegui.reload() when the page loads 
+    // call turtlegui.reload() when the page loads
     turtlegui.reload();
 });
 
@@ -38,21 +49,35 @@ document.addEventListener("DOMContentLoaded", function(){
 
 <body>
 
-<input type=text style="width: 200px; height: 200px; background-color=blue;"
+<h2>Event Binding Example</h2>
+<p>This example demonstrates using gui-bind-events to handle mousemove, mouseover, and mouseout events.</p>
+
+<label>Type in the box and move your mouse over it:</label>
+<br/><br/>
+<input type="text" style="width: 200px; height: 200px; background-color: lightblue;"
  gui-val="data.saying"
  gui-change="turtlegui.reload()"
-
- gui-bind-events="mousemove=data.set_coords(); mouseover=data.set_highlight(true); mouseout=data.set_highlight(false)"
- -gui-mousemove="data.set_coords()"
- -gui-mouseover="data.set_highlight(true)"
- -gui-mouseout="data.set_highlight(false)"
- >
-
+ gui-bind-events="mousemove=data.set_coords(); mouseover=data.set_highlight(true); mouseout=data.set_highlight(false)">
 </input>
 
-<div gui-text="data.saying"></div>
-<div gui-text="data.x"></div>
-<div gui-text="data.y"></div>
-<div gui-show="data.highlight">HOVERED!</div>
+<div class="info-section">
+    <div>
+        <span class="info-label">Current text:</span>
+        <span gui-text="data.saying"></span>
+    </div>
+    <div>
+        <span class="info-label">Mouse X:</span>
+        <span gui-text="data.x"></span>
+    </div>
+    <div>
+        <span class="info-label">Mouse Y:</span>
+        <span gui-text="data.y"></span>
+    </div>
+    <div>
+        <span class="info-label">Mouse hovering:</span>
+        <span gui-show="data.highlight">YES</span>
+        <span gui-show="!data.highlight">NO</span>
+    </div>
+</div>
 
 </body>

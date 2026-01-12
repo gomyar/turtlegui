@@ -1,4 +1,7 @@
 <html>
+<head>
+    <title>TurtleGUI - Popup Panel Example</title>
+</head>
 
 <script src="../turtlegui.js"></script>
 
@@ -41,7 +44,7 @@ var gui = {
 }
 
 document.addEventListener("DOMContentLoaded", function(){
-    // call turtlegui.reload() when the page loads 
+    // call turtlegui.reload() when the page loads
     turtlegui.reload();
 });
 
@@ -90,6 +93,9 @@ div.details span {
 </style>
 
 <body gui-keydown="gui.check_esc()">      <!-- attaching ESC event to body as form focus can be easily lost and returned to body -->
+
+    <h2>Popup Panel Example</h2>
+    <p>This example demonstrates creating modal popups using gui-show and CSS. Press ESC to close or Enter to save.</p>
 
     <div class="layer anchortop details">
         <span class="detail" gui-text="details.name"></span>

@@ -1,10 +1,9 @@
 <html>
+<head>
+    <title>TurtleGUI - Tree Structure Example</title>
+</head>
 
 <link rel="stylesheet" type="text/css" href="../turtlegui.css"/>
-<style>
-
-
-</style>
 
 <script src="../turtlegui.js"></script>
 
@@ -35,7 +34,7 @@ var filesystem = {files: {
 }}
 
 document.addEventListener("DOMContentLoaded", function(){
-    // call turtlegui.reload() when the page loads 
+    // call turtlegui.reload() when the page loads
     turtlegui.reload();
 });
 
@@ -43,7 +42,10 @@ document.addEventListener("DOMContentLoaded", function(){
 
 <body>
 
-<label>Filesystem:</label>
+<h2>Tree Structure Example</h2>
+<p>This example demonstrates using gui-tree and gui-node to display recursive tree structures like file systems.</p>
+
+<h3>Filesystem:</h3>
 
 <div gui-tree="filesystem" gui-nodeitem="directory">
     <div style="margin-left: 10px" gui-list="directory.files" gui-item="file" gui-key="filename">

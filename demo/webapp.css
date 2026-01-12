@@ -1,70 +1,138 @@
+/**
+ * Web Application Demo - Stylesheet
+ *
+ * This demo uses TurtleGUI's layered layout system (.layer class with anchors).
+ * The layout consists of:
+ * - Top menu bar (anchortop)
+ * - Left side menu (anchorleft)
+ * - Main content area (fullscreen with manual positioning)
+ * - Bottom notification area (anchorbottom)
+ * - Modal dialog overlay (fullscreen)
+ */
+
+/* ===== TOP MENU BAR ===== */
+/* Anchored to the top of the screen */
 
 .mainmenu {
-    border : 5px solid black;
-
-    padding : 10px;
-    width : 100%;
-    height : 60px;
-    background-color : lightblue;
-
-    font-size : 0px;
+    border: 5px solid black;
+    padding: 10px;
+    width: 100%;
+    height: 60px;  /* Height referenced by .maincontentarea positioning */
+    background-color: lightblue;
+    font-size: 0px;  /* Removes whitespace between inline-block items */
 }
 
 .menuitem {
-    width : 100px;
-    height : 100%;
-    background-color : blue;
-    display : inline-block;
+    width: 100px;
+    height: 100%;
+    background-color: blue;
+    display: inline-block;
+    font-size: 12px;  /* Restore font size for text */
+    margin-right: 10px;
+    padding: 5px;
+    cursor: pointer;
+}
 
-    font-size : 12px;
-    margin-right : 10px;
-    padding : 5px;
-}
 .menuitem:hover {
-    background-color : yellow;
+    background-color: yellow;
 }
+
+/* ===== LEFT SIDE MENU ===== */
+/* Anchored to the left side, positioned below top menu */
 
 .sidemenu {
-    position : absolute;
-    width : 200px;
-    top : 55px;
-    bottom : 0px;
-
-    border : 5px solid black;
-
-    padding : 10px;
- 
-    background-color : lightgreen;
-    display : block;
-    font-size : 0px;
+    position: absolute;
+    width: 200px;
+    top: 55px;  /* Positioned below mainmenu (60px height - 5px for visual adjustment) */
+    bottom: 0px;
+    border: 5px solid black;
+    padding: 10px;
+    background-color: lightgreen;
+    display: block;
+    font-size: 0px;  /* Removes whitespace between block items */
 }
 
 .sidemenuitem {
-    width : 100%;
-    height : 50px;
-    background-color : green;
-    display : block;
-    font-size : 14px;
-    margin-bottom : 10px;
-    padding : 5px;
-}
-.sidemenuitem:hover {
-    background-color : yellow;
+    width: 100%;
+    height: 50px;
+    background-color: green;
+    display: block;
+    font-size: 14px;  /* Restore font size for text */
+    margin-bottom: 10px;
+    padding: 5px;
+    cursor: pointer;
 }
 
+.sidemenuitem:hover {
+    background-color: yellow;
+}
+
+/* ===== MAIN CONTENT AREA ===== */
+/* Fills remaining space after accounting for top and left panels */
+
+.maincontentarea {
+    position: absolute;
+    top: 55px;    /* Must match sidemenu top position */
+    left: 195px;  /* Width of sidemenu (200px - 5px for visual adjustment) */
+    bottom: 0px;
+    right: 0px;
+    border: 5px solid black;
+    padding: 5px;
+}
+
+/* ===== NOTIFICATION POPUP ===== */
+/* Appears in bottom right corner, slides up when shown */
 
 .notify {
-    border : 5px solid black;
-    display : none;
-
-    height : 200px;
-    width : 200px;
-    background-color : lightyellow;
-    position : relative;
-    top : -220px;
-    left : -220px;
-    padding : 5px;
+    border: 5px solid black;
+    display: none;
+    height: 200px;
+    width: 200px;
+    background-color: lightyellow;
+    position: relative;
+    /* Negative positioning places notification outside viewport initially */
+    /* Animation slides it into view from below */
+    top: -220px;   /* -(height + 20px offset) */
+    left: -220px;  /* -(width + 20px offset) - positions at bottom right */
+    padding: 5px;
 }
+
+/* ===== MODAL DIALOG OVERLAY ===== */
+/* Fullscreen semi-transparent backdrop with centered popup */
+
+.popupfill {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.popup {
+    border: 5px solid black;
+    padding: 5px;
+    margin: auto;
+    width: 300px;
+    height: 200px;
+    background-color: lightblue;
+    margin-top: 15%;  /* Centers vertically with some top spacing */
+}
+
+.popup .close {
+    width: 100%;
+    display: inline-block;
+    text-align: right;
+}
+
+.popup .close div {
+    text-align: center;
+    width: 16px;
+    display: inline-block;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    background-color: white;
+    border: 1px solid black;
+}
+
+/* ===== ANIMATION HELPER CLASSES ===== */
+/* Used for fade transitions (currently unused, kept for reference) */
 
 .visible {
     opacity: 1;
@@ -74,48 +142,4 @@
 .notvisible {
     opacity: 0;
     transition: opacity .25s ease-in-out;
-}
-
-.popup {
-    border : 5px solid black;
-    padding : 5px;
-
-    margin : auto;
-    width : 300px;
-    height : 200px;
-    background-color : blue;
-
-    margin-top : 15%;
-}
-
-.popupfill{
-    background-color: rgba(255, 255, 255, 0.5);
-}
-
-.popup .close {
-    width : 100%;
-    display : inline-block;
-    text-align : right;
-}
-
-.popup .close div {
-    text-align : center;
-    width : 16px;
-    display : inline-block;
-    cursor : pointer;
-    font-size : 15px;
-    font-weight : bold;
-    background-color : white;
-    border : 1px solid black;
-}
-
-.maincontentarea {
-    position : absolute;
-    top : 55px;
-    left : 195px;
-    bottom : 0px;
-    right : 0px;
-
-    border : 5px solid black;
-    padding : 5px;
 }

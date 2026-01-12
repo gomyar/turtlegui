@@ -1,65 +1,87 @@
 <html>
-
-<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
-<script src="../turtlegui.js"></script>
-<script src="webapp.js"></script>
-
-<link rel="stylesheet" type="text/css" href="../turtlegui.css"/>
-<link rel="stylesheet" type="text/css" href="webapp.css"/>
-
-
-</style>
+<head>
+    <title>TurtleGUI - Web Application Demo</title>
+    <script src="../turtlegui.js"></script>
+    <script src="webapp.js"></script>
+    <link rel="stylesheet" type="text/css" href="../turtlegui.css"/>
+    <link rel="stylesheet" type="text/css" href="webapp.css"/>
+</head>
 
 <body>
 
+<!-- Main content area (fullscreen layer) -->
 <div class="layer fullscreen">
-    <div class="maincontentarea">
-        This is an example of a layered approach to gui design.
+    <div class="maincontentarea" gui-show="gui.tab == 'info'">
+        <h1>TurtleGUI Web Application Demo</h1>
+        <p>This demo showcases a layered approach to GUI design with multiple anchored panels:</p>
+        <ul>
+            <li><strong>Top Menu:</strong> Anchored to the top of the screen</li>
+            <li><strong>Side Menu:</strong> Anchored to the left side</li>
+            <li><strong>Main Content:</strong> Fills the remaining space</li>
+            <li><strong>Notifications:</strong> Appear at the bottom right</li>
+            <li><strong>Modal Dialogs:</strong> Center-screen popups with backdrop</li>
+        </ul>
+        <p>Click the options in the left menu to see notifications and dialogs in action.</p>
+    </div>
+    <div class="maincontentarea" gui-show="gui.tab == 'features'">
+        <h2>Features Demonstrated</h2>
+        <ul>
+            <li>CSS-based layered layout system</li>
+            <li>Custom animations using gui-onshow and gui-onhide</li>
+            <li>Modal dialogs with semi-transparent backdrop</li>
+            <li>Auto-dismissing notifications</li>
+            <li>Interactive menu system</li>
+        </ul>
     </div>
 </div>
+
+<!-- Top menu bar (anchored layer) -->
 <div class="layer anchortop">
     <div class="mainmenu">
-        <div class="menuitem">
-        menu 1
-        </div>
-        <div class="menuitem">
-        menu 2
-        </div>
+        <div class="menuitem" gui-click="gui.switch_tab('info')">Info</div>
+        <div class="menuitem" gui-click="gui.switch_tab('features')">Features</div>
     </div>
 </div>
+
+<!-- Left side menu (anchored layer) -->
 <div class="layer anchorleft">
     <div class="sidemenu">
         <div class="sidemenuitem">
-        This menu panel is anchored on the left
+            Side Menu Panel
         </div>
-        <div class="sidemenuitem"
-             gui-click="gui.open_dialog()">
-        Click to show dialog popup
+        <div class="sidemenuitem" gui-click="gui.open_dialog()">
+            Show Dialog Popup
         </div>
-        <div class="sidemenuitem"
-             gui-click="gui.open_notification()">
-        Click to show notification
+        <div class="sidemenuitem" gui-click="gui.open_notification()">
+            Show Notification
         </div>
     </div>
 </div>
+
+<!-- Bottom right notification (anchored layer) -->
 <div class="layer anchorbottom">
     <div class="notify"
          gui-show="gui.show_notification"
-         gui-onshow="gui.scroll_vertical_in(200)"
-         gui-onhide="gui.fade_out()">
-        This notification is anchored to the bottom right of the screen
+         gui-onshow="gui.scroll_vertical_in(this, 200)"
+         gui-onhide="gui.fade_out(this)">
+        <strong>Notification</strong>
+        <p>This notification appears in the bottom right and auto-dismisses after 3 seconds.</p>
     </div>
 </div>
+
+<!-- Centered modal dialog (fullscreen layer with backdrop) -->
 <div class="layer fullscreen popupfill"
      gui-show="gui.show_dialog"
-     gui-onshow="gui.fade_in()">
+     gui-onshow="gui.fade_in(this)">
     <div class="popup">
-        <div class="close"
-             gui-click="gui.close_dialog()">
+        <div class="close" gui-click="gui.close_dialog()">
             <div>&times;</div>
         </div>
-        This notification is centered
+        <h3>Modal Dialog</h3>
+        <p>This is a centered modal dialog with a semi-transparent backdrop.</p>
+        <p>Click the &times; button to close.</p>
     </div>
 </div>
 
 </body>
+</html>

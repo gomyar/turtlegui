@@ -1,4 +1,7 @@
 <html>
+<head>
+    <title>TurtleGUI - Show/Hide Panels Example</title>
+</head>
 
 <link rel="stylesheet" type="text/css" href="../turtlegui.css"/>
 <style>
@@ -42,13 +45,16 @@ var gui = {
 }
 
 document.addEventListener("DOMContentLoaded", function(){
-    // call turtlegui.reload() when the page loads 
+    // call turtlegui.reload() when the page loads
     turtlegui.reload();
 });
 
 </script>
 
 <body>
+    <h2>Show/Hide Panels Example</h2>
+    <p>This example demonstrates using gui-show to display/hide different panels based on user selection.</p>
+
     <div class="fullscreen">
         <div class="anchortop tabs">
             <div class="tab" gui-click="gui.set_panel('first')">First</div>

@@ -11,35 +11,37 @@
 
 <!-- Main content area (fullscreen layer) -->
 <div class="layer fullscreen">
-    <div class="maincontentarea" gui-show="gui.tab == 'info'">
-        <h1>TurtleGUI Web Application Demo</h1>
-        <p>This demo showcases a layered approach to GUI design with multiple anchored panels:</p>
-        <ul>
-            <li><strong>Top Menu:</strong> Anchored to the top of the screen</li>
-            <li><strong>Side Menu:</strong> Anchored to the left side</li>
-            <li><strong>Main Content:</strong> Fills the remaining space</li>
-            <li><strong>Notifications:</strong> Appear at the bottom right</li>
-            <li><strong>Modal Dialogs:</strong> Center-screen popups with backdrop</li>
-        </ul>
-        <p>Click the options in the left menu to see notifications and dialogs in action.</p>
-    </div>
-    <div class="maincontentarea" gui-show="gui.tab == 'features'">
-        <h2>Features Demonstrated</h2>
-        <ul>
-            <li>CSS-based layered layout system</li>
-            <li>Custom animations using gui-onshow and gui-onhide</li>
-            <li>Modal dialogs with semi-transparent backdrop</li>
-            <li>Auto-dismissing notifications</li>
-            <li>Interactive menu system</li>
-        </ul>
+    <div class="maincontentarea" gui-switch="gui.tab">
+        <div gui-case="'info'">
+            <h1>TurtleGUI Web Application Demo</h1>
+            <p>This demo showcases a layered approach to GUI design with multiple anchored panels:</p>
+            <ul>
+                <li><strong>Top Menu:</strong> Anchored to the top of the screen</li>
+                <li><strong>Side Menu:</strong> Anchored to the left side</li>
+                <li><strong>Main Content:</strong> Fills the remaining space</li>
+                <li><strong>Notifications:</strong> Appear at the bottom right</li>
+                <li><strong>Modal Dialogs:</strong> Center-screen popups with backdrop</li>
+            </ul>
+            <p>Click the options in the left menu to see notifications and dialogs in action.</p>
+        </div>
+        <div gui-case="'features'">
+            <h2>Features Demonstrated</h2>
+            <ul>
+                <li>CSS-based layered layout system</li>
+                <li>Custom animations using gui-onshow and gui-onhide</li>
+                <li>Modal dialogs with semi-transparent backdrop</li>
+                <li>Auto-dismissing notifications</li>
+                <li>Interactive menu system</li>
+            </ul>
+        </div>
     </div>
 </div>
 
 <!-- Top menu bar (anchored layer) -->
 <div class="layer anchortop">
     <div class="mainmenu">
-        <div class="menuitem" gui-click="gui.switch_tab('info')">Info</div>
-        <div class="menuitem" gui-click="gui.switch_tab('features')">Features</div>
+        <div class="menuitem" gui-class="(gui.tab == 'info') && 'active'" gui-click="gui.switch_tab('info')">Info</div>
+        <div class="menuitem" gui-class="(gui.tab == 'features') && 'active'" gui-click="gui.switch_tab('features')">Features</div>
     </div>
 </div>
 

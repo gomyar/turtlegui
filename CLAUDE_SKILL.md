@@ -1,6 +1,6 @@
 ---
 name: turtlegui
-description: Use this skill when working with projects that use the TurtleGUI library, indicated by HTML files containing gui-* directive attributes (gui-text, gui-list, gui-val, gui-show, gui-click, etc.), references to turtlegui.js, or when the user explicitly mentions TurtleGUI or needs help with declarative HTML data binding using this library.
+description: Use this skill when working with projects that use the TurtleGUI library, indicated by HTML files containing gui-* directive attributes (gui-text, gui-list, gui-val, gui-show, gui-click, etc.), references to turtlegui.js, or when the user explicitly mentions TurtleGUI or needs help with declarative HTML data binding using this library. Can generate API client code from OpenAPI specs, coordinate with Bootstrap/CSS frameworks, and build complete web applications using declarative HTML data binding. Accepts OpenAPI specs, REST API descriptions, GraphQL schemas, and any JSON data for integration.
 ---
 
 # TurtleGUI Assistant
@@ -85,8 +85,6 @@ function increment() {
 }
 ```
 
-For async operations, use `turtlegui.deferred_reload()`.
-
 ## Understanding gui-list (Critical)
 
 The `gui-list` directive clones **child elements**, not the parent:
@@ -143,3 +141,73 @@ function getGreeting() {
 - **List not rendering**: Verify `gui-list` is on the parent element
 - **Changes not appearing**: Confirm `turtlegui.reload()` is called after updates
 - **Expression errors**: No ternary operators or control statements in directives - use functions for ALL conditional logic
+
+## Working with Other Skills
+
+TurtleGUI skill can coordinate with other skills to build complete web applications:
+
+### Accepting API Specifications
+
+When you have an OpenAPI specification (from OpenAPI skill) or any API description:
+
+1. **Tell me about the API**: Share the spec or describe the endpoints
+2. **I'll generate**: TurtleGUI-compatible API client code
+3. **Pattern used**: Centralized `api` object with methods per endpoint
+4. **State management**: All API data in `api.data` object
+5. **Loading/Error handling**: Built-in states for UI feedback
+
+**Example workflow:**
+```
+User: "I have this OpenAPI spec for a user management API"
+Assistant: [Generates api.getUsers(), api.createUser(), etc.]
+```
+
+### Coordinating with Layout Skills
+
+When working with Bootstrap or other CSS frameworks:
+
+1. **Styling is compatible**: TurtleGUI directives work on any HTML
+2. **Classes combine**: `class="btn btn-primary"` + `gui-click="action()"`
+3. **Structure preserved**: Bootstrap grid + TurtleGUI data binding
+4. **No conflicts**: Framework classes and gui-* attributes coexist
+
+**Example: Bootstrap modal with TurtleGUI control**
+```html
+<div class="modal" gui-show="gui.showModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 gui-text="modal.title"></h5>
+                <button gui-click="gui.closeModal()">&times;</button>
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+### Input Formats Accepted
+
+This skill works with:
+
+- **OpenAPI 3.0+ specs**: Full or partial specifications
+- **REST API descriptions**: Endpoints, methods, authentication
+- **GraphQL schemas**: Queries and mutations
+- **WebSocket specs**: Real-time data patterns
+- **Any structured data**: JSON arrays/objects for display
+
+Just provide the spec in the conversation - no file uploads needed.
+
+## API Integration Patterns
+
+### Standard API Client Structure
+
+When generating API client code, use as succinct code as possible. APIs may be accessed using fetch unless otherwise stated.
+
+**Main points:**
+- API client with OpenAPI-style endpoints
+- Loading and error state management
+- CRUD operations (Create, Read)
+- Bootstrap styling with TurtleGUI directives
+- Layered architecture (api/app/gui)
+- Modal dialog interaction
+- List rendering with computed values

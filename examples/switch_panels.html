@@ -1,4 +1,7 @@
 <html>
+<head>
+    <title>TurtleGUI - Switch Panels Example</title>
+</head>
 
 <link rel="stylesheet" type="text/css" href="../turtlegui.css"/>
 <style>
@@ -45,13 +48,16 @@ var gui = {
 }
 
 document.addEventListener("DOMContentLoaded", function(){
-    // call turtlegui.reload() when the page loads 
+    // call turtlegui.reload() when the page loads
     turtlegui.reload();
 });
 
 </script>
 
 <body>
+    <h2>Switch Panels Example</h2>
+    <p>This example demonstrates using gui-switch and gui-case directives as an alternative to multiple gui-show directives.</p>
+
     <div class="fullscreen">
         <div class="anchortop tabs">
             <div class="tab" gui-click="gui.set_panel('first')">First</div>

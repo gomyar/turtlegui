@@ -1,0 +1,6 @@
+{
+  "name": "turtlegui",
+  "description": "TurtleGUI - lightweight HTML/JS library using declarative gui-* directives for reactive UI",
+  "version": "1.0.0",
+  "repository": "https://github.com/gomyar/turtlegui"
+}

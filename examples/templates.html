@@ -1,4 +1,7 @@
 <html>
+<head>
+    <title>TurtleGUI - Templates Example</title>
+</head>
 
 <link rel="stylesheet" type="text/css" href="../turtlegui.css"/>
 <script src="../turtlegui.js"></script>
@@ -8,11 +11,12 @@
 // Controller code / state
 var data = {
     first_param: 'First Param',
-    second_param: 'Second Param'
+    second_param: 'Second Param',
+    list: ['Item One', 'Item Two', 'Item Three']
 }
 
 document.addEventListener("DOMContentLoaded", function(){
-    // call turtlegui.reload() when the page loads 
+    // call turtlegui.reload() when the page loads
     turtlegui.reload();
 });
 
@@ -20,18 +24,21 @@ document.addEventListener("DOMContentLoaded", function(){
 
 <body>
 
-<label>Basic include:</label>
+<h2>Templates Example</h2>
+<p>This example demonstrates using gui-include to load HTML snippets from external files.</p>
+
+<h3>Basic include:</h3>
 
 <div gui-include="templates_include_one.html"></div>
 
 <hr/>
-<label>Includes with parameters:</label>
+<h3>Includes with parameters:</h3>
 
 <div gui-include="templates_include_two.html" gui-include-params="param=data.first_param"></div>
 <div gui-include="templates_include_two.html" gui-include-params="param=data.second_param"></div>
 
 <hr/>
-<label>Parameters are scoped, like everything else:</label>
+<h3>Parameters are scoped (combined with gui-list):</h3>
 
 <div gui-list="data.list" gui-item="param_item">
     <div gui-include="templates_include_two.html" gui-include-params="param=param_item"></div>

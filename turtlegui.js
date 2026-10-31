@@ -797,16 +797,6 @@ turtlegui.reload = function(elem, context) {
 }
 
 
-turtlegui.deferred_reload = function(elem, callback) {
-    setTimeout(function() {
-        turtlegui.reload(elem);
-        if (callback) {
-            callback();
-        }
-    }, 0);
-}
-
-
 turtlegui._show_element = function(elem) {
     if (!turtlegui.retrieve(elem, 'data-elem-orig-display')) {
         turtlegui.store(elem, 'data-elem-orig-display', getComputedStyle(elem, null).display);
